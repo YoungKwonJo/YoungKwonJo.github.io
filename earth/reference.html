@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지구 기후 조건별 바람·온도 변화 레퍼런스</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#080e1e;color:#ccd;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6}
+.container{max-width:1400px;margin:0 auto;padding:16px}
+h1{text-align:center;padding:20px;font-size:1.6em;border-bottom:1px solid #1a2a4a;margin-bottom:20px}
+h1 small{display:block;color:#5a8abf;font-size:.55em;font-weight:normal;margin-top:4px}
+h2{color:#5af;font-size:1.15em;margin:28px 0 12px;padding:8px 12px;background:#0c1530;border-left:3px solid #5af;border-radius:0 6px 6px 0}
+h3{color:#4ecdc4;font-size:.95em;margin:18px 0 8px;padding-left:4px}
+p,.note{font-size:.88em;color:#8899bb;margin:6px 0 12px;padding-left:4px}
+.note{background:#0c1530;border:1px solid #152040;border-radius:6px;padding:10px 14px;font-size:.82em}
+
+table{width:100%;border-collapse:collapse;margin:8px 0 18px;font-size:.82em}
+th{background:#0e1835;color:#5a9acf;padding:8px 10px;text-align:center;border:1px solid #1a2a4a;font-weight:600;white-space:nowrap}
+td{padding:6px 10px;border:1px solid #152040;text-align:center;vertical-align:middle}
+tr:nth-child(even) td{background:#0a1225}
+tr:hover td{background:#0e1835}
+.left{text-align:left}
+.val{font-family:'Courier New',monospace;color:#fff;font-weight:600}
+.unit{color:#5a7a9a;font-size:.9em}
+.wind-dir{font-size:1.1em}
+.hot{color:#ff6b6b}
+.warm{color:#ffaa55}
+.mild{color:#ffe66d}
+.cool{color:#66cccc}
+.cold{color:#66aaff}
+.frozen{color:#aaccff}
+.easterly{color:#ff9966}
+.westerly{color:#66bbff}
+.weak{color:#888}
+.arrow{font-size:1.2em;display:inline-block;margin:0 2px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.card{background:#0a1225;border:1px solid #152040;border-radius:8px;padding:14px;margin:6px 0}
+.card h4{color:#ffe66d;font-size:.88em;margin-bottom:8px}
+.card p{margin:4px 0;font-size:.82em}
+
+.bar-chart{display:flex;align-items:flex-end;gap:2px;height:60px;margin:8px 0}
+.bar{background:linear-gradient(to top,#1a3a6a,#5af);border-radius:2px 2px 0 0;min-width:8px;flex:1;position:relative;transition:.3s}
+.bar span{position:absolute;bottom:-14px;font-size:7px;color:#5a7a9a;text-align:center;width:100%;left:0}
+
+.formula{background:#0c1530;border:1px solid #1a2a4a;border-radius:6px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82em;color:#5af;margin:8px 0;overflow-x:auto}
+
+.toc{background:#0c1530;border:1px solid #152040;border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.toc a{color:#5af;text-decoration:none;display:block;padding:3px 0;font-size:.88em}
+.toc a:hover{color:#8cf;text-decoration:underline}
+.toc ol{padding-left:20px}
+.toc li{margin:2px 0}
+
+.highlight{background:#1a2a40;border-radius:4px;padding:2px 6px;color:#ffe66d}
+.tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:.75em;margin:0 2px}
+.tag-hadley{background:#2a1a0a;color:#ff9944;border:1px solid #553311}
+.tag-ferrel{background:#0a1a2a;color:#44aaff;border:1px solid #113355}
+.tag-polar{background:#1a1a2a;color:#aabbff;border:1px solid #334455}
+
+canvas{display:block;margin:8px auto}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>지구 기후 조건별 바람·온도 변화 레퍼런스
+<small>위도 · 황도경사각 · 이심률 · 계절 · 육지/해양 조건에 따른 체계적 정리</small>
+</h1>
+
+<div class="toc">
+<strong>목차</strong>
+<ol>
+<li><a href="#s1">위도별 대기순환 · 바람 · 온도</a></li>
+<li><a href="#s2">황도경사각(Obliquity) 변화에 따른 영향</a></li>
+<li><a href="#s3">궤도 이심률(Eccentricity) 변화에 따른 영향</a></li>
+<li><a href="#s4">계절(태양 적위) 변화에 따른 영향</a></li>
+<li><a href="#s5">육지 vs 해양 차이</a></li>
+<li><a href="#s6">세차운동(Precession)에 따른 영향</a></li>
+<li><a href="#s7">복합 효과 — 밀란코비치 주기와 빙하기</a></li>
+<li><a href="#s8">주요 수치 공식 요약</a></li>
+</ol>
+</div>
+
+<!-- ============================================ -->
+<h2 id="s1">1. 위도별 대기순환 · 바람 · 온도</h2>
+<!-- ============================================ -->
+
+<p>지구의 대기순환은 3개의 순환 셀(해들리·페렐·극순환)로 구성되며, 위도에 따라 바람의 방향·세기와 평균 기온이 체계적으로 변합니다.</p>
+
+<h3>1-1. 위도대별 종합 정리 (연평균, 현재 황도경사각 23.44°)</h3>
+<table>
+<tr>
+  <th>위도대</th>
+  <th>순환 셀</th>
+  <th>지표풍 이름</th>
+  <th>풍향</th>
+  <th>평균 풍속</th>
+  <th>연평균 기온</th>
+  <th>일사량 (W/m²)</th>
+  <th>특성</th>
+</tr>
+<tr>
+  <td class="val">90°N – 80°N</td>
+  <td><span class="tag tag-polar">극순환</span></td>
+  <td>극동풍</td>
+  <td class="wind-dir">← NE</td>
+  <td class="val">2–4 <span class="unit">m/s</span></td>
+  <td class="frozen val">-25 ~ -15°C</td>
+  <td class="val">0–100</td>
+  <td class="left">극야/백야, 빙모 형성, 극소량 강수</td>
+</tr>
+<tr>
+  <td class="val">80°N – 70°N</td>
+  <td><span class="tag tag-polar">극순환</span></td>
+  <td>극동풍</td>
+  <td class="wind-dir">← NE</td>
+  <td class="val">3–5 <span class="unit">m/s</span></td>
+  <td class="frozen val">-20 ~ -8°C</td>
+  <td class="val">50–180</td>
+  <td class="left">툰드라, 영구동토층</td>
+</tr>
+<tr>
+  <td class="val">70°N – 60°N</td>
+  <td><span class="tag tag-polar">극순환</span> / <span class="tag tag-ferrel">페렐</span></td>
+  <td>극동풍→편서풍 전이</td>
+  <td class="wind-dir">←→ 변동</td>
+  <td class="val">4–7 <span class="unit">m/s</span></td>
+  <td class="cold val">-10 ~ 0°C</td>
+  <td class="val">100–250</td>
+  <td class="left"><b>극전선대</b>, 저기압 활발, 폭풍 경로</td>
+</tr>
+<tr>
+  <td class="val">60°N – 50°N</td>
+  <td><span class="tag tag-ferrel">페렐순환</span></td>
+  <td>편서풍</td>
+  <td class="wind-dir">→ SW</td>
+  <td class="val">6–10 <span class="unit">m/s</span></td>
+  <td class="cool val">0 ~ 10°C</td>
+  <td class="val">150–300</td>
+  <td class="left">온대 저기압대, 제트기류 (~200hPa, 30–50m/s)</td>
+</tr>
+<tr>
+  <td class="val">50°N – 40°N</td>
+  <td><span class="tag tag-ferrel">페렐순환</span></td>
+  <td>편서풍</td>
+  <td class="wind-dir">→ SW</td>
+  <td class="val">5–9 <span class="unit">m/s</span></td>
+  <td class="cool val">5 ~ 15°C</td>
+  <td class="val">200–350</td>
+  <td class="left">온대 기후, 4계절 뚜렷</td>
+</tr>
+<tr>
+  <td class="val">40°N – 30°N</td>
+  <td><span class="tag tag-ferrel">페렐</span> / <span class="tag tag-hadley">해들리</span></td>
+  <td>편서풍→약풍 전이</td>
+  <td class="wind-dir">→ 약화</td>
+  <td class="val">3–6 <span class="unit">m/s</span></td>
+  <td class="mild val">10 ~ 20°C</td>
+  <td class="val">280–400</td>
+  <td class="left"><b>아열대 고압대</b> (Horse Latitudes), 맑은 날씨, 사막 형성대</td>
+</tr>
+<tr>
+  <td class="val">30°N – 20°N</td>
+  <td><span class="tag tag-hadley">해들리순환</span></td>
+  <td>북동 무역풍</td>
+  <td class="wind-dir">← NE</td>
+  <td class="val">5–8 <span class="unit">m/s</span></td>
+  <td class="warm val">20 ~ 28°C</td>
+  <td class="val">350–430</td>
+  <td class="left">안정된 동풍, 사하라·아라비아 사막</td>
+</tr>
+<tr>
+  <td class="val">20°N – 10°N</td>
+  <td><span class="tag tag-hadley">해들리순환</span></td>
+  <td>북동 무역풍</td>
+  <td class="wind-dir">← NE</td>
+  <td class="val">5–7 <span class="unit">m/s</span></td>
+  <td class="warm val">25 ~ 30°C</td>
+  <td class="val">380–450</td>
+  <td class="left">열대, 몬순 영향권</td>
+</tr>
+<tr>
+  <td class="val">10°N – 0°</td>
+  <td><span class="tag tag-hadley">해들리순환</span></td>
+  <td>약풍 / 돌풍</td>
+  <td class="wind-dir">↑ 상승</td>
+  <td class="val">1–4 <span class="unit">m/s</span></td>
+  <td class="hot val">26 ~ 32°C</td>
+  <td class="val">400–460</td>
+  <td class="left"><b>ITCZ (열대수렴대)</b>, 적도 무풍대, 강한 대류·호우</td>
+</tr>
+<tr>
+  <td class="val">0° – 10°S</td>
+  <td><span class="tag tag-hadley">해들리순환</span></td>
+  <td>약풍 / 돌풍</td>
+  <td class="wind-dir">↑ 상승</td>
+  <td class="val">1–4 <span class="unit">m/s</span></td>
+  <td class="hot val">26 ~ 32°C</td>
+  <td class="val">400–460</td>
+  <td class="left">ITCZ, 열대 우림대</td>
+</tr>
+<tr>
+  <td class="val">10°S – 20°S</td>
+  <td><span class="tag tag-hadley">해들리순환</span></td>
+  <td>남동 무역풍</td>
+  <td class="wind-dir">← SE</td>
+  <td class="val">5–7 <span class="unit">m/s</span></td>
+  <td class="warm val">25 ~ 30°C</td>
+  <td class="val">380–450</td>
+  <td class="left">열대, 무역풍 안정</td>
+</tr>
+<tr>
+  <td class="val">20°S – 30°S</td>
+  <td><span class="tag tag-hadley">해들리순환</span></td>
+  <td>남동 무역풍</td>
+  <td class="wind-dir">← SE</td>
+  <td class="val">5–8 <span class="unit">m/s</span></td>
+  <td class="warm val">20 ~ 28°C</td>
+  <td class="val">350–430</td>
+  <td class="left">아열대 사막대 (호주 내륙, 칼라하리)</td>
+</tr>
+<tr>
+  <td class="val">30°S – 40°S</td>
+  <td><span class="tag tag-ferrel">페렐</span> / <span class="tag tag-hadley">해들리</span></td>
+  <td>편서풍 시작</td>
+  <td class="wind-dir">→ NW</td>
+  <td class="val">5–8 <span class="unit">m/s</span></td>
+  <td class="mild val">12 ~ 20°C</td>
+  <td class="val">280–400</td>
+  <td class="left">아열대 고압대 → 편서풍 전이</td>
+</tr>
+<tr>
+  <td class="val">40°S – 50°S</td>
+  <td><span class="tag tag-ferrel">페렐순환</span></td>
+  <td>편서풍 (Roaring Forties)</td>
+  <td class="wind-dir">→ NW</td>
+  <td class="val">8–12 <span class="unit">m/s</span></td>
+  <td class="cool val">5 ~ 12°C</td>
+  <td class="val">200–320</td>
+  <td class="left"><b>폭풍의 40도</b>, 남반구 해양 지배, 강풍</td>
+</tr>
+<tr>
+  <td class="val">50°S – 60°S</td>
+  <td><span class="tag tag-ferrel">페렐순환</span></td>
+  <td>편서풍 (Furious Fifties)</td>
+  <td class="wind-dir">→ NW</td>
+  <td class="val">9–14 <span class="unit">m/s</span></td>
+  <td class="cold val">0 ~ 5°C</td>
+  <td class="val">120–250</td>
+  <td class="left"><b>광포한 50도</b>, 지구상 가장 강한 지속 바람</td>
+</tr>
+<tr>
+  <td class="val">60°S – 70°S</td>
+  <td><span class="tag tag-polar">극순환</span></td>
+  <td>극동풍</td>
+  <td class="wind-dir">← SE</td>
+  <td class="val">5–8 <span class="unit">m/s</span></td>
+  <td class="frozen val">-15 ~ -5°C</td>
+  <td class="val">60–180</td>
+  <td class="left">남극 전선대, 유빙</td>
+</tr>
+<tr>
+  <td class="val">70°S – 90°S</td>
+  <td><span class="tag tag-polar">극순환</span></td>
+  <td>극동풍 (카타바틱)</td>
+  <td class="wind-dir">← SE</td>
+  <td class="val">5–20 <span class="unit">m/s</span></td>
+  <td class="frozen val">-55 ~ -20°C</td>
+  <td class="val">0–120</td>
+  <td class="left"><b>남극 활강풍</b> (최대 90m/s), 극한 냉기</td>
+</tr>
+</table>
+
+<h3>1-2. 대기순환 셀 구조 요약</h3>
+<div class="grid3">
+<div class="card">
+  <h4>해들리 순환 (0° – 30°)</h4>
+  <p><b>구동력:</b> 적도 가열 → 직접 열순환</p>
+  <p><b>상승:</b> 적도 (ITCZ) — 강한 대류</p>
+  <p><b>하강:</b> 위도 ~30° — 아열대 고압대</p>
+  <p><b>지표풍:</b> 무역풍 (NE/SE) — 5~8 m/s</p>
+  <p><b>상층풍:</b> 반무역풍 (SW/NW)</p>
+  <p><b>온도 범위:</b> <span class="hot">25~32°C</span> (해면)</p>
+  <p><b>에너지:</b> 지구 남북 열수송의 ~60% 담당</p>
+</div>
+<div class="card">
+  <h4>페렐 순환 (30° – 60°)</h4>
+  <p><b>구동력:</b> 간접 순환 (에디·편서풍 파동)</p>
+  <p><b>상승:</b> 위도 ~60° — 극전선대</p>
+  <p><b>하강:</b> 위도 ~30° — 아열대 고압대</p>
+  <p><b>지표풍:</b> 편서풍 (SW/NW) — 6~14 m/s</p>
+  <p><b>상층풍:</b> 제트기류 (30~50 m/s, 200hPa)</p>
+  <p><b>온도 범위:</b> <span class="cool">0~20°C</span></p>
+  <p><b>특성:</b> 가장 큰 계절 변화폭</p>
+</div>
+<div class="card">
+  <h4>극순환 (60° – 90°)</h4>
+  <p><b>구동력:</b> 극지 냉각 → 직접 열순환</p>
+  <p><b>상승:</b> 위도 ~60° — 극전선대</p>
+  <p><b>하강:</b> 극점 — 극고압</p>
+  <p><b>지표풍:</b> 극동풍 (NE/SE) — 2~8 m/s</p>
+  <p><b>상층풍:</b> 약한 서풍</p>
+  <p><b>온도 범위:</b> <span class="frozen">-55~0°C</span></p>
+  <p><b>특성:</b> 남극 카타바틱풍 (활강풍) 최대 90 m/s</p>
+</div>
+</div>
+
+<h3>1-3. 위도별 온도 경도 (Meridional Temperature Gradient)</h3>
+<canvas id="cvTempProfile" width="800" height="200"></canvas>
+
+<!-- ============================================ -->
+<h2 id="s2">2. 황도경사각(Obliquity) 변화에 따른 영향</h2>
+<!-- ============================================ -->
+
+<p>황도경사각은 약 41,000년 주기로 22.1°~24.5° 사이에서 변합니다. 이 변화는 계절적 극단값과 고위도 기후에 큰 영향을 미칩니다.</p>
+
+<h3>2-1. 황도경사각별 주요 기후 변수</h3>
+<table>
+<tr>
+  <th rowspan="2">위도대</th>
+  <th colspan="3">황도경사각 22.1° (최소)</th>
+  <th colspan="3">황도경사각 23.44° (현재)</th>
+  <th colspan="3">황도경사각 24.5° (최대)</th>
+</tr>
+<tr>
+  <th>여름 기온</th><th>겨울 기온</th><th>연교차</th>
+  <th>여름 기온</th><th>겨울 기온</th><th>연교차</th>
+  <th>여름 기온</th><th>겨울 기온</th><th>연교차</th>
+</tr>
+<tr>
+  <td class="val">적도 (0°)</td>
+  <td class="hot val">+0.5°C</td><td class="hot val">+0.5°C</td><td class="val weak">~0°C</td>
+  <td class="hot val">기준</td><td class="hot val">기준</td><td class="val weak">~2°C</td>
+  <td class="hot val">-0.3°C</td><td class="hot val">-0.3°C</td><td class="val weak">~0°C</td>
+</tr>
+<tr>
+  <td class="val">중위도 (45°)</td>
+  <td class="mild val">-2°C</td><td class="cool val">+2°C</td><td class="val">22°C</td>
+  <td class="mild val">기준</td><td class="cool val">기준</td><td class="val">26°C</td>
+  <td class="warm val">+2°C</td><td class="cold val">-2°C</td><td class="val">30°C</td>
+</tr>
+<tr>
+  <td class="val">고위도 (65°)</td>
+  <td class="cool val">-4°C</td><td class="cold val">+3°C</td><td class="val">18°C</td>
+  <td class="cool val">기준</td><td class="cold val">기준</td><td class="val">25°C</td>
+  <td class="mild val">+5°C</td><td class="frozen val">-4°C</td><td class="val">34°C</td>
+</tr>
+<tr>
+  <td class="val">극지 (80°)</td>
+  <td class="cold val">-6°C</td><td class="frozen val">+4°C</td><td class="val">14°C</td>
+  <td class="cold val">기준</td><td class="frozen val">기준</td><td class="val">22°C</td>
+  <td class="cool val">+7°C</td><td class="frozen val">-5°C</td><td class="val">34°C</td>
+</tr>
+</table>
+
+<div class="note">
+  <b>핵심 원리:</b> 경사각 ↑ → 고위도 여름 일사량 ↑, 겨울 일사량 ↓ → 계절차 증가<br>
+  <b>빙하기 연관:</b> 경사각이 <b>작을 때</b> 고위도 여름이 서늘해져 빙하가 녹지 않고 축적 → 빙하기 촉진<br>
+  <b>적도 효과:</b> 경사각 ↑ → 적도 연평균 일사량 미세 감소 (약 -0.5 W/m²/°)
+</div>
+
+<h3>2-2. 황도경사각별 65°N 하지 일사량</h3>
+<table>
+<tr>
+  <th>경사각</th>
+  <th>65°N 하지 일사량</th>
+  <th>현재 대비</th>
+  <th>해들리 셀 폭</th>
+  <th>ITCZ 이동 범위</th>
+  <th>극전선 위치</th>
+</tr>
+<tr>
+  <td class="val">22.0°</td>
+  <td class="val">~462 W/m²</td>
+  <td class="val cold">-12 W/m²</td>
+  <td class="val">~27°</td>
+  <td class="val">±13°</td>
+  <td class="val">~58°</td>
+</tr>
+<tr>
+  <td class="val">22.5°</td>
+  <td class="val">~466 W/m²</td>
+  <td class="val cold">-8 W/m²</td>
+  <td class="val">~28°</td>
+  <td class="val">±14°</td>
+  <td class="val">~59°</td>
+</tr>
+<tr>
+  <td class="val">23.0°</td>
+  <td class="val">~470 W/m²</td>
+  <td class="val cold">-4 W/m²</td>
+  <td class="val">~29°</td>
+  <td class="val">±14.5°</td>
+  <td class="val">~59.5°</td>
+</tr>
+<tr>
+  <td class="val" style="background:#1a2a3a">23.44°</td>
+  <td class="val" style="background:#1a2a3a">~474 W/m²</td>
+  <td class="val" style="background:#1a2a3a">기준</td>
+  <td class="val" style="background:#1a2a3a">~30°</td>
+  <td class="val" style="background:#1a2a3a">±15°</td>
+  <td class="val" style="background:#1a2a3a">~60°</td>
+</tr>
+<tr>
+  <td class="val">24.0°</td>
+  <td class="val">~478 W/m²</td>
+  <td class="val warm">+4 W/m²</td>
+  <td class="val">~31°</td>
+  <td class="val">±15.5°</td>
+  <td class="val">~61°</td>
+</tr>
+<tr>
+  <td class="val">24.5°</td>
+  <td class="val">~482 W/m²</td>
+  <td class="val warm">+8 W/m²</td>
+  <td class="val">~32°</td>
+  <td class="val">±16°</td>
+  <td class="val">~62°</td>
+</tr>
+</table>
+
+<h3>2-3. 황도경사각 변화가 바람 패턴에 미치는 영향</h3>
+<div class="grid2">
+<div class="card">
+  <h4>경사각 최소 (22.1°) → 약한 계절</h4>
+  <p><b>무역풍:</b> 약간 강화 (ITCZ 이동 범위 축소 → 안정)</p>
+  <p><b>편서풍:</b> 약간 약화 (남-북 온도차 감소)</p>
+  <p><b>몬순:</b> 약화 (대륙-해양 온도차 감소)</p>
+  <p><b>극소용돌이:</b> 약화 (극지 덜 추움)</p>
+  <p><b>제트기류:</b> 약화, 적도쪽 이동</p>
+</div>
+<div class="card">
+  <h4>경사각 최대 (24.5°) → 강한 계절</h4>
+  <p><b>무역풍:</b> 계절 변동 증가 (ITCZ 이동 범위 확대)</p>
+  <p><b>편서풍:</b> 겨울에 강화 (남-북 온도차 증가)</p>
+  <p><b>몬순:</b> 강화 (대륙-해양 온도차 증가)</p>
+  <p><b>극소용돌이:</b> 겨울에 강화 (극지 더 추움)</p>
+  <p><b>제트기류:</b> 겨울에 강화·극쪽 이동, 여름에 약화</p>
+</div>
+</div>
+
+<!-- ============================================ -->
+<h2 id="s3">3. 궤도 이심률(Eccentricity) 변화에 따른 영향</h2>
+<!-- ============================================ -->
+
+<p>궤도 이심률은 약 100,000년 및 413,000년 주기로 0.005~0.058 사이에서 변합니다. 이는 근일점과 원일점에서의 일사량 차이를 결정합니다.</p>
+
+<h3>3-1. 이심률별 일사량 변동</h3>
+<table>
+<tr>
+  <th>이심률 (e)</th>
+  <th>궤도 모양</th>
+  <th>근일점 거리 (AU)</th>
+  <th>원일점 거리 (AU)</th>
+  <th>근일점 일사량</th>
+  <th>원일점 일사량</th>
+  <th>일사량 차이</th>
+  <th>연평균 변화</th>
+</tr>
+<tr>
+  <td class="val">0.000</td>
+  <td>완전한 원</td>
+  <td class="val">1.000</td>
+  <td class="val">1.000</td>
+  <td class="val">1361 W/m²</td>
+  <td class="val">1361 W/m²</td>
+  <td class="val">0%</td>
+  <td class="val">기준</td>
+</tr>
+<tr>
+  <td class="val">0.005</td>
+  <td>거의 원</td>
+  <td class="val">0.995</td>
+  <td class="val">1.005</td>
+  <td class="val">1375 W/m²</td>
+  <td class="val">1348 W/m²</td>
+  <td class="val">2.0%</td>
+  <td class="val">+0.003%</td>
+</tr>
+<tr>
+  <td class="val" style="background:#1a2a3a">0.017</td>
+  <td style="background:#1a2a3a">현재</td>
+  <td class="val" style="background:#1a2a3a">0.983</td>
+  <td class="val" style="background:#1a2a3a">1.017</td>
+  <td class="val" style="background:#1a2a3a">1408 W/m²</td>
+  <td class="val" style="background:#1a2a3a">1316 W/m²</td>
+  <td class="val" style="background:#1a2a3a">6.8%</td>
+  <td class="val" style="background:#1a2a3a">+0.03%</td>
+</tr>
+<tr>
+  <td class="val">0.030</td>
+  <td>약간 타원</td>
+  <td class="val">0.970</td>
+  <td class="val">1.030</td>
+  <td class="val">1446 W/m²</td>
+  <td class="val">1283 W/m²</td>
+  <td class="val">11.9%</td>
+  <td class="val">+0.09%</td>
+</tr>
+<tr>
+  <td class="val">0.058</td>
+  <td>최대 타원</td>
+  <td class="val">0.942</td>
+  <td class="val">1.058</td>
+  <td class="val">1533 W/m²</td>
+  <td class="val">1216 W/m²</td>
+  <td class="val">23.2%</td>
+  <td class="val">+0.34%</td>
+</tr>
+</table>
+
+<div class="formula">
+근일점 일사량: S_peri = S₀ / (1 - e)² <br>
+원일점 일사량: S_aph  = S₀ / (1 + e)² <br>
+연평균 일사량: S_avg  = S₀ / √(1 - e²)  ← 이심률 증가 시 미세 증가<br>
+S₀ = 1361 W/m² (태양상수)
+</div>
+
+<h3>3-2. 이심률이 바람·온도에 미치는 영향</h3>
+<table>
+<tr>
+  <th>이심률</th>
+  <th>근일점 반구 효과</th>
+  <th>원일점 반구 효과</th>
+  <th>바람 패턴</th>
+  <th>글로벌 기온 편차</th>
+</tr>
+<tr>
+  <td class="val">0.005 (최소)</td>
+  <td>남·북반구 거의 대칭</td>
+  <td>남·북반구 거의 대칭</td>
+  <td>대칭적 순환, 안정</td>
+  <td class="val">~0°C</td>
+</tr>
+<tr>
+  <td class="val" style="background:#1a2a3a">0.017 (현재)</td>
+  <td style="background:#1a2a3a">1월 근일점: SH 여름 +3.4% 일사</td>
+  <td style="background:#1a2a3a">7월 원일점: NH 여름 -3.4% 일사</td>
+  <td style="background:#1a2a3a">SH 여름 몬순 약간 강화</td>
+  <td class="val" style="background:#1a2a3a">기준</td>
+</tr>
+<tr>
+  <td class="val">0.058 (최대)</td>
+  <td>근일점 반구 여름 +12% 일사</td>
+  <td>원일점 반구 여름 -12% 일사</td>
+  <td>강한 비대칭, 한쪽 몬순 강화</td>
+  <td class="val warm">+0.5°C</td>
+</tr>
+</table>
+
+<div class="note">
+  <b>핵심:</b> 이심률 자체의 온도 효과는 작지만, <b>세차운동</b>과 결합하면 어느 반구가 근일점에서 여름을 맞는지가 결정되어 효과가 증폭됩니다.
+</div>
+
+<!-- ============================================ -->
+<h2 id="s4">4. 계절(태양 적위) 변화에 따른 영향</h2>
+<!-- ============================================ -->
+
+<h3>4-1. 월별 위도대 기온 변화 (°C, 해면 보정)</h3>
+<table>
+<tr>
+  <th>위도</th><th>1월</th><th>2월</th><th>3월</th><th>4월</th><th>5월</th><th>6월</th>
+  <th>7월</th><th>8월</th><th>9월</th><th>10월</th><th>11월</th><th>12월</th><th>연교차</th>
+</tr>
+<tr>
+  <td class="val">90°N</td>
+  <td class="frozen">-34</td><td class="frozen">-35</td><td class="frozen">-30</td>
+  <td class="frozen">-20</td><td class="cold">-5</td><td class="cool">0</td>
+  <td class="cool">2</td><td class="cool">0</td><td class="cold">-8</td>
+  <td class="frozen">-18</td><td class="frozen">-28</td><td class="frozen">-32</td>
+  <td class="val">37°C</td>
+</tr>
+<tr>
+  <td class="val">60°N</td>
+  <td class="frozen">-16</td><td class="frozen">-13</td><td class="cold">-6</td>
+  <td class="cool">2</td><td class="cool">8</td><td class="mild">14</td>
+  <td class="mild">16</td><td class="mild">14</td><td class="cool">8</td>
+  <td class="cool">2</td><td class="cold">-6</td><td class="frozen">-12</td>
+  <td class="val">32°C</td>
+</tr>
+<tr>
+  <td class="val">30°N</td>
+  <td class="mild">14</td><td class="mild">15</td><td class="mild">18</td>
+  <td class="warm">22</td><td class="warm">26</td><td class="warm">28</td>
+  <td class="hot">30</td><td class="warm">29</td><td class="warm">27</td>
+  <td class="warm">23</td><td class="mild">19</td><td class="mild">15</td>
+  <td class="val">16°C</td>
+</tr>
+<tr>
+  <td class="val">0°</td>
+  <td class="warm">26</td><td class="warm">27</td><td class="warm">27</td>
+  <td class="warm">27</td><td class="warm">27</td><td class="warm">26</td>
+  <td class="warm">26</td><td class="warm">26</td><td class="warm">26</td>
+  <td class="warm">27</td><td class="warm">27</td><td class="warm">26</td>
+  <td class="val">1°C</td>
+</tr>
+<tr>
+  <td class="val">30°S</td>
+  <td class="warm">26</td><td class="warm">25</td><td class="warm">23</td>
+  <td class="mild">20</td><td class="mild">17</td><td class="mild">14</td>
+  <td class="mild">13</td><td class="mild">14</td><td class="mild">16</td>
+  <td class="mild">19</td><td class="warm">22</td><td class="warm">25</td>
+  <td class="val">13°C</td>
+</tr>
+<tr>
+  <td class="val">60°S</td>
+  <td class="cool">2</td><td class="cool">0</td><td class="cool">-2</td>
+  <td class="cold">-8</td><td class="frozen">-14</td><td class="frozen">-18</td>
+  <td class="frozen">-20</td><td class="frozen">-20</td><td class="frozen">-16</td>
+  <td class="cold">-10</td><td class="cold">-4</td><td class="cool">0</td>
+  <td class="val">22°C</td>
+</tr>
+<tr>
+  <td class="val">90°S</td>
+  <td class="frozen">-28</td><td class="frozen">-40</td><td class="frozen">-52</td>
+  <td class="frozen">-58</td><td class="frozen">-58</td><td class="frozen">-58</td>
+  <td class="frozen">-60</td><td class="frozen">-60</td><td class="frozen">-58</td>
+  <td class="frozen">-50</td><td class="frozen">-38</td><td class="frozen">-28</td>
+  <td class="val">32°C</td>
+</tr>
+</table>
+
+<h3>4-2. 계절별 ITCZ 위치 및 바람 변화</h3>
+<table>
+<tr>
+  <th>계절</th>
+  <th>태양 적위</th>
+  <th>ITCZ 위치</th>
+  <th>NH 무역풍</th>
+  <th>SH 무역풍</th>
+  <th>NH 편서풍</th>
+  <th>NH 몬순</th>
+</tr>
+<tr>
+  <td class="val left">춘분 (3월)</td>
+  <td class="val">0°</td>
+  <td class="val">~5°N</td>
+  <td>보통 NE 6m/s</td>
+  <td>보통 SE 6m/s</td>
+  <td>보통 8m/s</td>
+  <td>전환기</td>
+</tr>
+<tr>
+  <td class="val left">하지 (6월)</td>
+  <td class="val">+23.44°</td>
+  <td class="val">~15°N</td>
+  <td>약화 3m/s → <b>몬순 전환</b></td>
+  <td>강화 SE 8m/s, 적도 넘어 SW로</td>
+  <td>약화 5m/s (극쪽 이동)</td>
+  <td><b>최강</b> SW 15m/s</td>
+</tr>
+<tr>
+  <td class="val left">추분 (9월)</td>
+  <td class="val">0°</td>
+  <td class="val">~8°N</td>
+  <td>보통 NE 6m/s</td>
+  <td>보통 SE 6m/s</td>
+  <td>보통 8m/s</td>
+  <td>전환기 (퇴각)</td>
+</tr>
+<tr>
+  <td class="val left">동지 (12월)</td>
+  <td class="val">-23.44°</td>
+  <td class="val">~5°S</td>
+  <td>강화 NE 8m/s</td>
+  <td>약화 → 호주 몬순</td>
+  <td>강화 12m/s (적도쪽 이동)</td>
+  <td>역몬순 NE 8m/s</td>
+</tr>
+</table>
+
+<div class="note">
+  <b>ITCZ 연간 이동:</b> 열적 적도를 따라 연중 약 5°S~15°N 사이를 이동합니다.<br>
+  북반구에 육지가 더 많으므로, ITCZ는 평균적으로 ~5°N에 위치하여 비대칭입니다.<br>
+  <b>몬순 전환:</b> ITCZ가 대륙 위를 지날 때 무역풍이 역전되어 몬순이 됩니다 (인도, 동남아, 서아프리카).
+</div>
+
+<!-- ============================================ -->
+<h2 id="s5">5. 육지 vs 해양 차이</h2>
+<!-- ============================================ -->
+
+<h3>5-1. 물성 비교</h3>
+<table>
+<tr>
+  <th>물리량</th>
+  <th>육지</th>
+  <th>해양</th>
+  <th>비율</th>
+  <th>기후 영향</th>
+</tr>
+<tr>
+  <td class="left">비열 (J/kg·K)</td>
+  <td class="val">~800</td>
+  <td class="val">~4,186</td>
+  <td class="val">1 : 5.2</td>
+  <td class="left">해양이 5배 이상 열 저장 → 온도 변화 완충</td>
+</tr>
+<tr>
+  <td class="left">열전도 깊이</td>
+  <td class="val">~1m</td>
+  <td class="val">~50–100m</td>
+  <td class="val">1 : 50~100</td>
+  <td class="left">해양은 혼합층 전체가 가열·냉각에 참여</td>
+</tr>
+<tr>
+  <td class="left">알베도</td>
+  <td class="val">0.10–0.40</td>
+  <td class="val">0.06–0.10</td>
+  <td class="val">3~4배</td>
+  <td class="left">해양이 더 많이 흡수 (사막/빙설 제외)</td>
+</tr>
+<tr>
+  <td class="left">증발량</td>
+  <td class="val">수분 제한</td>
+  <td class="val">무제한</td>
+  <td>—</td>
+  <td class="left">해양 → 잠열 수송 → 강수 패턴 결정</td>
+</tr>
+<tr>
+  <td class="left">표면 거칠기 (z₀)</td>
+  <td class="val">0.1–2m</td>
+  <td class="val">0.0001m</td>
+  <td class="val">1000~20000배</td>
+  <td class="left">해양 위 바람이 훨씬 빠름</td>
+</tr>
+</table>
+
+<h3>5-2. 육지/해양에 따른 바람·온도 차이 (동일 위도 비교)</h3>
+<table>
+<tr>
+  <th>위도대</th>
+  <th colspan="2">육지 (대륙 내부)</th>
+  <th colspan="2">해양</th>
+  <th>비고</th>
+</tr>
+<tr>
+  <th></th><th>연교차</th><th>평균 풍속</th><th>연교차</th><th>평균 풍속</th><th></th>
+</tr>
+<tr>
+  <td class="val">60°N</td>
+  <td class="val hot">40–60°C</td>
+  <td class="val">3–5 m/s</td>
+  <td class="val cool">10–15°C</td>
+  <td class="val">8–12 m/s</td>
+  <td class="left">시베리아 vs 노르웨이 해안: 극단적 차이</td>
+</tr>
+<tr>
+  <td class="val">45°N</td>
+  <td class="val warm">25–35°C</td>
+  <td class="val">3–6 m/s</td>
+  <td class="val cool">8–12°C</td>
+  <td class="val">7–10 m/s</td>
+  <td class="left">대륙성 vs 해양성 기후의 전형</td>
+</tr>
+<tr>
+  <td class="val">30°N</td>
+  <td class="val warm">15–25°C</td>
+  <td class="val">2–5 m/s</td>
+  <td class="val mild">5–8°C</td>
+  <td class="val">5–8 m/s</td>
+  <td class="left">사하라 사막 vs 대서양: 온도 극단 차이</td>
+</tr>
+<tr>
+  <td class="val">0°</td>
+  <td class="val mild">2–5°C</td>
+  <td class="val">1–3 m/s</td>
+  <td class="val mild">1–2°C</td>
+  <td class="val">3–5 m/s</td>
+  <td class="left">양쪽 모두 작은 연교차, 해양이 더 안정</td>
+</tr>
+<tr>
+  <td class="val">45°S</td>
+  <td class="val mild">8–12°C</td>
+  <td class="val">5–7 m/s</td>
+  <td class="val cool">5–7°C</td>
+  <td class="val">10–15 m/s</td>
+  <td class="left">남반구는 거의 해양 → 강한 편서풍</td>
+</tr>
+</table>
+
+<h3>5-3. 해륙풍 · 몬순 메커니즘</h3>
+<div class="grid2">
+<div class="card">
+  <h4>해륙풍 (일주기: Sea/Land Breeze)</h4>
+  <p><b>낮:</b> 육지 급가열 → 저기압 → 해풍 (바다→육지) 2–5 m/s</p>
+  <p><b>밤:</b> 육지 급냉각 → 고기압 → 육풍 (육지→바다) 1–3 m/s</p>
+  <p><b>도달 거리:</b> 내륙 20–50 km, 해상 10–20 km</p>
+  <p><b>최대 발달:</b> 맑은 날 14:00–16:00 시 (해풍), 02:00–06:00 시 (육풍)</p>
+</div>
+<div class="card">
+  <h4>몬순 (계절주기: Monsoon)</h4>
+  <p><b>여름:</b> 대륙 가열 → 열적 저기압 → 해양→대륙 습윤풍 8–15 m/s</p>
+  <p><b>겨울:</b> 대륙 냉각 → 열적 고기압 → 대륙→해양 건조풍 5–10 m/s</p>
+  <p><b>대표 지역:</b> 인도(6–9월), 동아시아(6–8월), 서아프리카(7–9월), 호주(12–2월)</p>
+  <p><b>인도 몬순 강도:</b> 평균 12 m/s, 강수 200–300 mm/월</p>
+</div>
+</div>
+
+<!-- ============================================ -->
+<h2 id="s6">6. 세차운동(Precession)에 따른 영향</h2>
+<!-- ============================================ -->
+
+<p>세차운동은 약 26,000년 주기로 자전축이 원뿔 모양으로 회전하는 현상입니다. 기후적으로 중요한 것은 <b>기후적 세차 지수</b> (e·sin ω)이며, ~23,000년과 ~19,000년 주기가 지배적입니다.</p>
+
+<h3>6-1. 세차 위상별 계절 일사량 변화</h3>
+<table>
+<tr>
+  <th>세차 위상</th>
+  <th>근일점 시기</th>
+  <th>NH 여름 일사량</th>
+  <th>NH 겨울 일사량</th>
+  <th>SH 여름 일사량</th>
+  <th>바람 영향</th>
+</tr>
+<tr>
+  <td class="val">NH 여름 = 근일점</td>
+  <td>7월</td>
+  <td class="hot val">+30~60 W/m² (65°N)</td>
+  <td class="cold val">-30~60 W/m²</td>
+  <td class="cold val">약화</td>
+  <td class="left">NH 몬순 강화, ITCZ 북상, 사하라 녹색화</td>
+</tr>
+<tr>
+  <td class="val" style="background:#1a2a3a">현재 (NH 겨울 ≈ 근일점)</td>
+  <td style="background:#1a2a3a">1월</td>
+  <td class="val" style="background:#1a2a3a">기준 (~474)</td>
+  <td class="val" style="background:#1a2a3a">기준</td>
+  <td class="val" style="background:#1a2a3a">기준</td>
+  <td class="left" style="background:#1a2a3a">SH 여름이 약간 더 강한 일사</td>
+</tr>
+<tr>
+  <td class="val">NH 겨울 = 원일점</td>
+  <td>7월 반대편</td>
+  <td class="cold val">-30~60 W/m² (65°N)</td>
+  <td class="warm val">+30~60 W/m²</td>
+  <td class="hot val">강화</td>
+  <td class="left">NH 여름 서늘 → 빙하 축적, SH 몬순 강화</td>
+</tr>
+</table>
+
+<div class="note">
+  <b>세차의 핵심:</b> 세차 자체는 연간 총 일사량을 바꾸지 않고, <b>계절 분배</b>만 변경합니다.<br>
+  이심률이 0이면 세차 효과 소멸 → 세차 효과의 크기는 이심률에 비례합니다.<br>
+  <b>65°N 일사량 변화폭:</b> ±(이심률 × ~700) W/m² ← 세차에 의해 (현재 e=0.017일 때 ±12 W/m²)
+</div>
+
+<!-- ============================================ -->
+<h2 id="s7">7. 복합 효과 — 밀란코비치 주기와 빙하기</h2>
+<!-- ============================================ -->
+
+<h3>7-1. 세 궤도 요소의 종합 비교</h3>
+<table>
+<tr>
+  <th>요소</th>
+  <th>주기</th>
+  <th>범위</th>
+  <th>현재 값</th>
+  <th>65°N 여름 일사량 영향</th>
+  <th>글로벌 기온 영향</th>
+  <th>주요 작용</th>
+</tr>
+<tr>
+  <td class="left val">이심률</td>
+  <td class="val">~100k + ~413k년</td>
+  <td class="val">0.005 – 0.058</td>
+  <td class="val">0.017</td>
+  <td class="val">±0 ~ ±15 W/m²</td>
+  <td class="val">±0.5°C</td>
+  <td class="left">연평균 일사량 미세 변화, 세차 진폭 조절</td>
+</tr>
+<tr>
+  <td class="left val">황도경사각</td>
+  <td class="val">~41k년</td>
+  <td class="val">22.1° – 24.5°</td>
+  <td class="val">23.44°</td>
+  <td class="val">±12 W/m²</td>
+  <td class="val">±1~2°C (고위도)</td>
+  <td class="left">고위도 계절대비, 빙하 성장/쇠퇴</td>
+</tr>
+<tr>
+  <td class="left val">세차운동</td>
+  <td class="val">~23k년</td>
+  <td class="val">0° – 360°</td>
+  <td class="val">~102°</td>
+  <td class="val">±30~60 W/m²</td>
+  <td class="val">±0 (반구 대칭)</td>
+  <td class="left">반구간 계절 일사량 재분배</td>
+</tr>
+</table>
+
+<h3>7-2. 빙하기 진입/탈출 조건</h3>
+<div class="grid2">
+<div class="card" style="border-color:#4466aa">
+  <h4 style="color:#66aaff">빙하기 촉진 조건 (빙상 성장)</h4>
+  <p><span class="highlight">낮은 황도경사각</span> + <span class="highlight">NH 여름이 원일점</span> + <span class="highlight">높은 이심률</span></p>
+  <p>→ 65°N 하지 일사량 최소 (~430 W/m²)</p>
+  <p>→ 여름에 전년도 눈이 녹지 않음</p>
+  <p>→ 알베도 증가 → 양의 피드백 → 빙하 확장</p>
+  <p>→ 편서풍 남하, 제트기류 강화</p>
+  <p>→ 해들리 셀 축소 (~25°)</p>
+  <p>→ 글로벌 기온 -4~-8°C (현재 대비)</p>
+</div>
+<div class="card" style="border-color:#aa4444">
+  <h4 style="color:#ff8866">간빙기 촉진 조건 (빙상 쇠퇴)</h4>
+  <p><span class="highlight">높은 황도경사각</span> + <span class="highlight">NH 여름이 근일점</span> + <span class="highlight">높은 이심률</span></p>
+  <p>→ 65°N 하지 일사량 최대 (~530 W/m²)</p>
+  <p>→ 여름 강한 일사로 빙하 급속 용해</p>
+  <p>→ 알베도 감소 → 양의 피드백 → 온난화</p>
+  <p>→ 편서풍 북상, 제트기류 약화·분열</p>
+  <p>→ 해들리 셀 확장 (~33°)</p>
+  <p>→ 글로벌 기온 +1~2°C (현재 대비)</p>
+</div>
+</div>
+
+<h3>7-3. 빙하기/간빙기 시 위도별 풍속·기온 비교</h3>
+<table>
+<tr>
+  <th rowspan="2">위도대</th>
+  <th colspan="2">최종 빙하 최성기 (LGM, ~21ka)</th>
+  <th colspan="2">현재 (간빙기)</th>
+  <th colspan="2">에미안 간빙기 (~125ka)</th>
+</tr>
+<tr>
+  <th>기온 편차</th><th>풍속 편차</th>
+  <th>기온</th><th>풍속</th>
+  <th>기온 편차</th><th>풍속 편차</th>
+</tr>
+<tr>
+  <td class="val">극지 (70–90°)</td>
+  <td class="frozen val">-15~-20°C</td><td class="val">+20%</td>
+  <td class="val">기준</td><td class="val">기준</td>
+  <td class="warm val">+3~5°C</td><td class="val">-10%</td>
+</tr>
+<tr>
+  <td class="val">고위도 (50–70°)</td>
+  <td class="cold val">-10~-15°C</td><td class="val">+30–50%</td>
+  <td class="val">기준</td><td class="val">기준</td>
+  <td class="warm val">+2~4°C</td><td class="val">-15%</td>
+</tr>
+<tr>
+  <td class="val">중위도 (30–50°)</td>
+  <td class="cold val">-5~-8°C</td><td class="val">+20–30%</td>
+  <td class="val">기준</td><td class="val">기준</td>
+  <td class="mild val">+1~2°C</td><td class="val">-5%</td>
+</tr>
+<tr>
+  <td class="val">아열대 (10–30°)</td>
+  <td class="cool val">-2~-3°C</td><td class="val">+10%</td>
+  <td class="val">기준</td><td class="val">기준</td>
+  <td class="mild val">+0.5~1°C</td><td class="val">-5%</td>
+</tr>
+<tr>
+  <td class="val">적도 (0–10°)</td>
+  <td class="cool val">-2~-3°C</td><td class="val">±5%</td>
+  <td class="val">기준</td><td class="val">기준</td>
+  <td class="val">~0°C</td><td class="val">~0%</td>
+</tr>
+</table>
+
+<!-- ============================================ -->
+<h2 id="s8">8. 주요 수치 공식 요약</h2>
+<!-- ============================================ -->
+
+<h3>8-1. 일사량 계산</h3>
+<div class="formula">
+<b>일일 일사량 (위도 φ, 태양 적위 δ):</b><br>
+Q = (S₀/π) × (1/r²) × (H₀·sinφ·sinδ + cosφ·cosδ·sinH₀)<br><br>
+H₀ = arccos(-tanφ · tanδ)  ← 일조 반각<br>
+r = (1 - e²) / (1 + e·cosν)  ← 태양-지구 거리 (AU)<br>
+δ = ε · sin(λ)  ← 태양 적위 (ε: 황도경사각, λ: 황경)<br><br>
+<b>연평균 글로벌 기온 (0차 근사):</b><br>
+T ≈ [S₀(1-α) / (4σ)]^(1/4) ← σ=5.67e-8, α≈0.30<br>
+T ≈ 255K (-18°C) ← 온실효과 전, 온실효과 +33°C → 288K (15°C)
+</div>
+
+<h3>8-2. 풍속 근사식 (지균풍)</h3>
+<div class="formula">
+<b>지균풍 (Geostrophic Wind):</b><br>
+V_g = (1/ρf) × (∂P/∂n)  ← f = 2Ω·sinφ (코리올리 매개변수)<br><br>
+<b>열풍 (Thermal Wind):</b><br>
+∂V_g/∂z = -(g/fT) × (∂T/∂y)  ← 남-북 온도경도 → 고도별 풍속 증가<br><br>
+<b>제트기류 최대 풍속 (경험식):</b><br>
+V_jet ≈ 20 + 15 × ΔT_eq-pole / 40  (m/s)<br>
+현재: ΔT ≈ 50°C → V_jet ≈ 39 m/s<br>
+LGM:  ΔT ≈ 65°C → V_jet ≈ 44 m/s
+</div>
+
+<h3>8-3. 밀란코비치 궤도 요소 (Berger 1978, 간략화)</h3>
+<div class="formula">
+<b>이심률:</b><br>
+e(t) ≈ 0.028 + 0.011·cos(2πt/413 + 3.14) + 0.008·cos(2πt/100 + 0.21)<br>
+      + 0.004·cos(2πt/95 + 1.95)   [t: kyr from present]<br><br>
+<b>황도경사각:</b><br>
+ε(t) ≈ 23.32° + 1.0°·cos(2πt/41 + 2.40) + 0.43°·cos(2πt/39.7 + 3.81)<br><br>
+<b>기후적 세차 지수:</b><br>
+P(t) = e(t) · sin(ω̃(t))   [ω̃: 근일점 경도]
+</div>
+
+<h3>8-4. 핵심 숫자 모음</h3>
+<table>
+<tr><th>물리량</th><th>값</th><th>단위</th></tr>
+<tr><td class="left">태양상수 (S₀)</td><td class="val">1361</td><td>W/m²</td></tr>
+<tr><td class="left">지구 자전 각속도 (Ω)</td><td class="val">7.292 × 10⁻⁵</td><td>rad/s</td></tr>
+<tr><td class="left">자전 주기</td><td class="val">23시간 56분 4초</td><td>항성일</td></tr>
+<tr><td class="left">공전 주기</td><td class="val">365.256</td><td>일</td></tr>
+<tr><td class="left">현재 황도경사각</td><td class="val">23.44</td><td>도</td></tr>
+<tr><td class="left">현재 이심률</td><td class="val">0.0167</td><td>—</td></tr>
+<tr><td class="left">현재 근일점</td><td class="val">1월 3일경</td><td>—</td></tr>
+<tr><td class="left">적도-극 온도차 (연평균)</td><td class="val">~50</td><td>°C</td></tr>
+<tr><td class="left">해들리 셀 폭 (현재)</td><td class="val">~30°</td><td>위도</td></tr>
+<tr><td class="left">제트기류 고도</td><td class="val">~10–12</td><td>km</td></tr>
+<tr><td class="left">무역풍 평균 풍속</td><td class="val">5–8</td><td>m/s</td></tr>
+<tr><td class="left">편서풍대 평균 풍속 (지표)</td><td class="val">6–14</td><td>m/s</td></tr>
+<tr><td class="left">제트기류 최대 풍속</td><td class="val">30–70</td><td>m/s</td></tr>
+</table>
+
+<br>
+<div class="note" style="text-align:center; color:#4a6a8a">
+  <b>참고 문헌:</b> Berger (1978), Berger & Loutre (1991), Hartmann (1994) Global Physical Climatology,<br>
+  Peixoto & Oort (1992) Physics of Climate, IPCC AR6 WG1 (2021)
+</div>
+<br>
+
+<footer style="text-align:center;padding:10px;color:#3a4a6a;font-size:.8em;border-top:1px solid #1a2a4a;">
+  지구 기후 조건별 바람·온도 변화 레퍼런스 — Earth Simulation Project
+<br>Built with <a href="https://claude.ai/claude-code" style="color:#5af;text-decoration:none">Claude Code</a> (Anthropic Claude Opus 4.6)
+</footer>
+
+</div><!-- container -->
+
+<script>
+// Temperature profile chart
+const cv = document.getElementById('cvTempProfile');
+const ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+const pad = {l:60, r:20, t:20, b:30};
+
+// Data: [lat, annual_mean_temp, summer_temp, winter_temp]
+const tempData = [
+  [90, -18, 2, -35],
+  [80, -12, 3, -30],
+  [70, -6, 10, -25],
+  [60, 0, 16, -16],
+  [50, 6, 18, -5],
+  [40, 13, 25, 5],
+  [30, 20, 30, 14],
+  [20, 26, 30, 22],
+  [10, 27, 28, 26],
+  [0, 27, 27, 27],
+  [-10, 27, 26, 28],
+  [-20, 25, 22, 28],
+  [-30, 20, 14, 25],
+  [-40, 13, 7, 18],
+  [-50, 5, 0, 8],
+  [-60, -5, -18, 2],
+  [-70, -15, -30, -5],
+  [-80, -28, -40, -20],
+  [-90, -45, -60, -28],
+];
+
+function drawTempChart() {
+  ctx.fillStyle = '#0a1225';
+  ctx.fillRect(0, 0, W, H);
+
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  // Grid
+  ctx.strokeStyle = '#1a2040';
+  ctx.lineWidth = 0.5;
+  for (let t = -60; t <= 40; t += 20) {
+    const y = pad.t + ch - ((t + 60) / 100) * ch;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+    ctx.fillStyle = '#4a5a7a'; ctx.font = '10px Courier New'; ctx.textAlign = 'right';
+    ctx.fillText(t + '°C', pad.l - 4, y + 3);
+  }
+
+  // X axis labels
+  ctx.fillStyle = '#4a5a7a'; ctx.font = '10px Courier New'; ctx.textAlign = 'center';
+  for (let lat = -90; lat <= 90; lat += 30) {
+    const x = pad.l + ((lat + 90) / 180) * cw;
+    ctx.fillText(lat + '°', x, H - 5);
+  }
+
+  // Lines
+  function drawLine(dataIdx, color, label) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    for (let i = 0; i < tempData.length; i++) {
+      const x = pad.l + ((tempData[i][0] + 90) / 180) * cw;
+      const y = pad.t + ch - ((tempData[i][dataIdx] + 60) / 100) * ch;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    // label
+    ctx.fillStyle = color;
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'left';
+    const lastI = 0;
+    const lx = pad.l + ((tempData[lastI][0] + 90) / 180) * cw + 4;
+    const ly = pad.t + ch - ((tempData[lastI][dataIdx] + 60) / 100) * ch;
+    ctx.fillText(label, W - pad.r - 60, ly + (dataIdx === 1 ? -2 : dataIdx === 2 ? -2 : 12));
+  }
+
+  drawLine(2, '#ff6b6b', '여름');
+  drawLine(1, '#5af', '연평균');
+  drawLine(3, '#66aaff', '겨울');
+
+  // 0°C line
+  const zeroY = pad.t + ch - (60 / 100) * ch;
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = '#ffffff30';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l, zeroY); ctx.lineTo(W - pad.r, zeroY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#5a7a9a';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('← 남반구 (S)          위도          북반구 (N) →', W / 2, H - 18);
+}
+drawTempChart();
+</script>
+</body>
+</html>

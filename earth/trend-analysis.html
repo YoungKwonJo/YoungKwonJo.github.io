@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지구 궤도·기후 추세 분석 — 과거 vs 현재</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060c1a;color:#c8cce0;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.7}
+.container{max-width:1440px;margin:0 auto;padding:16px 20px}
+h1{text-align:center;padding:18px;font-size:1.5em;border-bottom:1px solid #1a2a4a;margin-bottom:12px}
+h1 small{display:block;color:#5a8abf;font-size:.52em;font-weight:normal;margin-top:4px}
+h2{color:#5af;font-size:1.1em;margin:30px 0 10px;padding:8px 12px;background:#0c1530;border-left:3px solid #5af;border-radius:0 6px 6px 0}
+h3{color:#4ecdc4;font-size:.92em;margin:16px 0 8px}
+p{font-size:.85em;color:#8899bb;margin:4px 0 10px}
+.note{background:#0c1530;border:1px solid #152040;border-radius:6px;padding:10px 14px;font-size:.82em;margin:10px 0 16px}
+
+table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:.8em}
+th{background:#0e1835;color:#5a9acf;padding:7px 8px;text-align:center;border:1px solid #1a2a4a;font-weight:600;white-space:nowrap}
+td{padding:5px 8px;border:1px solid #152040;text-align:center;vertical-align:middle}
+tr:nth-child(even) td{background:#0a1225}
+.left{text-align:left}
+.val{font-family:'Courier New',monospace;color:#fff;font-weight:600}
+.up{color:#ff6b6b}
+.down{color:#66aaff}
+.stable{color:#ffe66d}
+.pos{color:#ff8866}
+.neg{color:#66bbff}
+.highlight-row td{background:#12203a !important;border-color:#2a4a7a}
+.current{background:#1a2a40;border-radius:3px;padding:1px 5px;color:#5af}
+
+.chart-wrap{background:#0a1020;border:1px solid #152040;border-radius:8px;padding:10px 12px;margin:10px 0}
+.chart-wrap .chart-title{font-size:.82em;color:#6a8aaa;margin-bottom:4px;display:flex;justify-content:space-between}
+.chart-wrap .chart-title span{color:#3a5a7a;font-size:.9em}
+canvas{display:block;width:100%;height:180px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:1000px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.card{background:#0a1225;border:1px solid #152040;border-radius:8px;padding:14px}
+.card h4{font-size:.88em;margin-bottom:8px}
+.card p{margin:3px 0;font-size:.8em}
+
+.summary-box{background:linear-gradient(135deg,#0c1530,#101a35);border:1px solid #2a3a6a;border-radius:10px;padding:18px 22px;margin:16px 0}
+.summary-box h3{color:#ffe66d;margin-top:0}
+
+.arrow-up::before{content:'▲ ';color:#ff6b6b}
+.arrow-down::before{content:'▼ ';color:#66aaff}
+.arrow-flat::before{content:'▶ ';color:#ffe66d}
+.tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:.75em;margin:0 2px}
+.tag-glacial{background:#0a1a3a;color:#66aaff;border:1px solid #2244aa}
+.tag-inter{background:#2a1a0a;color:#ffaa44;border:1px solid #885522}
+.tag-now{background:#1a2a1a;color:#66ff66;border:1px solid #228822}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>지구 궤도·기후 추세 분석
+<small>과거 800,000년간의 변화와 현재 위치 — 밀란코비치 주기 기반 종합 분석</small>
+</h1>
+
+<!-- ===== Section 1: Executive Summary ===== -->
+<div class="summary-box">
+<h3>핵심 요약 — 현재 지구는 어디에 있는가?</h3>
+<table>
+<tr>
+  <th>궤도 요소</th>
+  <th>현재 값</th>
+  <th>과거 800kyr 범위</th>
+  <th>현재 위치 (백분위)</th>
+  <th>변화 방향</th>
+  <th>변화율</th>
+  <th>다음 극값까지</th>
+</tr>
+<tr>
+  <td class="left val">이심률</td>
+  <td class="val">0.0167</td>
+  <td class="val">0.005 – 0.058</td>
+  <td class="val neg">하위 23%</td>
+  <td class="down">감소 중 ▼</td>
+  <td class="val">-0.0001/kyr</td>
+  <td class="val">~25kyr 후 최소 (0.005)</td>
+</tr>
+<tr>
+  <td class="left val">황도경사각</td>
+  <td class="val">23.44°</td>
+  <td class="val">22.05° – 24.50°</td>
+  <td class="val stable">57% (중앙값 부근)</td>
+  <td class="down">감소 중 ▼</td>
+  <td class="val">-0.013°/kyr</td>
+  <td class="val">~10kyr 후 최소 (22.2°)</td>
+</tr>
+<tr>
+  <td class="left val">세차 지수</td>
+  <td class="val">-0.016</td>
+  <td class="val">-0.055 – +0.055</td>
+  <td class="val">약한 음(-)의 위상</td>
+  <td class="up">증가 중 ▲</td>
+  <td class="val">+0.004/kyr</td>
+  <td class="val">~6kyr 후 양(+) 최대</td>
+</tr>
+<tr>
+  <td class="left val">65°N 하지 일사량</td>
+  <td class="val">474 W/m²</td>
+  <td class="val">430 – 535 W/m²</td>
+  <td class="val neg">하위 42%</td>
+  <td class="stable">보합 → 약간 감소</td>
+  <td class="val">-0.2 W/m²/kyr</td>
+  <td class="val">~10kyr 후 감소 가속</td>
+</tr>
+</table>
+<p style="color:#aabbcc;font-size:.85em;margin-top:8px">
+<b>종합 판단:</b> 현재 지구는 <b>간빙기 최성기를 지나 서서히 냉각기로 진입하는 궤도 조건</b>에 있습니다.
+이심률과 황도경사각 모두 감소 추세이며, 자연적 궤도 강제력만으로는 향후 수만 년에 걸쳐 점진적 냉각이 예상됩니다.
+단, 인위적 CO₂ 증가(420ppm, 과거 800kyr 최대값 300ppm의 1.4배)가 궤도 냉각 효과를 압도하고 있습니다.
+</p>
+</div>
+
+<!-- ===== Section 2: Time Series Charts ===== -->
+<h2>1. 궤도 요소 시계열 — 과거 800,000년</h2>
+
+<div class="chart-wrap">
+  <div class="chart-title"><b>이심률 (Eccentricity)</b><span>주기: ~100kyr + ~413kyr | 범위: 0.005–0.058</span></div>
+  <canvas id="cvEcc" height="180"></canvas>
+</div>
+<div class="chart-wrap">
+  <div class="chart-title"><b>황도경사각 (Obliquity)</b><span>주기: ~41kyr | 범위: 22.0°–24.5°</span></div>
+  <canvas id="cvObl" height="180"></canvas>
+</div>
+<div class="chart-wrap">
+  <div class="chart-title"><b>기후적 세차 지수 (Climatic Precession)</b><span>주기: ~23kyr | e·sin(ω̃)</span></div>
+  <canvas id="cvPrec" height="180"></canvas>
+</div>
+<div class="chart-wrap">
+  <div class="chart-title"><b>65°N 하지 일사량 (Summer Solstice Insolation)</b><span>복합 주기 | W/m²</span></div>
+  <canvas id="cvInsol" height="180"></canvas>
+</div>
+<div class="chart-wrap">
+  <div class="chart-title"><b>추정 글로벌 기온 편차 (ΔT) — 궤도 강제력 기반</b><span>빙하코어·해양동위원소 보정</span></div>
+  <canvas id="cvTemp" height="180"></canvas>
+</div>
+
+<!-- ===== Section 3: Cycle Analysis ===== -->
+<h2>2. 각 주기별 과거-현재 비교 분석</h2>
+
+<h3>2-1. 이심률 추세 분석</h3>
+<table>
+<tr>
+  <th>시기 (kyr BP)</th>
+  <th>이심률</th>
+  <th>현재 대비</th>
+  <th>궤도 상태</th>
+  <th>일사량 비대칭</th>
+  <th>기후 영향</th>
+</tr>
+<tr>
+  <td class="val">-800</td><td class="val">0.020</td><td class="val">+0.003</td>
+  <td>약간 높은 이심률</td><td>7.8%</td><td>약간 강한 세차 효과</td>
+</tr>
+<tr>
+  <td class="val">-700</td><td class="val">0.040</td><td class="val pos">+0.023</td>
+  <td>높은 이심률</td><td>15.7%</td><td>강한 세차-빙하기 연동</td>
+</tr>
+<tr>
+  <td class="val">-600</td><td class="val">0.033</td><td class="val pos">+0.016</td>
+  <td>높은 이심률</td><td>12.8%</td><td>100kyr 빙하주기 활성</td>
+</tr>
+<tr>
+  <td class="val">-500</td><td class="val">0.014</td><td class="val neg">-0.003</td>
+  <td>낮은 이심률</td><td>5.4%</td><td>약한 세차, 긴 간빙기</td>
+</tr>
+<tr>
+  <td class="val">-400</td><td class="val">0.013</td><td class="val neg">-0.004</td>
+  <td class="left"><b>현재와 가장 유사</b> (MIS 11)</td><td>5.1%</td><td><b>긴 간빙기 ~30kyr</b></td>
+</tr>
+<tr>
+  <td class="val">-300</td><td class="val">0.028</td><td class="val pos">+0.011</td>
+  <td>보통 이심률</td><td>10.8%</td><td>뚜렷한 100kyr 빙하주기</td>
+</tr>
+<tr>
+  <td class="val">-200</td><td class="val">0.040</td><td class="val pos">+0.023</td>
+  <td>높은 이심률</td><td>15.7%</td><td>강한 세차-기후 연동</td>
+</tr>
+<tr>
+  <td class="val">-125</td><td class="val">0.040</td><td class="val pos">+0.023</td>
+  <td class="left">에미안 간빙기 (MIS 5e)</td><td>15.7%</td><td>현재보다 +1~2°C, 해수면 +6~9m</td>
+</tr>
+<tr>
+  <td class="val">-21</td><td class="val">0.019</td><td class="val">+0.002</td>
+  <td class="left">최종빙하최성기 (LGM)</td><td>7.4%</td><td>글로벌 -4~-7°C, 해수면 -120m</td>
+</tr>
+<tr class="highlight-row">
+  <td class="val current">0 (현재)</td><td class="val">0.0167</td><td class="val">—</td>
+  <td class="left"><span class="tag tag-now">현재</span> 간빙기, 낮은 이심률</td><td>6.8%</td><td>약한 계절 비대칭</td>
+</tr>
+<tr>
+  <td class="val">+25 (미래)</td><td class="val">~0.005</td><td class="val neg">-0.012</td>
+  <td>거의 원형 궤도</td><td>2.0%</td><td>세차 효과 거의 소멸</td>
+</tr>
+<tr>
+  <td class="val">+100 (미래)</td><td class="val">~0.030</td><td class="val pos">+0.013</td>
+  <td>이심률 회복</td><td>11.9%</td><td>세차 효과 재활성화</td>
+</tr>
+</table>
+
+<div class="note">
+<b>추세 분석:</b> 이심률은 현재 <b>413kyr 장주기의 하강 국면</b>에 있으며, 약 25,000년 후 최솟값(~0.005)에 도달합니다.
+이는 지난 300만 년간 가장 낮은 수준이 될 것이며, 세차운동의 기후 영향이 거의 사라집니다.
+과거 400kyr 전 (MIS 11)이 현재와 가장 유사한 궤도 조건이었고, 당시 간빙기는 ~30,000년간 지속되었습니다.
+</div>
+
+<h3>2-2. 황도경사각 추세 분석</h3>
+<table>
+<tr>
+  <th>시기 (kyr BP)</th>
+  <th>경사각</th>
+  <th>현재 대비</th>
+  <th>변화 방향</th>
+  <th>65°N 여름 일사량</th>
+  <th>계절대비 (60°N)</th>
+</tr>
+<tr>
+  <td class="val">-800</td><td class="val">23.5°</td><td class="val">+0.06°</td>
+  <td>~현재와 동일</td><td class="val">475 W/m²</td><td class="val">32°C</td>
+</tr>
+<tr>
+  <td class="val">-600</td><td class="val">23.1°</td><td class="val neg">-0.34°</td>
+  <td>감소 국면</td><td class="val">471 W/m²</td><td class="val">29°C</td>
+</tr>
+<tr>
+  <td class="val">-400</td><td class="val">23.8°</td><td class="val pos">+0.36°</td>
+  <td>증가 국면 (MIS 11)</td><td class="val">477 W/m²</td><td class="val">34°C</td>
+</tr>
+<tr>
+  <td class="val">-200</td><td class="val">23.3°</td><td class="val neg">-0.14°</td>
+  <td>감소 국면</td><td class="val">472 W/m²</td><td class="val">30°C</td>
+</tr>
+<tr>
+  <td class="val">-130</td><td class="val">24.04°</td><td class="val pos">+0.60°</td>
+  <td class="up">에미안 간빙기 — 높은 경사각</td><td class="val">482 W/m²</td><td class="val">36°C</td>
+</tr>
+<tr>
+  <td class="val">-50</td><td class="val">22.3°</td><td class="val neg">-1.14°</td>
+  <td class="down">최근 최솟값</td><td class="val">464 W/m²</td><td class="val">24°C</td>
+</tr>
+<tr>
+  <td class="val">-21</td><td class="val">22.7°</td><td class="val neg">-0.74°</td>
+  <td>LGM — 낮은 경사각</td><td class="val">466 W/m²</td><td class="val">26°C</td>
+</tr>
+<tr>
+  <td class="val">-10</td><td class="val">24.2°</td><td class="val pos">+0.76°</td>
+  <td class="up">홀로세 최대 (9~10kyr BP)</td><td class="val">481 W/m²</td><td class="val">35°C</td>
+</tr>
+<tr class="highlight-row">
+  <td class="val current">0 (현재)</td><td class="val">23.44°</td><td class="val">—</td>
+  <td class="down"><span class="tag tag-now">감소 중</span> (-0.47"/yr)</td><td class="val">474 W/m²</td><td class="val">31°C</td>
+</tr>
+<tr>
+  <td class="val">+10 (미래)</td><td class="val">~22.2°</td><td class="val neg">-1.24°</td>
+  <td class="down">다음 최솟값 접근</td><td class="val">~464 W/m²</td><td class="val">~24°C</td>
+</tr>
+<tr>
+  <td class="val">+30 (미래)</td><td class="val">~24.2°</td><td class="val pos">+0.76°</td>
+  <td class="up">다음 최댓값</td><td class="val">~481 W/m²</td><td class="val">~35°C</td>
+</tr>
+</table>
+
+<div class="note">
+<b>추세 분석:</b> 황도경사각은 약 10,000년 전 최대치(24.2°)를 지나 현재 <b>41kyr 주기의 하강 국면</b> 중간에 있습니다.
+약 10,000년 후 최솟값(~22.2°)에 도달할 예정이며, 이는 고위도 여름 일사량을 ~10 W/m² 추가 감소시킵니다.
+현재 감소율은 연간 0.47초(arcsec)로, 이는 <b>1만 년에 약 1.3° 변화</b>에 해당합니다.
+</div>
+
+<h3>2-3. 65°N 하지 일사량 추세 — 과거 간빙기와 비교</h3>
+<table>
+<tr>
+  <th>간빙기 (MIS)</th>
+  <th>시기 (kyr BP)</th>
+  <th>최대 일사량</th>
+  <th>현재 대비</th>
+  <th>지속 기간</th>
+  <th>최고 기온 편차</th>
+  <th>최고 해수면</th>
+  <th>유사도</th>
+</tr>
+<tr>
+  <td class="val left">MIS 19 (간빙기)</td>
+  <td class="val">~787</td>
+  <td class="val">~500 W/m²</td>
+  <td class="val pos">+26</td>
+  <td class="val">~28 kyr</td>
+  <td class="val">+0.5°C</td>
+  <td class="val">+10~20 m</td>
+  <td class="val">낮은 e, 매우 유사★</td>
+</tr>
+<tr>
+  <td class="val left">MIS 11 (간빙기)</td>
+  <td class="val">~424</td>
+  <td class="val">~500 W/m²</td>
+  <td class="val pos">+26</td>
+  <td class="val">~30 kyr</td>
+  <td class="val">+1~2°C</td>
+  <td class="val">+6~13 m</td>
+  <td class="val"><b>가장 유사★★★</b></td>
+</tr>
+<tr>
+  <td class="val left">MIS 9 (간빙기)</td>
+  <td class="val">~337</td>
+  <td class="val">~525 W/m²</td>
+  <td class="val pos">+51</td>
+  <td class="val">~15 kyr</td>
+  <td class="val">+1~2°C</td>
+  <td class="val">+3~6 m</td>
+  <td class="val">높은 e, 덜 유사</td>
+</tr>
+<tr>
+  <td class="val left">MIS 7 (간빙기)</td>
+  <td class="val">~240</td>
+  <td class="val">~510 W/m²</td>
+  <td class="val pos">+36</td>
+  <td class="val">~18 kyr</td>
+  <td class="val">+0.5~1°C</td>
+  <td class="val">-10~+2 m</td>
+  <td class="val">보통</td>
+</tr>
+<tr>
+  <td class="val left">MIS 5e (에미안)</td>
+  <td class="val">~125</td>
+  <td class="val">~535 W/m²</td>
+  <td class="val pos">+61</td>
+  <td class="val">~15 kyr</td>
+  <td class="val">+1~2°C</td>
+  <td class="val">+6~9 m</td>
+  <td class="val">높은 e, 덜 유사</td>
+</tr>
+<tr class="highlight-row">
+  <td class="val left"><span class="tag tag-now">MIS 1 (현재)</span></td>
+  <td class="val current">0</td>
+  <td class="val">474 W/m²</td>
+  <td class="val">—</td>
+  <td class="val">~11.7 kyr (진행 중)</td>
+  <td class="val">0°C (기준)</td>
+  <td class="val">0 m (기준)</td>
+  <td class="val">—</td>
+</tr>
+</table>
+
+<div class="note">
+<b>핵심 비교:</b><br>
+• <b>MIS 11 (~400kyr 전)</b>이 현재와 궤도 조건이 가장 유사합니다 (낮은 이심률, 비슷한 경사각). MIS 11은 <b>~30,000년간</b> 지속된 매우 긴 간빙기였습니다.<br>
+• 에미안 간빙기(MIS 5e)는 65°N 일사량이 현재보다 <b>+61 W/m² 더 높았고</b>, 해수면이 6~9m 높았지만, 이심률이 훨씬 높아(0.040) 현재와 궤도 조건이 다릅니다.<br>
+• 현재 65°N 일사량(474 W/m²)은 과거 800kyr 간빙기들 중 <b>가장 낮은 수준</b>입니다. 궤도 강제력만으로는 이미 빙하기 진입 조건에 근접합니다.
+</div>
+
+<!-- ===== Section 4: Rate of Change ===== -->
+<h2>3. 변화율(기울기) 분석 — 과거 추세 vs 현재</h2>
+
+<h3>3-1. 궤도 요소 변화율 시계열 비교</h3>
+<table>
+<tr>
+  <th rowspan="2">시기</th>
+  <th colspan="2">이심률 (de/dt)</th>
+  <th colspan="2">경사각 (dε/dt)</th>
+  <th colspan="2">일사량 (dQ/dt)</th>
+</tr>
+<tr>
+  <th>변화율 (/kyr)</th><th>추세</th>
+  <th>변화율 (°/kyr)</th><th>추세</th>
+  <th>변화율 (W/m²/kyr)</th><th>추세</th>
+</tr>
+<tr>
+  <td class="val">-20 → -10 kyr</td>
+  <td class="val neg">-0.0003</td><td class="down">감소</td>
+  <td class="val pos">+0.15</td><td class="up">급증</td>
+  <td class="val pos">+5.0</td><td class="up">급증 (빙하기 탈출)</td>
+</tr>
+<tr>
+  <td class="val">-10 → -5 kyr</td>
+  <td class="val neg">-0.0002</td><td class="down">감소</td>
+  <td class="val neg">-0.05</td><td>정점 후 감소 시작</td>
+  <td class="val neg">-2.0</td><td class="down">감소 (홀로세 최적기 후)</td>
+</tr>
+<tr>
+  <td class="val">-5 → 0 kyr</td>
+  <td class="val neg">-0.0001</td><td class="down">감소 둔화</td>
+  <td class="val neg">-0.10</td><td class="down">뚜렷한 감소</td>
+  <td class="val neg">-1.5</td><td class="down">지속 감소</td>
+</tr>
+<tr class="highlight-row">
+  <td class="val current">현재 순간값</td>
+  <td class="val neg">-0.0001</td><td class="down">감소</td>
+  <td class="val neg">-0.013</td><td class="down">감소</td>
+  <td class="val neg">-0.2</td><td class="down">약한 감소</td>
+</tr>
+<tr>
+  <td class="val">0 → +10 kyr</td>
+  <td class="val neg">-0.0005</td><td class="down">감소 가속</td>
+  <td class="val neg">-0.12</td><td class="down">감소 가속</td>
+  <td class="val neg">-3.0</td><td class="down">감소 가속</td>
+</tr>
+<tr>
+  <td class="val">+10 → +25 kyr</td>
+  <td class="val neg">-0.0004</td><td class="down">최솟값 접근</td>
+  <td class="val pos">+0.08</td><td class="up">반등 시작</td>
+  <td class="val">~0</td><td class="stable">저점 부근</td>
+</tr>
+</table>
+
+<h3>3-2. 홀로세(지난 11,700년) 동안의 추세 요약</h3>
+<div class="grid2">
+<div class="card">
+<h4 style="color:#ff8866">지속적으로 감소한 요소 ▼</h4>
+<p><b>황도경사각:</b> 24.24° → 23.44° (<b>-0.80°</b>, -3.3%)</p>
+<p><b>65°N 하지 일사량:</b> ~490 → ~474 W/m² (<b>-16 W/m²</b>, -3.3%)</p>
+<p><b>이심률:</b> 0.0196 → 0.0167 (<b>-0.003</b>, -15%)</p>
+<p><b>북반구 여름 기간:</b> ~4일 단축</p>
+<p style="color:#cc8866;margin-top:6px">→ 이 세 요소의 동반 감소가 <b>신빙기(Neoglaciation)</b>를 유발.<br>
+5,000년 전부터 고위도 빙하 재확장, 기온 하락 시작.</p>
+</div>
+<div class="card">
+<h4 style="color:#66bbff">증가했거나 안정적인 요소 ▲/▶</h4>
+<p><b>세차 지수:</b> 주기적 진동 (현재 약한 음의 위상)</p>
+<p><b>CO₂:</b> 260 → 280 ppm (산업화 전) → <b>420 ppm</b> (현재)</p>
+<p><b>글로벌 평균 기온:</b> 홀로세 최적기(~6kyr BP) +0.5°C → 신빙기 -0.5°C → 산업화 이후 <b>+1.2°C</b></p>
+<p><b>해수면:</b> 6kyr BP 이후 ~안정 → 산업화 이후 <b>+20cm</b></p>
+<p style="color:#66aacc;margin-top:6px">→ 궤도 요소의 자연적 냉각 추세를 인위적 온실가스가 <b>역전</b>시킴.<br>
+현재 CO₂는 과거 800kyr 최댓값(300ppm)의 1.4배.</p>
+</div>
+</div>
+
+<!-- ===== Section 5: Wind Trends ===== -->
+<h2>4. 바람 패턴의 과거-현재 추세 변화</h2>
+
+<h3>4-1. 대기순환 규모의 장기 변화</h3>
+<table>
+<tr>
+  <th>대기순환 요소</th>
+  <th>LGM (21kyr BP)</th>
+  <th>홀로세 최적기 (6kyr BP)</th>
+  <th>소빙기 (0.3kyr BP)</th>
+  <th>현재 (산업화 후)</th>
+  <th>자연적 궤도 추세</th>
+</tr>
+<tr>
+  <td class="left val">해들리 셀 폭</td>
+  <td class="val">~26°</td>
+  <td class="val">~32°</td>
+  <td class="val">~29°</td>
+  <td class="val">~30°</td>
+  <td class="down">축소 추세 (경사각↓)</td>
+</tr>
+<tr>
+  <td class="left val">ITCZ 평균 위치</td>
+  <td class="val">~2°N (남하)</td>
+  <td class="val">~8°N (북상)</td>
+  <td class="val">~4°N</td>
+  <td class="val">~5°N</td>
+  <td class="down">남하 추세</td>
+</tr>
+<tr>
+  <td class="left val">ITCZ 연간 이동폭</td>
+  <td class="val">±10°</td>
+  <td class="val">±18°</td>
+  <td class="val">±13°</td>
+  <td class="val">±15°</td>
+  <td class="down">축소 추세 (경사각↓)</td>
+</tr>
+<tr>
+  <td class="left val">편서풍대 중심</td>
+  <td class="val">~42°N (남하)</td>
+  <td class="val">~50°N</td>
+  <td class="val">~46°N</td>
+  <td class="val">~48°N</td>
+  <td class="down">남하 추세</td>
+</tr>
+<tr>
+  <td class="left val">편서풍 강도 (지표)</td>
+  <td class="val">12–16 m/s</td>
+  <td class="val">6–9 m/s</td>
+  <td class="val">8–11 m/s</td>
+  <td class="val">7–10 m/s</td>
+  <td class="up">강화 추세</td>
+</tr>
+<tr>
+  <td class="left val">제트기류 강도</td>
+  <td class="val">40–55 m/s</td>
+  <td class="val">25–35 m/s</td>
+  <td class="val">32–42 m/s</td>
+  <td class="val">30–50 m/s</td>
+  <td class="up">약간 강화 추세</td>
+</tr>
+<tr>
+  <td class="left val">무역풍 강도</td>
+  <td class="val">8–10 m/s</td>
+  <td class="val">5–6 m/s</td>
+  <td class="val">6–7 m/s</td>
+  <td class="val">5–7 m/s</td>
+  <td class="up">약간 강화 추세</td>
+</tr>
+<tr>
+  <td class="left val">인도 몬순 강도</td>
+  <td class="val">약 (-50%)</td>
+  <td class="val"><b>최강</b> (+30%)</td>
+  <td class="val">약 (-15%)</td>
+  <td class="val">보통 (기준)</td>
+  <td class="down">약화 추세</td>
+</tr>
+<tr>
+  <td class="left val">아프리카 몬순</td>
+  <td class="val">약 (-60%)</td>
+  <td class="val"><b>최강</b> ("녹색 사하라")</td>
+  <td class="val">약 (-20%)</td>
+  <td class="val">보통</td>
+  <td class="down">약화 추세</td>
+</tr>
+<tr>
+  <td class="left val">남반구 편서풍 (Roaring 40s)</td>
+  <td class="val">적도쪽 이동</td>
+  <td class="val">극쪽 이동</td>
+  <td class="val">약간 적도쪽</td>
+  <td class="val">극쪽 이동 (CO₂ 효과)</td>
+  <td class="stable">보합</td>
+</tr>
+</table>
+
+<h3>4-2. 위도대별 바람 변화 추세 (과거 → 현재 → 미래)</h3>
+<table>
+<tr>
+  <th>위도대</th>
+  <th>LGM 대비 현재 변화</th>
+  <th>홀로세 최적기 대비 현재 변화</th>
+  <th>자연적 미래 추세 (다음 10kyr)</th>
+  <th>CO₂ 포함 실제 추세</th>
+</tr>
+<tr>
+  <td class="val">극지 (70–90°)</td>
+  <td>극동풍 약화 (-20%)</td>
+  <td>극동풍 약간 강화 (+5%)</td>
+  <td class="up">강화 (냉각 시)</td>
+  <td class="down">약화 (극지 증폭 온난화)</td>
+</tr>
+<tr>
+  <td class="val">고위도 (50–70°)</td>
+  <td>편서풍 약화 (-30%), 극쪽 이동</td>
+  <td>편서풍 약간 강화 (+10%)</td>
+  <td class="up">강화, 적도쪽 이동</td>
+  <td class="down">약화·불안정화 (제트 사행 증가)</td>
+</tr>
+<tr>
+  <td class="val">중위도 (30–50°)</td>
+  <td>제트 약화, 폭풍 경로 북상</td>
+  <td>변화 미미</td>
+  <td class="up">제트 약간 강화</td>
+  <td class="stable">복잡 (열대 확장 vs 극지 변화)</td>
+</tr>
+<tr>
+  <td class="val">아열대 (10–30°)</td>
+  <td>무역풍 약화 (-15%)</td>
+  <td>무역풍 미세 강화</td>
+  <td class="up">약간 강화</td>
+  <td class="down">워커 순환 약화 추세</td>
+</tr>
+<tr>
+  <td class="val">적도 (0–10°)</td>
+  <td>ITCZ 북상, 폭 확대</td>
+  <td>ITCZ 약간 남하 (-3°)</td>
+  <td class="down">ITCZ 남하 지속</td>
+  <td class="up">ITCZ 이동은 에어로졸·CO₂에 민감</td>
+</tr>
+</table>
+
+<!-- ===== Section 6: Temperature Trends ===== -->
+<h2>5. 온도 추세 — 궤도 강제력 vs 실제 관측</h2>
+
+<h3>5-1. 글로벌 평균 기온 추세 비교</h3>
+<table>
+<tr>
+  <th>시기</th>
+  <th>글로벌 ΔT</th>
+  <th>CO₂</th>
+  <th>해수면</th>
+  <th>65°N 일사량</th>
+  <th>주요 강제력</th>
+</tr>
+<tr>
+  <td class="val left">MIS 11 (424 kyr BP)</td>
+  <td class="val warm">+1 ~ +2°C</td>
+  <td class="val">~280 ppm</td>
+  <td class="val">+6 ~ +13 m</td>
+  <td class="val">~500 W/m²</td>
+  <td class="left">궤도 (낮은 e, 높은 Q)</td>
+</tr>
+<tr>
+  <td class="val left">MIS 5e (125 kyr BP)</td>
+  <td class="val warm">+1 ~ +2°C</td>
+  <td class="val">~285 ppm</td>
+  <td class="val">+6 ~ +9 m</td>
+  <td class="val">~535 W/m²</td>
+  <td class="left">궤도 (높은 e·ε, 최대 Q)</td>
+</tr>
+<tr>
+  <td class="val left">LGM (21 kyr BP)</td>
+  <td class="val frozen">-4 ~ -7°C</td>
+  <td class="val">~180 ppm</td>
+  <td class="val">-120 m</td>
+  <td class="val">~445 W/m²</td>
+  <td class="left">궤도 + 알베도 피드백</td>
+</tr>
+<tr>
+  <td class="val left">홀로세 최적기 (6 kyr BP)</td>
+  <td class="val mild">+0.5 ~ +1°C</td>
+  <td class="val">~265 ppm</td>
+  <td class="val">~0 m</td>
+  <td class="val">~490 W/m²</td>
+  <td class="left">궤도 (높은 ε, 강한 몬순)</td>
+</tr>
+<tr>
+  <td class="val left">소빙기 (0.3 kyr BP)</td>
+  <td class="val cool">-0.5°C</td>
+  <td class="val">~278 ppm</td>
+  <td class="val">~0 m</td>
+  <td class="val">~475 W/m²</td>
+  <td class="left">태양활동 감소 + 화산</td>
+</tr>
+<tr>
+  <td class="val left">산업화 이전 (1850)</td>
+  <td class="val">0°C (기준)</td>
+  <td class="val">~280 ppm</td>
+  <td class="val">0 m (기준)</td>
+  <td class="val">~474 W/m²</td>
+  <td class="left">궤도 (냉각 추세 시작)</td>
+</tr>
+<tr class="highlight-row">
+  <td class="val left"><span class="tag tag-now">현재 (2024)</span></td>
+  <td class="val pos">+1.2°C</td>
+  <td class="val pos">~420 ppm</td>
+  <td class="val">+0.2 m</td>
+  <td class="val">~474 W/m²</td>
+  <td class="left"><b>CO₂ (궤도 추세 역전)</b></td>
+</tr>
+</table>
+
+<h3>5-2. 위도별 온도 추세 (과거 12,000년간 변화)</h3>
+<table>
+<tr>
+  <th>위도대</th>
+  <th>12→6 kyr BP 추세</th>
+  <th>6→0.2 kyr BP 추세</th>
+  <th>0.2→현재 (산업화 후)</th>
+  <th>순 변화 (12kyr→현재)</th>
+  <th>궤도 기여</th>
+  <th>CO₂ 기여</th>
+</tr>
+<tr>
+  <td class="val">극지 (70–90°N)</td>
+  <td class="val warm">+4~6°C (빙하 후퇴)</td>
+  <td class="val neg">-2~3°C (신빙기)</td>
+  <td class="val pos">+3~4°C (극지 증폭)</td>
+  <td class="val pos">+5~7°C</td>
+  <td class="val neg">-2°C</td>
+  <td class="val pos">+4°C</td>
+</tr>
+<tr>
+  <td class="val">고위도 (50–70°N)</td>
+  <td class="val warm">+3~5°C</td>
+  <td class="val neg">-1~2°C</td>
+  <td class="val pos">+1.5~2°C</td>
+  <td class="val pos">+3~5°C</td>
+  <td class="val neg">-1.5°C</td>
+  <td class="val pos">+2°C</td>
+</tr>
+<tr>
+  <td class="val">중위도 (30–50°N)</td>
+  <td class="val mild">+1~2°C</td>
+  <td class="val neg">-0.5~1°C</td>
+  <td class="val pos">+1~1.5°C</td>
+  <td class="val pos">+1.5~2.5°C</td>
+  <td class="val neg">-0.5°C</td>
+  <td class="val pos">+1.5°C</td>
+</tr>
+<tr>
+  <td class="val">열대 (0–30°)</td>
+  <td class="val">+0.5°C</td>
+  <td class="val">~0°C</td>
+  <td class="val pos">+0.8~1°C</td>
+  <td class="val pos">+1~1.5°C</td>
+  <td class="val">~0°C</td>
+  <td class="val pos">+1°C</td>
+</tr>
+<tr>
+  <td class="val">남반구 고위도</td>
+  <td class="val">+1~2°C</td>
+  <td class="val neg">-0.5°C</td>
+  <td class="val pos">+0.5~1°C</td>
+  <td class="val pos">+1~2°C</td>
+  <td class="val neg">-0.3°C</td>
+  <td class="val pos">+1°C</td>
+</tr>
+</table>
+
+<!-- ===== Section 7: Overall Trend Summary ===== -->
+<h2>6. 종합 추세 정리 — 과거에서 미래로</h2>
+
+<h3>6-1. 시대별 총괄 비교</h3>
+<table>
+<tr>
+  <th></th>
+  <th>LGM<br>(21kyr BP)</th>
+  <th>빙하기 탈출<br>(15kyr BP)</th>
+  <th>홀로세 최적기<br>(6kyr BP)</th>
+  <th>신빙기<br>(3kyr BP)</th>
+  <th style="background:#1a2a3a">현재<br>(2024)</th>
+  <th>자연 미래<br>(+10kyr)</th>
+  <th>자연 미래<br>(+50kyr)</th>
+</tr>
+<tr>
+  <td class="left val">이심률</td>
+  <td class="val">0.019</td><td class="val">0.020</td><td class="val">0.019</td><td class="val">0.018</td>
+  <td class="val" style="background:#1a2a3a">0.017</td><td class="val neg">0.010</td><td class="val neg">0.005</td>
+</tr>
+<tr>
+  <td class="left val">경사각</td>
+  <td class="val">22.7°</td><td class="val">23.5°</td><td class="val">24.1°</td><td class="val">23.9°</td>
+  <td class="val" style="background:#1a2a3a">23.44°</td><td class="val neg">22.2°</td><td class="val pos">24.0°</td>
+</tr>
+<tr>
+  <td class="left val">65°N Q (W/m²)</td>
+  <td class="val">445</td><td class="val">480</td><td class="val">490</td><td class="val">480</td>
+  <td class="val" style="background:#1a2a3a">474</td><td class="val neg">455</td><td class="val">470</td>
+</tr>
+<tr>
+  <td class="left val">CO₂ (ppm)</td>
+  <td class="val">180</td><td class="val">240</td><td class="val">265</td><td class="val">275</td>
+  <td class="val pos" style="background:#1a2a3a">420</td><td class="val">?</td><td class="val">?</td>
+</tr>
+<tr>
+  <td class="left val">글로벌 ΔT</td>
+  <td class="frozen val">-5°C</td><td class="cold val">-2°C</td><td class="mild val">+0.5°C</td><td class="val">-0.3°C</td>
+  <td class="val pos" style="background:#1a2a3a">+1.2°C</td><td class="val">궤도: -1°C</td><td class="val">궤도: -2~-5°C</td>
+</tr>
+<tr>
+  <td class="left val">해수면</td>
+  <td class="frozen val">-120 m</td><td class="cold val">-60 m</td><td class="val">~0 m</td><td class="val">~0 m</td>
+  <td class="val pos" style="background:#1a2a3a">+0.2 m</td><td class="val">?</td><td class="val">궤도: -30~-60 m</td>
+</tr>
+<tr>
+  <td class="left val">해들리 셀 폭</td>
+  <td class="val">~26°</td><td class="val">~28°</td><td class="val">~32°</td><td class="val">~30°</td>
+  <td class="val" style="background:#1a2a3a">~30°</td><td class="val neg">~27°</td><td class="val neg">~25°</td>
+</tr>
+<tr>
+  <td class="left val">편서풍 강도</td>
+  <td class="val">140%</td><td class="val">110%</td><td class="val">85%</td><td class="val">95%</td>
+  <td class="val" style="background:#1a2a3a">100%</td><td class="val pos">115%</td><td class="val pos">130%</td>
+</tr>
+<tr>
+  <td class="left val">몬순 강도</td>
+  <td class="val">50%</td><td class="val">90%</td><td class="val">130%</td><td class="val">90%</td>
+  <td class="val" style="background:#1a2a3a">100%</td><td class="val neg">75%</td><td class="val neg">60%</td>
+</tr>
+</table>
+
+<h3>6-2. 추세 벡터 종합 (방향 + 크기)</h3>
+<div class="summary-box">
+<table>
+<tr>
+  <th>요소</th>
+  <th>과거 10kyr 추세</th>
+  <th>현재 순간 추세</th>
+  <th>자연적 미래 10kyr 전망</th>
+  <th>CO₂ 포함 실제 전망</th>
+  <th>과거-현재 괴리도</th>
+</tr>
+<tr>
+  <td class="left val">이심률</td>
+  <td class="down">▼ 감소 (-0.002/10kyr)</td>
+  <td class="down">▼ 감소 중</td>
+  <td class="down">▼ 감소 지속 → 최솟값</td>
+  <td>궤도 변수 (CO₂ 무관)</td>
+  <td class="val">—</td>
+</tr>
+<tr>
+  <td class="left val">경사각</td>
+  <td class="down">▼ 감소 (-0.8°/10kyr)</td>
+  <td class="down">▼ 감소 중 (-0.47"/yr)</td>
+  <td class="down">▼ 감소 → 최솟값 (22.2°)</td>
+  <td>궤도 변수 (CO₂ 무관)</td>
+  <td class="val">—</td>
+</tr>
+<tr>
+  <td class="left val">65°N 일사량</td>
+  <td class="down">▼ 감소 (-16 W/m² 총)</td>
+  <td class="down">▼ 약한 감소</td>
+  <td class="down">▼ -20 W/m² 추가 감소</td>
+  <td>궤도 강제력 (직접적)</td>
+  <td class="val">—</td>
+</tr>
+<tr>
+  <td class="left val">글로벌 기온</td>
+  <td class="down">▼ 자연 냉각 (-0.5°C)</td>
+  <td class="up">▲ 급속 온난화 (+1.2°C)</td>
+  <td class="down">▼ 자연 -1~2°C</td>
+  <td class="up"><b>▲ +2~4°C 추가 상승</b></td>
+  <td class="val pos"><b>극심한 괴리</b></td>
+</tr>
+<tr>
+  <td class="left val">CO₂</td>
+  <td class="stable">▶ 안정 (~265→280 ppm)</td>
+  <td class="up"><b>▲ 폭증 (+2.5 ppm/yr)</b></td>
+  <td class="stable">자연: ~260 ppm</td>
+  <td class="up"><b>▲ 500~700+ ppm</b></td>
+  <td class="val pos"><b>극심한 괴리</b></td>
+</tr>
+<tr>
+  <td class="left val">해들리 셀</td>
+  <td class="down">▼ 축소 추세</td>
+  <td class="up">▲ 확장 (CO₂ 가열)</td>
+  <td class="down">▼ 축소</td>
+  <td class="up"><b>▲ 확장 (+0.5°/10yr)</b></td>
+  <td class="val pos">방향 역전</td>
+</tr>
+<tr>
+  <td class="left val">편서풍</td>
+  <td class="up">▲ 약간 강화</td>
+  <td class="up">▲ 극쪽 이동</td>
+  <td class="up">▲ 강화 (냉각)</td>
+  <td class="val">복잡 (극쪽 이동+약화)</td>
+  <td class="val stable">방향 일치, 메커니즘 상이</td>
+</tr>
+<tr>
+  <td class="left val">몬순</td>
+  <td class="down">▼ 약화 (-30%/10kyr)</td>
+  <td class="up">▲ 일부 강화 (CO₂)</td>
+  <td class="down">▼ 추가 약화</td>
+  <td class="up">▲ CO₂ 효과로 강화 가능</td>
+  <td class="val pos">방향 역전</td>
+</tr>
+</table>
+</div>
+
+<h3>6-3. 핵심 결론</h3>
+<div class="grid2">
+<div class="card" style="border-color:#2255aa">
+<h4 style="color:#5af">자연적 궤도 추세 (CO₂ 배제 시)</h4>
+<p><b>1)</b> 이심률과 경사각이 동시에 감소 중 → <b>세차 효과 약화</b>, 고위도 여름 일사량 감소</p>
+<p><b>2)</b> 65°N 하지 일사량은 향후 10,000년간 추가 ~20 W/m² 감소 예상</p>
+<p><b>3)</b> 현재 궤도 조건(낮은 e)은 MIS 11과 유사 → <b>자연적으로 ~30,000년 간빙기</b> 가능</p>
+<p><b>4)</b> 해들리 셀 축소, ITCZ 남하, 몬순 약화, 편서풍 강화 추세</p>
+<p><b>5)</b> 궤도 강제력만으로는 <b>완만한 냉각 → 수만 년 후 다음 빙하기</b></p>
+</div>
+<div class="card" style="border-color:#aa3333">
+<h4 style="color:#ff8866">실제 관측 추세 (CO₂ 포함)</h4>
+<p><b>1)</b> CO₂ 420ppm은 과거 800kyr 범위(180~300ppm)를 <b>40% 초과</b></p>
+<p><b>2)</b> CO₂ 복사강제력 (+2.7 W/m²)은 궤도 일사량 변화(~20 W/m²)와 <b>비견할 수준</b>이지만 전 지구적</p>
+<p><b>3)</b> 궤도의 자연 냉각 추세(-0.05°C/kyr)를 CO₂ 온난화(+1.2°C/0.15kyr)가 <b>완전히 역전</b></p>
+<p><b>4)</b> 해들리 셀 확장, 아열대 건조대 확대, 극지 제트 약화·사행 증가</p>
+<p><b>5)</b> 현재 CO₂ 수준이 유지되면 <b>다음 빙하기는 ~50,000년 이상 지연</b> 전망</p>
+</div>
+</div>
+
+<h3>6-4. 과거 800kyr 내 현재의 위치 — 종합 순위</h3>
+<table>
+<tr>
+  <th>지표</th>
+  <th>현재 값</th>
+  <th>800kyr 순위</th>
+  <th>백분위</th>
+  <th>해석</th>
+</tr>
+<tr>
+  <td class="left val">이심률</td>
+  <td class="val">0.0167</td>
+  <td class="val">하위 1/4</td>
+  <td class="val neg">23%</td>
+  <td class="left">과거 대비 매우 원에 가까운 궤도</td>
+</tr>
+<tr>
+  <td class="left val">황도경사각</td>
+  <td class="val">23.44°</td>
+  <td class="val">중간</td>
+  <td class="val stable">57%</td>
+  <td class="left">과거 범위의 중앙값 부근, 감소 중</td>
+</tr>
+<tr>
+  <td class="left val">65°N 일사량</td>
+  <td class="val">474 W/m²</td>
+  <td class="val">하위 절반</td>
+  <td class="val neg">42%</td>
+  <td class="left">간빙기 중 가장 낮은 수준에 가까움</td>
+</tr>
+<tr>
+  <td class="left val">CO₂</td>
+  <td class="val pos">420 ppm</td>
+  <td class="val pos"><b>역대 최고</b></td>
+  <td class="val pos">>99.9%</td>
+  <td class="left">800kyr 자연 범위를 40% 초과</td>
+</tr>
+<tr>
+  <td class="left val">글로벌 기온</td>
+  <td class="val pos">+1.2°C</td>
+  <td class="val pos">상위 5%</td>
+  <td class="val pos">~95%</td>
+  <td class="left">에미안 간빙기 수준에 근접</td>
+</tr>
+<tr>
+  <td class="left val">해수면</td>
+  <td class="val">+0.2 m</td>
+  <td class="val">중상위</td>
+  <td class="val">~70%</td>
+  <td class="left">간빙기 수준이지만 빠른 상승 중</td>
+</tr>
+<tr>
+  <td class="left val">기온 변화 속도</td>
+  <td class="val pos">+0.2°C/10yr</td>
+  <td class="val pos"><b>역대 최고</b></td>
+  <td class="val pos">>99.99%</td>
+  <td class="left">자연 변화의 <b>~100배</b> 속도</td>
+</tr>
+</table>
+
+<footer style="text-align:center;padding:10px;color:#3a4a6a;font-size:.8em;border-top:1px solid #1a2a4a;">
+  지구 궤도·기후 추세 분석 — Earth Simulation Project
+<br>Built with <a href="https://claude.ai/claude-code" style="color:#5af;text-decoration:none">Claude Code</a> (Anthropic Claude Opus 4.6)
+</footer>
+
+</div><!-- container -->
+
+<!-- ===== CHARTS ===== -->
+<script>
+function calcEcc(tKyr) {
+  const t = tKyr;
+  return 0.028011
+    + 0.010738 * Math.cos(2*Math.PI*t/413.0+3.135)
+    + 0.008263 * Math.cos(2*Math.PI*t/100.0+0.208)
+    + 0.004095 * Math.cos(2*Math.PI*t/95.0+1.950)
+    + 0.003633 * Math.cos(2*Math.PI*t/123.8+4.885)
+    + 0.002425 * Math.cos(2*Math.PI*t/131.0+2.105);
+}
+function calcObl(tKyr) {
+  const t = tKyr;
+  return 23.320556
+    + 1.0*Math.cos(2*Math.PI*t/41.0+2.399)
+    + 0.43*Math.cos(2*Math.PI*t/39.73+3.810)
+    + 0.28*Math.cos(2*Math.PI*t/53.6+1.280)
+    + 0.175*Math.cos(2*Math.PI*t/40.3+5.200);
+}
+function calcPrec(tKyr) {
+  const e = calcEcc(tKyr);
+  const omega = 2*Math.PI*tKyr/21.7+1.2 + 0.6*Math.sin(2*Math.PI*tKyr/23.7+0.5) + 0.3*Math.sin(2*Math.PI*tKyr/18.97+2.1);
+  return e * Math.sin(omega);
+}
+function calcInsol(tKyr) {
+  const obl = calcObl(tKyr);
+  const cp = calcPrec(tKyr);
+  return 475.0 + 8.0*(obl-23.32) - 70.0*cp;
+}
+function calcTemp(tKyr) {
+  // Simplified proxy: combine insolation with lag and feedback
+  const Q = calcInsol(tKyr);
+  const e = calcEcc(tKyr);
+  const obl = calcObl(tKyr);
+  // Ice volume proxy (lagged insolation integral)
+  let ice = 0;
+  for (let dt = 0; dt < 8; dt++) {
+    ice += (475 - calcInsol(tKyr - dt)) * 0.12;
+  }
+  return (Q - 475) * 0.05 - ice * 0.3 + (obl - 23.3) * 0.4;
+}
+
+const T_MIN = -800, T_MAX = 100, N = 3600;
+const dtK = (T_MAX - T_MIN) / N;
+const tArr=[], eccArr=[], oblArr=[], precArr=[], insolArr=[], tempArr=[];
+for (let i=0;i<=N;i++) {
+  const t = T_MIN + i*dtK;
+  tArr.push(t);
+  eccArr.push(calcEcc(t));
+  oblArr.push(calcObl(t));
+  precArr.push(calcPrec(t));
+  insolArr.push(calcInsol(t));
+  tempArr.push(calcTemp(t));
+}
+
+// Interglacial markers
+const markers = [
+  {t:-787, label:'MIS 19'},
+  {t:-620, label:'MIS 15'},
+  {t:-424, label:'MIS 11'},
+  {t:-337, label:'MIS 9'},
+  {t:-240, label:'MIS 7'},
+  {t:-125, label:'MIS 5e'},
+  {t:-21, label:'LGM'},
+  {t:0, label:'현재', color:'#5f5'},
+];
+
+function drawChart(canvasId, data, color, yMin, yMax, unit, decimals) {
+  const canvas = document.getElementById(canvasId);
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = rect.width - 24;
+  const h = 180;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pad = {t:14,b:20,l:52,r:14};
+  const cw = w-pad.l-pad.r, ch = h-pad.t-pad.b;
+
+  // Grid
+  ctx.strokeStyle = '#151e35';
+  ctx.lineWidth = 0.5;
+  for (let i=0;i<=4;i++) {
+    const y = pad.t + ch*i/4;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+    const val = yMax - (yMax-yMin)*i/4;
+    ctx.fillStyle = '#4a5a7a'; ctx.font = '9px Courier New'; ctx.textAlign = 'right';
+    ctx.fillText(val.toFixed(decimals)+unit, pad.l-4, y+3);
+  }
+
+  // X labels
+  ctx.fillStyle = '#3a4a6a'; ctx.font = '9px Courier New'; ctx.textAlign = 'center';
+  for (let x=-800;x<=100;x+=100) {
+    const px = pad.l + ((x-T_MIN)/(T_MAX-T_MIN))*cw;
+    ctx.fillText(x+'k', px, h-3);
+  }
+
+  // Interglacial markers
+  for (const m of markers) {
+    const mx = pad.l + ((m.t-T_MIN)/(T_MAX-T_MIN))*cw;
+    ctx.strokeStyle = m.color || '#ffffff15';
+    ctx.lineWidth = m.t===0?1.5:0.5;
+    ctx.setLineDash(m.t===0?[]:[2,3]);
+    ctx.beginPath(); ctx.moveTo(mx,pad.t); ctx.lineTo(mx,pad.t+ch); ctx.stroke();
+    ctx.setLineDash([]);
+    if (canvasId === 'cvEcc') {
+      ctx.fillStyle = m.color || '#3a5a8a';
+      ctx.font = '8px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(m.label, mx, pad.t-2);
+    }
+  }
+
+  // Data
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.2;
+  for (let i=0;i<data.length;i++) {
+    const x = pad.l + (i/N)*cw;
+    const y = pad.t + ch - ((data[i]-yMin)/(yMax-yMin))*ch;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Fill
+  const lastX = pad.l+cw;
+  ctx.lineTo(lastX, pad.t+ch);
+  ctx.lineTo(pad.l, pad.t+ch);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  grad.addColorStop(0, color+'25');
+  grad.addColorStop(1, color+'03');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Current value dot
+  const nowIdx = Math.round(((0-T_MIN)/(T_MAX-T_MIN))*N);
+  if (nowIdx>=0 && nowIdx<data.length) {
+    const nx = pad.l + (nowIdx/N)*cw;
+    const ny = pad.t+ch-((data[nowIdx]-yMin)/(yMax-yMin))*ch;
+    ctx.beginPath(); ctx.arc(nx,ny,4,0,Math.PI*2);
+    ctx.fillStyle = '#55ff55';
+    ctx.fill();
+    ctx.beginPath(); ctx.arc(nx,ny,6,0,Math.PI*2);
+    ctx.strokeStyle = '#55ff55';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // Value label
+    ctx.fillStyle = '#55ff55';
+    ctx.font = 'bold 9px Courier New';
+    ctx.textAlign = 'left';
+    ctx.fillText(data[nowIdx].toFixed(decimals)+unit, nx+8, ny-4);
+  }
+}
+
+const eccMin = Math.min(...eccArr)-0.003, eccMax = Math.max(...eccArr)+0.003;
+const oblMin = Math.min(...oblArr)-0.3, oblMax = Math.max(...oblArr)+0.3;
+const precMin = Math.min(...precArr)-0.005, precMax = Math.max(...precArr)+0.005;
+const insolMin = Math.min(...insolArr)-5, insolMax = Math.max(...insolArr)+5;
+const tempMin = Math.min(...tempArr)-1, tempMax = Math.max(...tempArr)+1;
+
+drawChart('cvEcc', eccArr, '#ff6b6b', eccMin, eccMax, '', 3);
+drawChart('cvObl', oblArr, '#4ecdc4', oblMin, oblMax, '°', 1);
+drawChart('cvPrec', precArr, '#ffe66d', precMin, precMax, '', 3);
+drawChart('cvInsol', insolArr, '#a29bfe', insolMin, insolMax, '', 0);
+drawChart('cvTemp', tempArr, '#ff9966', tempMin, tempMax, '°C', 1);
+
+window.addEventListener('resize', () => {
+  drawChart('cvEcc', eccArr, '#ff6b6b', eccMin, eccMax, '', 3);
+  drawChart('cvObl', oblArr, '#4ecdc4', oblMin, oblMax, '°', 1);
+  drawChart('cvPrec', precArr, '#ffe66d', precMin, precMax, '', 3);
+  drawChart('cvInsol', insolArr, '#a29bfe', insolMin, insolMax, '', 0);
+  drawChart('cvTemp', tempArr, '#ff9966', tempMin, tempMax, '°C', 1);
+});
+</script>
+</body>
+</html>

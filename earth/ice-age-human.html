@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빙하기는 인간에게 좋은가? — 거주 가능성 분석</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060c1a;color:#c8cce0;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.7}
+.container{max-width:1100px;margin:0 auto;padding:30px 24px}
+
+header{text-align:center;padding:40px 0 30px;border-bottom:1px solid #1a2a4a;margin-bottom:36px}
+header h1{font-size:2em;letter-spacing:1px;margin-bottom:8px}
+header h1 span{background:linear-gradient(90deg,#5af,#4ecdc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header p{color:#6a8aaa;font-size:.95em}
+header .verdict{display:inline-block;margin-top:16px;padding:8px 24px;background:linear-gradient(135deg,#1a0a2e,#2a1040);border:1px solid #5a3a8a;border-radius:8px;color:#d4a0ff;font-size:1.1em;font-weight:600}
+
+h2{color:#5af;font-size:1.2em;margin:36px 0 16px;padding:10px 14px;background:#0c1530;border-left:3px solid #5af;border-radius:0 6px 6px 0}
+h3{color:#8cf;font-size:1em;margin:24px 0 12px}
+
+.section{background:linear-gradient(135deg,#0a1225,#0e1835);border:1px solid #1a2a5a;border-radius:12px;padding:24px;margin:20px 0}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.88em}
+th{background:#0c1530;color:#5af;padding:10px 12px;text-align:left;border-bottom:2px solid #1a3060;font-weight:600}
+td{padding:9px 12px;border-bottom:1px solid #111a30}
+tr:hover td{background:#0e1530}
+.bad{color:#ff6b6b;font-weight:600}
+.good{color:#55efc4;font-weight:600}
+.warn{color:#ffd93d;font-weight:600}
+.neutral{color:#a0b0cc}
+
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+.comp-card{background:#0a1225;border:1px solid #152040;border-radius:10px;padding:20px;position:relative}
+.comp-card.ice{border-color:#3a5a8a;border-top:3px solid #5af}
+.comp-card.inter{border-color:#2a7a5a;border-top:3px solid #55efc4}
+.comp-card h4{font-size:1em;margin-bottom:12px}
+.comp-card.ice h4{color:#5af}
+.comp-card.inter h4{color:#55efc4}
+.comp-card ul{list-style:none;padding:0}
+.comp-card li{padding:4px 0;font-size:.85em;color:#8899bb}
+.comp-card li::before{content:'• ';color:#4a6a8a}
+
+.stat-bar{display:flex;align-items:center;gap:12px;margin:8px 0}
+.stat-bar .label{width:160px;font-size:.82em;color:#7a8aaa;text-align:right;flex-shrink:0}
+.stat-bar .bar-bg{flex:1;height:24px;background:#0c1530;border-radius:4px;overflow:hidden;position:relative}
+.stat-bar .bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:.75em;color:#fff;font-weight:600;white-space:nowrap}
+.stat-bar .bar-fill.ice{background:linear-gradient(90deg,#2a4a8a,#5af)}
+.stat-bar .bar-fill.optimum{background:linear-gradient(90deg,#1a6a4a,#55efc4)}
+.stat-bar .bar-fill.now{background:linear-gradient(90deg,#5a4a1a,#ffd93d)}
+.stat-bar .bar-fill.hot{background:linear-gradient(90deg,#6a2a1a,#ff6b6b)}
+
+.timeline{position:relative;padding-left:30px;margin:20px 0}
+.timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:2px;background:#1a2a4a}
+.tl-item{position:relative;margin-bottom:20px;padding-left:20px}
+.tl-item::before{content:'';position:absolute;left:-22px;top:8px;width:10px;height:10px;border-radius:50%;border:2px solid #5af;background:#060c1a}
+.tl-item.bad-event::before{border-color:#ff6b6b}
+.tl-item.good-event::before{border-color:#55efc4}
+.tl-item .time{font-size:.78em;color:#5af;font-weight:600}
+.tl-item.bad-event .time{color:#ff6b6b}
+.tl-item.good-event .time{color:#55efc4}
+.tl-item .desc{font-size:.85em;color:#8899bb;margin-top:2px}
+.tl-item .detail{font-size:.78em;color:#5a6a8a;margin-top:2px}
+
+.conclusion-box{background:linear-gradient(135deg,#0a1a30,#101835);border:2px solid #3a5a8a;border-radius:12px;padding:24px;margin:24px 0;text-align:center}
+.conclusion-box h3{color:#fff;margin-bottom:12px}
+.conclusion-box p{font-size:.9em;color:#a0b0cc;max-width:800px;margin:0 auto;line-height:1.8}
+
+canvas{display:block;margin:16px auto;border-radius:8px;background:#080e20}
+
+.spectrum{display:flex;align-items:center;margin:20px 0;padding:16px;background:#0a1225;border-radius:8px;border:1px solid #152040}
+.spectrum .left{color:#5af;font-size:.82em;width:100px;text-align:center}
+.spectrum .right{color:#ff6b6b;font-size:.82em;width:100px;text-align:center}
+.spectrum .bar{flex:1;height:30px;border-radius:15px;background:linear-gradient(90deg,#1a3a6a,#1a5a4a,#5a5a1a,#6a3a1a);position:relative;margin:0 12px}
+.spectrum .marker{position:absolute;top:-8px;width:2px;height:46px;background:#fff}
+.spectrum .marker-label{position:absolute;top:-24px;font-size:.7em;color:#fff;white-space:nowrap;transform:translateX(-50%)}
+
+.key-point{display:flex;gap:12px;margin:12px 0;padding:12px 16px;background:#0c1530;border-radius:8px;border-left:3px solid #5af}
+.key-point.danger{border-left-color:#ff6b6b}
+.key-point.success{border-left-color:#55efc4}
+.key-point .num{font-size:1.3em;font-weight:800;color:#5af;min-width:30px}
+.key-point.danger .num{color:#ff6b6b}
+.key-point.success .num{color:#55efc4}
+.key-point .text{font-size:.85em;color:#8899bb;line-height:1.6}
+
+@media(max-width:700px){
+  .comparison{grid-template-columns:1fr}
+  .stat-bar .label{width:100px;font-size:.75em}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1><span>빙하기는 인간에게 좋은가?</span></h1>
+  <p>궤도 데이터 · 거주 가능 면적 · 역사적 증거로 분석하는 빙하기 vs 간빙기</p>
+  <div class="verdict">결론: 빙하기는 인간에게 매우 불리하다</div>
+</header>
+
+<!-- ===== 1. 핵심 비교 ===== -->
+<h2>1. 빙하기 vs 간빙기 — 핵심 수치 비교</h2>
+
+<div class="section">
+  <table>
+    <thead>
+      <tr><th>지표</th><th>빙하기 (LGM, 21ka)</th><th>간빙기 최적기 (6ka)</th><th>현재</th><th>+3°C 온난화</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>빙하 면적</td><td class="bad">~45M km²</td><td class="good">~14M km²</td><td>~15M km²</td><td class="good">~8M km²</td></tr>
+      <tr><td>사막 면적</td><td class="bad">~55M km²</td><td class="good">~25M km²</td><td>~35M km²</td><td class="bad">~45M km²</td></tr>
+      <tr><td><b>거주 적합 육지</b></td><td class="bad"><b>~45M km² (30%)</b></td><td class="good"><b>~75M km² (50%)</b></td><td class="warn"><b>~65M km² (44%)</b></td><td class="bad"><b>~55M km² (37%)</b></td></tr>
+      <tr><td>글로벌 기온</td><td class="bad">-5°C</td><td class="good">+0.5°C</td><td>+1.2°C</td><td class="bad">+3°C</td></tr>
+      <tr><td>해수면</td><td>-120m</td><td>~0m</td><td>+0.2m</td><td class="warn">+0.5~1m</td></tr>
+      <tr><td>CO₂</td><td>180 ppm</td><td>265 ppm</td><td class="warn">420 ppm</td><td class="bad">500~700 ppm</td></tr>
+      <tr><td>편서풍 강도</td><td class="bad">140% (폭풍↑)</td><td>85%</td><td>100%</td><td class="warn">확장</td></tr>
+      <tr><td>몬순 강도</td><td class="bad">50% (건조)</td><td class="good">130% (습윤)</td><td>100%</td><td class="warn">불확실</td></tr>
+      <tr><td>ITCZ 위치</td><td class="bad">~2°N</td><td class="good">~8°N</td><td>~5°N</td><td class="warn">변동</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== 2. 거주 가능 면적 시각화 ===== -->
+<h2>2. 시대별 거주 가능 면적</h2>
+
+<div class="section">
+  <div class="stat-bar">
+    <div class="label">빙하기 (LGM)</div>
+    <div class="bar-bg"><div class="bar-fill ice" style="width:30%">30% — 45M km²</div></div>
+  </div>
+  <div class="stat-bar">
+    <div class="label">현재</div>
+    <div class="bar-bg"><div class="bar-fill now" style="width:44%">44% — 65M km²</div></div>
+  </div>
+  <div class="stat-bar">
+    <div class="label">간빙기 최적기</div>
+    <div class="bar-bg"><div class="bar-fill optimum" style="width:50%">50% — 75M km² ★ 최적</div></div>
+  </div>
+  <div class="stat-bar">
+    <div class="label">+3°C 온난화</div>
+    <div class="bar-bg"><div class="bar-fill hot" style="width:37%">37% — 55M km²</div></div>
+  </div>
+  <div class="stat-bar">
+    <div class="label">자연 +50kyr</div>
+    <div class="bar-bg"><div class="bar-fill ice" style="width:28%">28% — 40M km²</div></div>
+  </div>
+
+  <canvas id="chartHabitability" width="1000" height="400"></canvas>
+</div>
+
+<!-- ===== 3. 빙하기가 나쁜 5가지 이유 ===== -->
+<h2>3. 빙하기가 인간에게 불리한 5가지 이유</h2>
+
+<div class="section">
+  <div class="key-point danger">
+    <div class="num">1</div>
+    <div class="text"><b>빙하가 땅을 덮는다</b> — 북미는 시카고까지, 유럽은 독일 북부까지 두께 3km의 빙상. 현재 세계 인구의 ~30%가 사는 땅이 얼음 아래로 사라진다.</div>
+  </div>
+  <div class="key-point danger">
+    <div class="num">2</div>
+    <div class="text"><b>ITCZ 남하 → 열대·아열대 건조화</b> — 경사각 22.7°에서 ITCZ가 ~2°N으로 남하. 사하라 사막이 확장되고, 몬순이 현재의 50%로 약화. 아프리카·남아시아 식량 생산 격감.</div>
+  </div>
+  <div class="key-point danger">
+    <div class="num">3</div>
+    <div class="text"><b>편서풍 140% 강화 → 폭풍 증가</b> — 적도-극 온도차 확대로 제트기류 강화. 온대 지역에 강한 폭풍이 잦아지고 농경 조건이 불안정해진다.</div>
+  </div>
+  <div class="key-point danger">
+    <div class="num">4</div>
+    <div class="text"><b>해수면 -120m → 양날의 검</b> — 대륙붕 노출로 베링 육교, 순다 대륙붕 등 일부 땅이 늘어나지만, 대부분은 건조한 툰드라. 해안 생태계(산호, 어장) 파괴.</div>
+  </div>
+  <div class="key-point danger">
+    <div class="num">5</div>
+    <div class="text"><b>생물 다양성 감소</b> — 열대림이 축소되고 바이옴이 적도 쪽으로 압축. 종 다양성 감소 → 식량 자원 감소 → 인류 생존 기반 약화.</div>
+  </div>
+</div>
+
+<!-- ===== 4. 빙하기 vs 간빙기 상세 비교 ===== -->
+<h2>4. 상세 비교: 빙하기 vs 간빙기 최적기</h2>
+
+<div class="comparison">
+  <div class="comp-card ice">
+    <h4>빙하기 (LGM, 21,000년 전)</h4>
+    <ul>
+      <li>경사각: 22.7° (낮음)</li>
+      <li>이심률: 0.019</li>
+      <li>65°N 일사량: 445 W/m² (낮음)</li>
+      <li>글로벌 기온: <b>현재 -5°C</b></li>
+      <li>빙하 면적: 45M km² (현재의 3배)</li>
+      <li>사막 면적: 55M km² (현재의 1.6배)</li>
+      <li>사하라: <b>확장 사막</b></li>
+      <li>열대림: <b>축소 → 피난처(refugia)에 고립</b></li>
+      <li>인류 인구: <b>~100만 명 추정</b></li>
+      <li>편서풍: 140% → 심한 폭풍</li>
+      <li>몬순: 50% → 열대 건조화</li>
+      <li>농경: <b>불가능</b></li>
+    </ul>
+  </div>
+  <div class="comp-card inter">
+    <h4>간빙기 최적기 (6,000년 전)</h4>
+    <ul>
+      <li>경사각: 24.1° (높음)</li>
+      <li>이심률: 0.019</li>
+      <li>65°N 일사량: 490 W/m² (높음)</li>
+      <li>글로벌 기온: <b>현재 +0.5°C</b></li>
+      <li>빙하 면적: 14M km² (최소)</li>
+      <li>사막 면적: 25M km² (최소)</li>
+      <li>사하라: <b>녹색 초원·호수</b></li>
+      <li>열대림: <b>확장 → 생물 다양성 최대</b></li>
+      <li>인류 인구: <b>~500만~1000만 명</b></li>
+      <li>편서풍: 85% → 온화한 기후</li>
+      <li>몬순: 130% → 풍부한 강수</li>
+      <li>농경: <b>비옥한 초승달 지대 최적</b></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== 5. 바람 패턴 비교 ===== -->
+<h2>5. 바람 패턴이 거주 가능성을 결정하는 메커니즘</h2>
+
+<div class="section">
+  <canvas id="chartWind" width="1000" height="350"></canvas>
+
+  <table>
+    <thead>
+      <tr><th>위도대</th><th>빙하기 바람</th><th>빙하기 결과</th><th>간빙기 최적기 바람</th><th>간빙기 결과</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0–10° (ITCZ)</td>
+        <td>상승 약화, 남하</td>
+        <td class="bad">강수 감소, 열대림 축소</td>
+        <td>강한 상승, 북상</td>
+        <td class="good">강수 최대, 열대림 확장</td>
+      </tr>
+      <tr>
+        <td>10–20° (무역풍)</td>
+        <td>NE 강화</td>
+        <td class="bad">건조화 심화</td>
+        <td>몬순 전환</td>
+        <td class="good">습윤, 사바나 확장</td>
+      </tr>
+      <tr>
+        <td>20–30° (아열대)</td>
+        <td>강한 하강 확대</td>
+        <td class="bad">사막 확장 (55M km²)</td>
+        <td>하강 축소</td>
+        <td class="good">사막 축소 (25M km²)</td>
+      </tr>
+      <tr>
+        <td>30–50° (편서풍)</td>
+        <td>140% 강화, 남하</td>
+        <td class="bad">폭풍↑, 농경 불안정</td>
+        <td>85% 약화, 북상</td>
+        <td class="good">온화, 농경 최적</td>
+      </tr>
+      <tr>
+        <td>50–70° (극전선)</td>
+        <td>빙상 + 극동풍 확장</td>
+        <td class="bad">거주 불가 (빙상)</td>
+        <td>편서풍 북상</td>
+        <td class="good">온대 기후 확장</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== 6. 역사적 증거 ===== -->
+<h2>6. 역사적 증거: 빙하기와 인류</h2>
+
+<div class="section">
+  <div class="timeline">
+    <div class="tl-item bad-event">
+      <div class="time">~70,000년 전 — 토바 화산 + 빙하기</div>
+      <div class="desc">경사각 22.5°, ITCZ 남하, 건조화 → <b>인류 병목: 전체 인구 수천 명까지 감소</b></div>
+      <div class="detail">아프리카 대부분 건조화, 식량 자원 급감. 유전적 다양성 최저점.</div>
+    </div>
+    <div class="tl-item good-event">
+      <div class="time">~60,000년 전 — 성공적 아프리카 탈출</div>
+      <div class="desc">MIS 3 습윤기, 해수면 -80m → <b>바브엘만데브 해협 도보 가능</b></div>
+      <div class="detail">빙하기의 해수면 저하가 이동 경로를 열어줌 (빙하기의 유일한 이점)</div>
+    </div>
+    <div class="tl-item bad-event">
+      <div class="time">~21,000년 전 — 마지막 빙하 최성기 (LGM)</div>
+      <div class="desc">글로벌 -5°C, 빙하 45M km² → <b>인류 적도 근처 피난처에 밀집</b></div>
+      <div class="detail">유럽 인구 거의 소멸, 이베리아·발칸 등 소수 피난처만 생존. 인류 ~100만 명.</div>
+    </div>
+    <div class="tl-item good-event">
+      <div class="time">~25,000–15,000년 전 — 베링 육교</div>
+      <div class="desc">해수면 -120m → <b>아메리카 대륙 진출</b></div>
+      <div class="detail">빙하기 해수면 저하의 두 번째 이점. 단, 이동 경로는 극도로 추운 환경.</div>
+    </div>
+    <div class="tl-item good-event">
+      <div class="time">~11,700년 전 — 홀로세 시작 (빙하기 종료)</div>
+      <div class="desc">경사각 상승, ITCZ 북상, 몬순 강화 → <b>농업 혁명의 시작</b></div>
+      <div class="detail">빙하기가 끝나야 비로소 농경이 가능해짐. 인류 문명의 진정한 출발점.</div>
+    </div>
+    <div class="tl-item good-event">
+      <div class="time">~6,000년 전 — 간빙기 최적기</div>
+      <div class="desc">경사각 24.1°, ITCZ ~8°N → <b>사하라 녹색화, 거주 면적 최대</b></div>
+      <div class="detail">인류 인구 급증, 목축·농경 확산, 도시 국가 형성의 토대.</div>
+    </div>
+    <div class="tl-item bad-event">
+      <div class="time">~5,500년 전 — 사하라 사막화</div>
+      <div class="desc">경사각 감소, ITCZ 남하, 몬순 약화 → <b>사하라 급속 사막화</b></div>
+      <div class="detail">목축민 나일강으로 이주 → 이집트 문명 탄생. 궤도 냉각의 첫 신호.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 7. 빙하기의 유일한 이점 ===== -->
+<h2>7. 빙하기의 유일한 이점</h2>
+
+<div class="section">
+  <table>
+    <thead>
+      <tr><th>이점</th><th>내용</th><th>실제 영향</th><th>평가</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>해수면 저하</td>
+        <td>-120m → 대륙붕 노출, 육교 형성</td>
+        <td>베링 육교, 순다 대륙붕, 영불 연결</td>
+        <td class="warn">이동 경로 ↑, 하지만 노출 땅은 대부분 툰드라</td>
+      </tr>
+      <tr>
+        <td>대형 빙하 담수</td>
+        <td>담수가 빙하에 저장</td>
+        <td>해양 염도 상승, 일부 생태계 변화</td>
+        <td class="neutral">인간에게 직접 이점 없음</td>
+      </tr>
+      <tr>
+        <td>열대 질병 감소</td>
+        <td>추운 기후 → 열대 병원체 서식지 축소</td>
+        <td>말라리아 등 열대 질병 범위 축소</td>
+        <td class="warn">미미한 이점, 다른 질병으로 대체</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="conclusion-box">
+    <h3>빙하기 이점 총평</h3>
+    <p>빙하기의 유일한 실질적 이점은 <b>해수면 저하로 인한 육교 형성</b>뿐이며,<br>
+    이는 인류 확산에 기여했으나 대부분의 시기에 빙하기는 인류에게 극도로 불리했다.</p>
+  </div>
+</div>
+
+<!-- ===== 8. 스펙트럼 ===== -->
+<h2>8. 인류 거주 적합성 스펙트럼</h2>
+
+<div class="section">
+  <canvas id="chartSpectrum" width="1000" height="300"></canvas>
+
+  <table>
+    <thead>
+      <tr><th>시나리오</th><th>거주 적합 비율</th><th>위협 요인</th><th>평가</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>빙하기 (LGM)</td><td>30%</td><td>얼음 + 건조</td><td class="bad">생존 위기</td></tr>
+      <tr><td>자연 +50kyr (다음 빙하기)</td><td>28%</td><td>빙하 재확장</td><td class="bad">LGM과 유사</td></tr>
+      <tr><td>+3°C 온난화</td><td>37%</td><td>열 + 사막</td><td class="bad">빙하기 수준 접근</td></tr>
+      <tr><td>현재</td><td>44%</td><td>온난화 진행 중</td><td class="warn">악화 추세</td></tr>
+      <tr><td><b>간빙기 최적기</b></td><td><b>50%</b></td><td>없음</td><td class="good">★ 인류 최적</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== 9. 역설 ===== -->
+<h2>9. 역설: 양쪽 극단 모두 위험</h2>
+
+<div class="section">
+  <div class="spectrum">
+    <div class="left">빙하기<br>(얼음+건조)</div>
+    <div class="bar">
+      <div class="marker" style="left:15%"><div class="marker-label">LGM 30%</div></div>
+      <div class="marker" style="left:44%;background:#ffd93d"><div class="marker-label" style="color:#ffd93d">현재 44%</div></div>
+      <div class="marker" style="left:55%;background:#55efc4"><div class="marker-label" style="color:#55efc4">최적기 50%</div></div>
+      <div class="marker" style="left:78%;background:#ff6b6b"><div class="marker-label" style="color:#ff6b6b">+3°C 37%</div></div>
+    </div>
+    <div class="right">극온난화<br>(열+사막)</div>
+  </div>
+
+  <div class="key-point">
+    <div class="num">!</div>
+    <div class="text"><b>핵심 역설</b> — 빙하기도 나쁘고, 극단적 온난화도 나쁘다. 인간에게 최적인 것은 <b>간빙기 최적기(6,000년 전)</b>와 같은 온화한 기후다. 현재는 궤도적으로 서서히 냉각되어야 하지만, CO₂에 의해 반대 방향(온난화)으로 가고 있다.</div>
+  </div>
+  <div class="key-point danger">
+    <div class="num">!</div>
+    <div class="text"><b>이중 위협</b> — +3°C 이상 온난화 시 거주 가능 면적(37%)이 빙하기(30%)에 근접한다. 원인은 다르지만(얼음 대신 열과 사막), 결과는 유사하게 수십억 명이 거주 불능 지역에 놓인다.</div>
+  </div>
+</div>
+
+<!-- ===== 10. 최종 결론 ===== -->
+<h2>10. 최종 결론</h2>
+
+<div class="conclusion-box">
+  <h3>빙하기는 인간에게 좋은가?</h3>
+  <p style="font-size:1.1em;color:#ff6b6b;margin-bottom:16px"><b>아니다. 빙하기는 인간에게 매우 불리하다.</b></p>
+  <p>
+    인류 문명의 모든 것 — 농업, 도시, 문자, 과학 — 은 빙하기가 끝난 후에 탄생했다.<br>
+    빙하기에 인류는 적도 근처 소수 피난처에서 수렵·채집으로 겨우 생존했으며,<br>
+    최악의 시기에는 전체 인구가 <b>수천 명까지 감소</b>했다.<br><br>
+    그러나 반대쪽 극단(+3°C 이상 온난화)도 빙하기 못지않게 위험하다.<br>
+    <b>인류에게 최적인 것은 지금보다 약간 따뜻한 간빙기 최적기(6,000년 전) 수준의 기후</b>이며,<br>
+    이때 거주 가능 면적은 지구 육지의 50%로 최대였다.
+  </p>
+</div>
+
+<footer style="margin-top:50px;padding:20px 0;border-top:1px solid #1a2a4a;text-align:center;color:#3a4a6a;font-size:.8em">
+  Earth Simulation Project — 빙하기 vs 간빙기 거주 가능성 분석
+<br>Built with <a href="https://claude.ai/claude-code" style="color:#5af;text-decoration:none">Claude Code</a> (Anthropic Claude Opus 4.6)
+</footer>
+
+</div>
+
+<script>
+// ===== Chart 1: 거주 가능 면적 시계열 =====
+(function(){
+  const c = document.getElementById('chartHabitability');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = {t:40,r:30,b:60,l:70};
+  const gW = W-pad.l-pad.r, gH = H-pad.t-pad.b;
+
+  // 데이터: 시간(kyr BP) vs 거주 적합 비율(%)
+  const data = [
+    {t:-800,v:32,label:''},{t:-700,v:28,label:''},{t:-600,v:35,label:''},
+    {t:-500,v:42,label:''},{t:-424,v:48,label:'MIS 11'},{t:-400,v:45,label:''},
+    {t:-337,v:46,label:'MIS 9'},{t:-300,v:33,label:''},{t:-250,v:30,label:''},
+    {t:-200,v:35,label:''},{t:-125,v:47,label:'MIS 5e'},{t:-100,v:38,label:''},
+    {t:-70,v:30,label:'토바'},{t:-50,v:32,label:''},{t:-21,v:30,label:'LGM'},
+    {t:-12,v:38,label:''},{t:-6,v:50,label:'최적기'},{t:0,v:44,label:'현재'}
+  ];
+
+  ctx.fillStyle='#080e20';ctx.fillRect(0,0,W,H);
+
+  // 그리드
+  const tMin=-800,tMax=50,vMin=20,vMax=55;
+  function tx(t){return pad.l+(t-tMin)/(tMax-tMin)*gW}
+  function ty(v){return pad.t+(vMax-v)/(vMax-vMin)*gH}
+
+  ctx.strokeStyle='#111a30';ctx.lineWidth=1;
+  for(let v=20;v<=55;v+=5){
+    ctx.beginPath();ctx.moveTo(pad.l,ty(v));ctx.lineTo(W-pad.r,ty(v));ctx.stroke();
+    ctx.fillStyle='#4a5a7a';ctx.font='11px sans-serif';ctx.textAlign='right';
+    ctx.fillText(v+'%',pad.l-8,ty(v)+4);
+  }
+  for(let t=-800;t<=0;t+=100){
+    ctx.beginPath();ctx.moveTo(tx(t),pad.t);ctx.lineTo(tx(t),H-pad.b);ctx.stroke();
+    ctx.fillStyle='#4a5a7a';ctx.font='11px sans-serif';ctx.textAlign='center';
+    ctx.fillText(t===0?'현재':t+'kyr',tx(t),H-pad.b+18);
+  }
+
+  // 영역: 30% 이하 위험
+  ctx.fillStyle='rgba(255,107,107,0.06)';
+  ctx.fillRect(pad.l,ty(30),gW,ty(vMin)-ty(30));
+
+  // 영역: 45% 이상 적합
+  ctx.fillStyle='rgba(85,239,196,0.06)';
+  ctx.fillRect(pad.l,ty(vMax),gW,ty(45)-ty(vMax));
+
+  // 라벨
+  ctx.fillStyle='rgba(255,107,107,0.4)';ctx.font='11px sans-serif';ctx.textAlign='left';
+  ctx.fillText('위험 구간 (<30%)',pad.l+8,ty(22));
+  ctx.fillStyle='rgba(85,239,196,0.4)';
+  ctx.fillText('적합 구간 (>45%)',pad.l+8,ty(53));
+
+  // 면적 그래프
+  ctx.beginPath();
+  ctx.moveTo(tx(data[0].t),ty(data[0].v));
+  for(let i=1;i<data.length;i++) ctx.lineTo(tx(data[i].t),ty(data[i].v));
+  ctx.strokeStyle='#5af';ctx.lineWidth=2.5;ctx.stroke();
+
+  // 면적 채우기
+  ctx.beginPath();
+  ctx.moveTo(tx(data[0].t),ty(data[0].v));
+  for(let i=1;i<data.length;i++) ctx.lineTo(tx(data[i].t),ty(data[i].v));
+  ctx.lineTo(tx(data[data.length-1].t),ty(vMin));ctx.lineTo(tx(data[0].t),ty(vMin));ctx.closePath();
+  ctx.fillStyle='rgba(85,170,255,0.1)';ctx.fill();
+
+  // 포인트 + 라벨
+  data.forEach(d=>{
+    if(!d.label)return;
+    const x=tx(d.t),y=ty(d.v);
+    ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle=d.v>=45?'#55efc4':d.v<=32?'#ff6b6b':'#ffd93d';
+    ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();
+
+    ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+    ctx.fillText(d.label,x,y-14);
+    ctx.fillStyle='#8899bb';ctx.font='10px sans-serif';
+    ctx.fillText(d.v+'%',x,y-3>pad.t?y+20:y+20);
+  });
+
+  // 제목
+  ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
+  ctx.fillText('800,000년간 거주 적합 면적 변화',W/2,24);
+})();
+
+// ===== Chart 2: 위도별 바람·거주 비교 =====
+(function(){
+  const c = document.getElementById('chartWind');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = {t:40,r:30,b:50,l:70};
+  const gW = W-pad.l-pad.r, gH = H-pad.t-pad.b;
+
+  ctx.fillStyle='#080e20';ctx.fillRect(0,0,W,H);
+
+  // 위도대 데이터
+  const bands = [
+    {lat:'70-90°N',ice:0,inter:0,cur:0,type:'극'},
+    {lat:'60-70°N',ice:5,inter:40,cur:25,type:'극전선'},
+    {lat:'50-60°N',ice:30,inter:75,cur:65,type:'편서풍'},
+    {lat:'40-50°N',ice:50,inter:85,cur:75,type:'편서풍'},
+    {lat:'30-40°N',ice:35,inter:80,cur:60,type:'전이'},
+    {lat:'20-30°N',ice:10,inter:45,cur:20,type:'아열대'},
+    {lat:'10-20°N',ice:40,inter:85,cur:70,type:'무역풍'},
+    {lat:'0-10°N',ice:55,inter:90,cur:80,type:'ITCZ'},
+  ];
+
+  const barH = (gH-20)/bands.length;
+  const maxV = 100;
+
+  // 그리드
+  ctx.strokeStyle='#111a30';ctx.lineWidth=1;
+  for(let v=0;v<=100;v+=25){
+    const x=pad.l+v/maxV*gW;
+    ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke();
+    ctx.fillStyle='#4a5a7a';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(v+'%',x,H-pad.b+16);
+  }
+
+  bands.forEach((b,i)=>{
+    const y = pad.t + i*barH + 4;
+    const bh = barH*0.25;
+
+    // 라벨
+    ctx.fillStyle='#7a8aaa';ctx.font='11px sans-serif';ctx.textAlign='right';
+    ctx.fillText(b.lat,pad.l-8,y+barH/2+4);
+
+    // 빙하기 바
+    const w1=b.ice/maxV*gW;
+    ctx.fillStyle='rgba(85,170,255,0.7)';
+    ctx.fillRect(pad.l,y,w1,bh);
+
+    // 간빙기 바
+    const w2=b.inter/maxV*gW;
+    ctx.fillStyle='rgba(85,239,196,0.7)';
+    ctx.fillRect(pad.l,y+bh+2,w2,bh);
+
+    // 현재 바
+    const w3=b.cur/maxV*gW;
+    ctx.fillStyle='rgba(255,217,61,0.7)';
+    ctx.fillRect(pad.l,y+2*(bh+2),w3,bh);
+  });
+
+  // 범례
+  const lx=W-200,ly=pad.t+8;
+  [['빙하기','rgba(85,170,255,0.7)'],['간빙기 최적기','rgba(85,239,196,0.7)'],['현재','rgba(255,217,61,0.7)']].forEach(([t,c2],i)=>{
+    ctx.fillStyle=c2;ctx.fillRect(lx,ly+i*18,12,12);
+    ctx.fillStyle='#c8cce0';ctx.font='11px sans-serif';ctx.textAlign='left';
+    ctx.fillText(t,lx+18,ly+i*18+10);
+  });
+
+  ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
+  ctx.fillText('위도대별 거주 적합도 비교 (빙하기 vs 간빙기 vs 현재)',W/2,24);
+  ctx.fillStyle='#5a7a9a';ctx.font='11px sans-serif';
+  ctx.fillText('거주 적합도 (%)',W/2,H-pad.b+34);
+})();
+
+// ===== Chart 3: 스펙트럼 차트 =====
+(function(){
+  const c = document.getElementById('chartSpectrum');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = {t:50,r:40,b:60,l:60};
+  const gW = W-pad.l-pad.r, gH = H-pad.t-pad.b;
+
+  ctx.fillStyle='#080e20';ctx.fillRect(0,0,W,H);
+
+  // X축: 글로벌 기온 편차 (-6 ~ +5)
+  // Y축: 거주 적합 비율 (%)
+  const tMin=-6,tMax=5,vMin=20,vMax=55;
+  function tx(t){return pad.l+(t-tMin)/(tMax-tMin)*gW}
+  function ty(v){return pad.t+(vMax-v)/(vMax-vMin)*gH}
+
+  // 배경 그라데이션
+  const grad=ctx.createLinearGradient(pad.l,0,W-pad.r,0);
+  grad.addColorStop(0,'rgba(85,170,255,0.08)');
+  grad.addColorStop(0.45,'rgba(85,239,196,0.08)');
+  grad.addColorStop(1,'rgba(255,107,107,0.08)');
+  ctx.fillStyle=grad;ctx.fillRect(pad.l,pad.t,gW,gH);
+
+  // 그리드
+  ctx.strokeStyle='#151e35';ctx.lineWidth=1;
+  for(let t=-6;t<=5;t++){
+    ctx.beginPath();ctx.moveTo(tx(t),pad.t);ctx.lineTo(tx(t),H-pad.b);ctx.stroke();
+    ctx.fillStyle='#4a5a7a';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText((t>0?'+':'')+t+'°C',tx(t),H-pad.b+18);
+  }
+  for(let v=20;v<=55;v+=5){
+    ctx.beginPath();ctx.moveTo(pad.l,ty(v));ctx.lineTo(W-pad.r,ty(v));ctx.stroke();
+    ctx.fillStyle='#4a5a7a';ctx.font='10px sans-serif';ctx.textAlign='right';
+    ctx.fillText(v+'%',pad.l-8,ty(v)+4);
+  }
+
+  // 곡선 데이터
+  const curve=[
+    [-5,30],[-4,33],[-3,36],[-2,40],[-1,43],[0,46],[0.5,50],[1,47],[1.2,44],[1.5,42],[2,40],[3,37],[4,33],[5,28]
+  ];
+
+  // 곡선
+  ctx.beginPath();
+  curve.forEach(([t,v],i)=>{
+    if(i===0)ctx.moveTo(tx(t),ty(v));else ctx.lineTo(tx(t),ty(v));
+  });
+  ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+
+  // 채우기
+  ctx.beginPath();
+  curve.forEach(([t,v],i)=>{
+    if(i===0)ctx.moveTo(tx(t),ty(v));else ctx.lineTo(tx(t),ty(v));
+  });
+  ctx.lineTo(tx(curve[curve.length-1][0]),ty(vMin));
+  ctx.lineTo(tx(curve[0][0]),ty(vMin));
+  ctx.closePath();
+  ctx.fillStyle='rgba(255,255,255,0.05)';ctx.fill();
+
+  // 주요 포인트
+  const points=[
+    {t:-5,v:30,label:'빙하기\n(LGM)',color:'#5af'},
+    {t:0.5,v:50,label:'간빙기\n최적기',color:'#55efc4'},
+    {t:1.2,v:44,label:'현재',color:'#ffd93d'},
+    {t:3,v:37,label:'+3°C',color:'#ff6b6b'},
+  ];
+
+  points.forEach(p=>{
+    const x=tx(p.t),y=ty(p.v);
+    ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);
+    ctx.fillStyle=p.color;ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+
+    const lines=p.label.split('\n');
+    ctx.fillStyle=p.color;ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+    lines.forEach((l,i)=>{
+      ctx.fillText(l,x,y-18-((lines.length-1-i)*14));
+    });
+    ctx.fillStyle='#c8cce0';ctx.font='10px sans-serif';
+    ctx.fillText(p.v+'%',x,y+20);
+  });
+
+  // 최적 영역 표시
+  ctx.strokeStyle='rgba(85,239,196,0.4)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.strokeRect(tx(-0.5),ty(52),tx(1.5)-tx(-0.5),ty(42)-ty(52));
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(85,239,196,0.3)';ctx.font='10px sans-serif';ctx.textAlign='center';
+  ctx.fillText('인류 최적 범위',tx(0.5),ty(52)-6);
+
+  // 제목
+  ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
+  ctx.fillText('기온 편차 vs 거주 적합 비율 — 양쪽 극단 모두 위험',W/2,28);
+  ctx.fillStyle='#5a7a9a';ctx.font='11px sans-serif';
+  ctx.fillText('글로벌 기온 편차 (°C, 산업화 이전 대비)',W/2,H-pad.b+38);
+})();
+</script>
+</body>
+</html>

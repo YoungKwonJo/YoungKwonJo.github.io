@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바람·기후와 생존 가능 구역 변화 분석</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060c1a;color:#c8cce0;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.7}
+.container{max-width:1400px;margin:0 auto;padding:16px 22px 60px}
+h1{text-align:center;padding:20px;font-size:1.45em;border-bottom:1px solid #1a2a4a;margin-bottom:8px}
+h1 small{display:block;color:#5a8abf;font-size:.52em;font-weight:normal;margin-top:4px}
+h2{color:#5af;font-size:1.1em;margin:30px 0 10px;padding:8px 14px;background:#0c1530;border-left:3px solid #5af;border-radius:0 6px 6px 0}
+h3{color:#4ecdc4;font-size:.92em;margin:18px 0 8px}
+h4{color:#ffe66d;font-size:.86em;margin:12px 0 6px}
+p{font-size:.84em;color:#8899bb;margin:4px 0 10px;text-align:justify}
+.note{background:#0c1530;border:1px solid #152040;border-radius:6px;padding:10px 14px;font-size:.82em;margin:10px 0 14px}
+
+table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:.78em}
+th{background:#0e1835;color:#5a9acf;padding:6px 8px;text-align:center;border:1px solid #1a2a4a;font-weight:600;white-space:nowrap}
+td{padding:5px 8px;border:1px solid #152040;text-align:center;vertical-align:middle}
+tr:nth-child(even) td{background:#0a1225}
+.left{text-align:left}
+.val{font-family:'Courier New',monospace;color:#fff;font-weight:600}
+.hot{color:#ff6b6b}   .warm{color:#ffaa55}  .mild{color:#ffe66d}
+.cool{color:#66cccc}   .cold{color:#66aaff}  .frozen{color:#aaccff}
+.good{color:#55dd55}   .warn{color:#ffaa33}  .danger{color:#ff5555}
+.dead{color:#ff3333;font-weight:700}
+.highlight-row td{background:#12203a !important}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{background:#0a1225;border:1px solid #152040;border-radius:8px;padding:14px}
+.card h4{margin-top:0}
+.card p{margin:3px 0;font-size:.8em}
+
+.summary-box{background:linear-gradient(135deg,#0c1530,#101a35);border:1px solid #2a3a6a;border-radius:10px;padding:18px 22px;margin:14px 0}
+.summary-box h3{color:#ffe66d;margin-top:0}
+
+canvas{display:block;width:100%;margin:8px auto}
+.chart-wrap{background:#0a1020;border:1px solid #152040;border-radius:8px;padding:10px 12px;margin:10px 0}
+.chart-title{font-size:.82em;color:#6a8aaa;margin-bottom:4px}
+
+.zone-bar{display:flex;height:28px;border-radius:4px;overflow:hidden;margin:6px 0}
+.zone-bar div{display:flex;align-items:center;justify-content:center;font-size:.65em;font-weight:600;color:#fff;text-shadow:0 1px 2px #000}
+
+.tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:.72em;margin:0 2px}
+.tag-hab{background:#1a3a1a;color:#55dd55;border:1px solid #338833}
+.tag-marg{background:#3a3a1a;color:#dddd55;border:1px solid #888833}
+.tag-inhab{background:#3a1a1a;color:#ff5555;border:1px solid #883333}
+
+.back{position:fixed;bottom:20px;right:20px;background:#1a3060;border:1px solid #2a4a7a;color:#5af;padding:8px 16px;border-radius:6px;text-decoration:none;font-size:.85em;z-index:99}
+.back:hover{background:#2a4a8a;color:#fff}
+
+.timeline{position:relative;padding-left:30px;margin:10px 0 16px}
+.timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:2px;background:#1a2a4a}
+.tl-item{position:relative;margin:10px 0;padding:8px 12px;background:#0a1225;border:1px solid #152040;border-radius:6px;font-size:.8em}
+.tl-item::before{content:'';position:absolute;left:-23px;top:12px;width:10px;height:10px;border-radius:50%;background:#5af;border:2px solid #0a1225}
+.tl-item .tl-time{color:#5af;font-weight:600;font-family:'Courier New',monospace}
+.tl-item .tl-desc{color:#8899bb;margin-top:2px}
+</style>
+</head>
+<body>
+<a href="index.html" class="back">← 인덱스</a>
+<div class="container">
+
+<h1>바람·기후와 생존 가능 구역 변화 분석
+<small>대기순환이 결정하는 강수·온도 패턴과 인류·생물의 거주 가능 영역 변동</small>
+</h1>
+
+<!-- ==================== EXECUTIVE SUMMARY ==================== -->
+<div class="summary-box">
+<h3>핵심 요약 — 바람이 생존 가능성을 결정하는 메커니즘</h3>
+<p style="color:#aabbcc;font-size:.88em">
+바람은 단순한 공기 이동이 아니라 <b>수증기 수송 → 강수 패턴 → 담수 공급 → 식량 생산 → 거주 가능성</b>의 전체 사슬을 결정합니다.
+대기순환의 구조적 변화(해들리 셀 폭, ITCZ 위치, 편서풍대 이동)는 대륙 규모의 사막화·녹색화를 일으키며,
+밀란코비치 주기에 따라 수만 년 단위로 지구의 거주 가능 지도가 근본적으로 재편됩니다.
+</p>
+<div class="zone-bar" style="margin-top:10px">
+  <div style="background:#1a6622;flex:15">열대우림 15%</div>
+  <div style="background:#448822;flex:12">사바나 12%</div>
+  <div style="background:#886622;flex:10">사막 10%</div>
+  <div style="background:#668833;flex:18">온대 18%</div>
+  <div style="background:#336644;flex:10">한대 10%</div>
+  <div style="background:#2244aa;flex:10">빙하 10%</div>
+  <div style="background:#224488;flex:25">해양 25%</div>
+</div>
+<p style="color:#6a8a9a;font-size:.75em;text-align:center">현재 지구 표면 비율 (육지 29% 중 거주적합: ~45%)</p>
+</div>
+
+<!-- ==================== SECTION 1 ==================== -->
+<h2>1. 바람 → 강수 → 생존: 인과 사슬</h2>
+
+<h3>1-1. 대기순환이 강수 패턴을 결정하는 메커니즘</h3>
+<table>
+<tr>
+  <th>위도대</th>
+  <th>지배적 바람</th>
+  <th>공기 운동</th>
+  <th>수증기 거동</th>
+  <th>연강수량</th>
+  <th>결과 기후</th>
+  <th>생존 적합성</th>
+</tr>
+<tr>
+  <td class="val">0°–10°</td>
+  <td>ITCZ 상승기류</td>
+  <td class="val">강한 상승</td>
+  <td>수증기 응결·폭우</td>
+  <td class="val good">2000–3000 mm</td>
+  <td>열대 우림</td>
+  <td><span class="tag tag-hab">높음</span> (수자원 풍부)</td>
+</tr>
+<tr>
+  <td class="val">10°–20°</td>
+  <td>무역풍 (NE/SE)</td>
+  <td class="val">약한 상승/이동</td>
+  <td>계절적 강수 (몬순)</td>
+  <td class="val good">800–2000 mm</td>
+  <td>사바나·몬순</td>
+  <td><span class="tag tag-hab">높음</span> (농경 적합)</td>
+</tr>
+<tr>
+  <td class="val">20°–30°</td>
+  <td>무역풍 → 아열대 고압</td>
+  <td class="val hot">강한 하강</td>
+  <td>건조공기 하강 → 증발</td>
+  <td class="val danger">50–250 mm</td>
+  <td class="hot">사막</td>
+  <td><span class="tag tag-inhab">매우 낮음</span></td>
+</tr>
+<tr>
+  <td class="val">30°–40°</td>
+  <td>편서풍 시작</td>
+  <td class="val">약한 상승</td>
+  <td>해양 수분 유입</td>
+  <td class="val mild">400–1000 mm</td>
+  <td>지중해성·온대</td>
+  <td><span class="tag tag-hab">높음</span> (문명 요람)</td>
+</tr>
+<tr>
+  <td class="val">40°–60°</td>
+  <td>편서풍</td>
+  <td class="val">주기적 상승 (저기압)</td>
+  <td>전선대 강수</td>
+  <td class="val good">500–1500 mm</td>
+  <td>온대·냉대</td>
+  <td><span class="tag tag-hab">높음</span> (현대 인구 밀집)</td>
+</tr>
+<tr>
+  <td class="val">60°–70°</td>
+  <td>극전선대</td>
+  <td class="val">변동성 큼</td>
+  <td>적은 수증기</td>
+  <td class="val cool">200–500 mm</td>
+  <td>아한대·툰드라</td>
+  <td><span class="tag tag-marg">한계적</span></td>
+</tr>
+<tr>
+  <td class="val">70°–90°</td>
+  <td>극동풍 (하강)</td>
+  <td class="val frozen">강한 하강</td>
+  <td>극건조 ("극사막")</td>
+  <td class="val danger">50–150 mm</td>
+  <td class="frozen">극지 사막</td>
+  <td><span class="tag tag-inhab">불가</span></td>
+</tr>
+</table>
+
+<div class="note">
+<b>핵심 패턴:</b> 대기가 <b>상승</b>하는 곳 = 비가 오는 곳 = 생명이 번성하는 곳 (ITCZ, 극전선대)<br>
+대기가 <b>하강</b>하는 곳 = 건조한 곳 = 사막 (아열대 고압대 30°, 극지 90°)<br>
+→ 이 상승/하강 위치가 밀란코비치 주기에 따라 이동하면 <b>대륙 규모의 생존 가능성이 재편</b>됩니다.
+</div>
+
+<h3>1-2. 바람이 운반하는 것들</h3>
+<div class="grid3">
+<div class="card">
+<h4>수증기 (H₂O)</h4>
+<p>해양에서 증발 → 바람이 대륙으로 수송 → 강수</p>
+<p><b>무역풍:</b> 열대 해양 → ITCZ 강수벨트</p>
+<p><b>편서풍:</b> 대서양/태평양 → 유럽/동아시아 강수</p>
+<p><b>몬순:</b> 인도양 → 인도 아대륙 집중 강우</p>
+<p style="color:#55dd55"><b>영향:</b> 전 세계 담수의 90%는 바람에 의한 수증기 수송에 기원</p>
+</div>
+<div class="card">
+<h4>열에너지</h4>
+<p>적도 과잉 열 → 바람이 고위도로 수송</p>
+<p><b>해들리 셀:</b> 적도→30° (직접 열수송, 전체의 ~60%)</p>
+<p><b>편서풍 에디:</b> 30°→60° (로즈비파에 의한 혼합)</p>
+<p><b>해양 순환:</b> 바람이 해류를 구동 → 열수송</p>
+<p style="color:#55dd55"><b>영향:</b> 고위도가 거주 가능한 것은 열수송 덕분 (없으면 런던 -20°C)</p>
+</div>
+<div class="card">
+<h4>영양분·먼지</h4>
+<p>사막 먼지 → 바람 → 해양 철분 공급 → 식물플랑크톤</p>
+<p><b>사하라 먼지:</b> 무역풍 → 대서양 → 아마존 인 공급</p>
+<p><b>황토:</b> 빙하기 강풍 → 중국 황토고원 형성 → 비옥한 농지</p>
+<p><b>화산재:</b> 편서풍 → 전 지구 확산 → 일시적 냉각</p>
+<p style="color:#55dd55"><b>영향:</b> 해양 생산성의 30~50%는 바람에 의한 먼지 철분 의존</p>
+</div>
+</div>
+
+<!-- ==================== SECTION 2 ==================== -->
+<h2>2. 인간 생존 한계 — 바람·온도·습도의 임계값</h2>
+
+<h3>2-1. 인간 생리적 한계</h3>
+<table>
+<tr>
+  <th>생존 요소</th>
+  <th>최적 범위</th>
+  <th>한계 범위</th>
+  <th>절대 한계</th>
+  <th>결정 인자</th>
+</tr>
+<tr>
+  <td class="left val">기온</td>
+  <td class="val good">18 – 28°C</td>
+  <td class="val warn">-40 ~ +50°C</td>
+  <td class="val dead">> 50°C (건열)</td>
+  <td class="left">일사량, 위도, 고도, 바람</td>
+</tr>
+<tr>
+  <td class="left val">습구온도 (Wet Bulb)</td>
+  <td class="val good">< 25°C</td>
+  <td class="val warn">25 – 32°C (고통)</td>
+  <td class="val dead">> 35°C (6시간 내 사망)</td>
+  <td class="left">기온 + 습도 + <b>바람</b></td>
+</tr>
+<tr>
+  <td class="left val">강수량 (연간)</td>
+  <td class="val good">500 – 2000 mm</td>
+  <td class="val warn">250 – 500 mm</td>
+  <td class="val danger">< 250 mm (사막)</td>
+  <td class="left">ITCZ 위치, 편서풍, 몬순</td>
+</tr>
+<tr>
+  <td class="left val">바람 냉각 (Wind Chill)</td>
+  <td class="val good">체감 > 0°C</td>
+  <td class="val warn">-20 ~ -40°C 체감</td>
+  <td class="val dead">< -50°C 체감 (5분 동상)</td>
+  <td class="left">기온 + <b>풍속</b></td>
+</tr>
+<tr>
+  <td class="left val">산소 분압</td>
+  <td class="val good">> 19 kPa (해발)</td>
+  <td class="val warn">12–19 kPa (3–5km)</td>
+  <td class="val dead">< 8 kPa (> 8km)</td>
+  <td class="left">고도, 기압</td>
+</tr>
+<tr>
+  <td class="left val">자외선 (UV)</td>
+  <td class="val good">UV Index 1–5</td>
+  <td class="val warn">6–10</td>
+  <td class="val danger">> 11 (극한)</td>
+  <td class="left">오존층, 위도, 고도, 구름(바람)</td>
+</tr>
+</table>
+
+<h3>2-2. 습구온도 — 인류 최종 생존 한계</h3>
+<div class="note">
+<b>습구온도(Tw) 35°C = 인류 절대 한계:</b><br>
+기온 45°C + 습도 50% = 습구 35°C → 신체 체온 조절 불가 → 건강한 성인도 6시간 내 사망<br>
+기온 35°C + 습도 100% = 습구 35°C → 동일 결과<br><br>
+<b>바람의 역할:</b> 풍속 2m/s는 체감 습구온도를 ~2°C 낮춤 (증발 촉진). 무풍 시 한계가 더 낮아짐.<br>
+<b>현재:</b> 페르시아만, 인도 북서부에서 연간 수 시간 Tw > 33°C 발생<br>
+<b>미래:</b> CO₂ 배가 시 남아시아, 중동, 서아프리카에서 Tw > 35°C 빈도 급증 → 수십억 명 영향
+</div>
+
+<h3>2-3. 위도별 현재 인간 거주 적합도</h3>
+<table>
+<tr>
+  <th>위도대</th>
+  <th>평균 기온</th>
+  <th>강수량</th>
+  <th>바람 영향</th>
+  <th>거주 인구</th>
+  <th>적합도</th>
+  <th>제한 요인</th>
+</tr>
+<tr>
+  <td class="val">90–70°N</td>
+  <td class="frozen">-25~-5°C</td>
+  <td class="val">100–300</td>
+  <td>극동풍, 극심한 Wind Chill</td>
+  <td class="val">~400만</td>
+  <td><span class="tag tag-inhab">부적합</span></td>
+  <td class="left">극한 저온, 경작 불가, 극야</td>
+</tr>
+<tr>
+  <td class="val">70–55°N</td>
+  <td class="cold">-10~5°C</td>
+  <td class="val">300–600</td>
+  <td>편서풍, 폭풍</td>
+  <td class="val">~3억</td>
+  <td><span class="tag tag-marg">한계적</span></td>
+  <td class="left">짧은 생장기, 에너지 소비</td>
+</tr>
+<tr>
+  <td class="val">55–35°N</td>
+  <td class="mild">5~18°C</td>
+  <td class="val good">500–1200</td>
+  <td>편서풍 강수 공급</td>
+  <td class="val good">~35억</td>
+  <td><span class="tag tag-hab">최적</span></td>
+  <td class="left">거의 없음 — 문명 중심대</td>
+</tr>
+<tr>
+  <td class="val">35–20°N</td>
+  <td class="warm">18~28°C</td>
+  <td class="val warn">100–800</td>
+  <td>아열대 고압 → 건조</td>
+  <td class="val">~20억</td>
+  <td><span class="tag tag-marg">혼재</span></td>
+  <td class="left">수자원 부족, 사막화 리스크</td>
+</tr>
+<tr>
+  <td class="val">20°N–20°S</td>
+  <td class="hot">25~32°C</td>
+  <td class="val good">1000–3000</td>
+  <td>ITCZ 강수, 몬순</td>
+  <td class="val good">~25억</td>
+  <td><span class="tag tag-hab">높음</span></td>
+  <td class="left">열 스트레스, 전염병, 태풍</td>
+</tr>
+<tr>
+  <td class="val">20–35°S</td>
+  <td class="warm">18~26°C</td>
+  <td class="val warn">200–800</td>
+  <td>아열대 고압</td>
+  <td class="val">~6억</td>
+  <td><span class="tag tag-marg">혼재</span></td>
+  <td class="left">호주 내륙·칼라하리 사막</td>
+</tr>
+<tr>
+  <td class="val">35–55°S</td>
+  <td class="cool">5~15°C</td>
+  <td class="val">500–1500</td>
+  <td>Roaring 40s 강풍</td>
+  <td class="val">~3억</td>
+  <td><span class="tag tag-hab">높음</span></td>
+  <td class="left">육지 부족 (거의 해양)</td>
+</tr>
+<tr>
+  <td class="val">55–90°S</td>
+  <td class="frozen">-55~-5°C</td>
+  <td class="val">50–200</td>
+  <td>카타바틱 극강풍</td>
+  <td class="val">~5천</td>
+  <td><span class="tag tag-inhab">불가</span></td>
+  <td class="left">남극 빙상, 영구적 부적합</td>
+</tr>
+</table>
+
+<div class="chart-wrap">
+<div class="chart-title"><b>위도별 거주 적합 지수 — 기온·강수·바람 종합</b></div>
+<canvas id="cvHabitat" height="220"></canvas>
+</div>
+
+<!-- ==================== SECTION 3 ==================== -->
+<h2>3. 밀란코비치 주기에 따른 생존 가능 구역 변동</h2>
+
+<h3>3-1. 시대별 거주 가능 면적 변화</h3>
+<table>
+<tr>
+  <th></th>
+  <th>빙하 최성기<br>(LGM, 21ka)</th>
+  <th>탈빙하기<br>(15ka)</th>
+  <th>홀로세 최적기<br>(6ka)</th>
+  <th style="background:#12203a">현재<br>(2024)</th>
+  <th>CO₂ 시나리오<br>(+3°C)</th>
+  <th>자연 냉각<br>(+50kyr)</th>
+</tr>
+<tr>
+  <td class="left val">빙하 면적</td>
+  <td class="val">~45M km²</td>
+  <td class="val">~30M km²</td>
+  <td class="val">~14M km²</td>
+  <td class="val" style="background:#12203a">~15M km²</td>
+  <td class="val warn">~8M km²</td>
+  <td class="val frozen">~35M km²</td>
+</tr>
+<tr>
+  <td class="left val">사막 면적</td>
+  <td class="val">~55M km²</td>
+  <td class="val">~40M km²</td>
+  <td class="val good">~25M km²</td>
+  <td class="val" style="background:#12203a">~35M km²</td>
+  <td class="val danger">~45M km²</td>
+  <td class="val">~50M km²</td>
+</tr>
+<tr>
+  <td class="left val">거주 적합 육지</td>
+  <td class="val danger">~45M km²</td>
+  <td class="val">~55M km²</td>
+  <td class="val good">~75M km²</td>
+  <td class="val" style="background:#12203a">~65M km²</td>
+  <td class="val warn">~55M km²</td>
+  <td class="val danger">~40M km²</td>
+</tr>
+<tr>
+  <td class="left val">육지 비율</td>
+  <td class="val">(+7%, 해수면↓)</td>
+  <td class="val">(+3%)</td>
+  <td class="val">~기준</td>
+  <td class="val" style="background:#12203a">100% 기준</td>
+  <td class="val warn">(-2%, 해수면↑)</td>
+  <td class="val">(+5%, 해수면↓)</td>
+</tr>
+<tr>
+  <td class="left val">거주적합 비율</td>
+  <td class="val danger">~30%</td>
+  <td class="val">~38%</td>
+  <td class="val good">~50%</td>
+  <td class="val" style="background:#12203a">~44%</td>
+  <td class="val warn">~37%</td>
+  <td class="val danger">~28%</td>
+</tr>
+<tr>
+  <td class="left val">추정 수용 가능 인구</td>
+  <td class="val">~1,000만</td>
+  <td class="val">~5,000만</td>
+  <td class="val good">~2억</td>
+  <td class="val" style="background:#12203a">~100억 (기술)</td>
+  <td class="val warn">~80억 (열 제한)</td>
+  <td class="val danger">~5,000만</td>
+</tr>
+</table>
+
+<h3>3-2. 각 시대의 바람 패턴과 거주 가능 구역 지도</h3>
+
+<div class="grid2">
+<div class="card" style="border-color:#2244aa">
+<h4 style="color:#66aaff">빙하 최성기 (LGM, 21,000년 전)</h4>
+<p><b>궤도 조건:</b> e=0.019, ε=22.7°, 65°N Q=445 W/m²</p>
+<p><b>빙하:</b> 북미 로렌타이드 빙상(두께 3km), 스칸디나비아 빙상이 위도 40°N까지 확장</p>
+<p><b>해수면:</b> -120m → 베링 육교, 순다 육붕 노출</p>
+<p><b>바람 변화:</b></p>
+<p>• ITCZ: ~2°N으로 남하 (현재 ~5°N)</p>
+<p>• 편서풍: <b>40°N으로 남하</b>, 풍속 +40% 강화</p>
+<p>• 무역풍: +30% 강화 → 적도 용승 강화 → 해양 냉각</p>
+<p>• 제트기류: 빙상 남쪽 가장자리를 따라 고정 → 40°N에 극심한 폭풍대</p>
+<p><b>거주 가능 구역:</b></p>
+<p>• 유럽: 이베리아·이탈리아·발칸 반도만 (빙하 피난처 refugia)</p>
+<p>• 아시아: 황하 이남만 적합, 시베리아 전역 빙결</p>
+<p>• 아프리카: 사하라 확대 (현재보다 +50%), 열대림 축소</p>
+<p>• 아메리카: 멕시코 이남만 적합, 베링 육교 통해 이동</p>
+<p style="color:#ff8866">→ 전 인류 ~100만~500만 명, 대부분 20°S–35°N 집중</p>
+</div>
+
+<div class="card" style="border-color:#aa6622">
+<h4 style="color:#ffaa44">홀로세 최적기 (6,000년 전) — "녹색 사하라"</h4>
+<p><b>궤도 조건:</b> e=0.019, ε=24.1°, 65°N Q=490 W/m²</p>
+<p><b>빙하:</b> 현재와 유사 (약간 적음)</p>
+<p><b>해수면:</b> 현재와 유사</p>
+<p><b>바람 변화:</b></p>
+<p>• ITCZ: <b>~15°N까지 북상</b> (현재보다 +10°)</p>
+<p>• 아프리카 몬순: <b>+30~50% 강화</b> → 사하라에 강수</p>
+<p>• 편서풍: 약화, 50°N으로 북상</p>
+<p>• 인도 몬순: 최강 (+40%) → 인더스 문명 기반</p>
+<p><b>거주 가능 구역:</b></p>
+<p>• <b>사하라 전역이 녹색</b> — 호수·초원·악어·하마 서식</p>
+<p>• 아라비아 반도: 반건조 초원 (현재의 사막 아님)</p>
+<p>• 고위도: 시베리아 남부까지 삼림 확장</p>
+<p>• 열대: 열대림 최대 확장</p>
+<p style="color:#55dd55">→ 지구 역사상 최대의 거주 가능 면적 (~75M km²)</p>
+<p style="color:#55dd55">→ 농업 혁명 가능, 문명 발상 (메소포타미아, 이집트, 인더스)</p>
+</div>
+</div>
+
+<h3>3-3. 궤도 요소 변화 → 거주 가능 구역 이동 메커니즘</h3>
+<table>
+<tr>
+  <th>궤도 변화</th>
+  <th>바람 패턴 변화</th>
+  <th>강수 변화</th>
+  <th>거주 가능 구역 변화</th>
+  <th>생물 영향</th>
+</tr>
+<tr>
+  <td class="left val">경사각 ↑<br>(22→24.5°)</td>
+  <td class="left">ITCZ 이동폭 ↑<br>몬순 강화<br>해들리 셀 확장</td>
+  <td class="left good">아열대 강수 ↑<br>사막 축소<br>열대 강수 확대</td>
+  <td class="left good">사하라·아라비아 녹색화<br>거주 면적 +20~30%</td>
+  <td class="left">생물 다양성 ↑<br>열대림 확장<br>산호초 번성</td>
+</tr>
+<tr>
+  <td class="left val">경사각 ↓<br>(24.5→22°)</td>
+  <td class="left">ITCZ 이동폭 ↓<br>몬순 약화<br>해들리 셀 축소</td>
+  <td class="left danger">아열대 건조화<br>사막 확대<br>열대 강수 집중</td>
+  <td class="left danger">사막대 확장<br>고위도 냉각<br>거주 면적 -20~30%</td>
+  <td class="left">종 절멸 위기<br>서식지 단편화<br>이동 경로 차단</td>
+</tr>
+<tr>
+  <td class="left val">이심률 ↑<br>(0.01→0.05)</td>
+  <td class="left">근일점 반구 몬순 ↑<br>원일점 반구 건조화<br>남북 비대칭 ↑</td>
+  <td class="left warn">한 반구 습윤<br>다른 반구 건조<br>극단적 계절대비</td>
+  <td class="left warn">반구별 비대칭<br>한쪽 확대, 한쪽 축소</td>
+  <td class="left">반구 간 이동 장벽<br>종 분화 촉진</td>
+</tr>
+<tr>
+  <td class="left val">세차: NH여름=근일점</td>
+  <td class="left">NH 몬순 극대화<br>ITCZ 최북단<br>SH 건조화</td>
+  <td class="left good">NH 아열대 습윤화<br>사하라→사바나<br>인도 몬순 극대</td>
+  <td class="left good">NH 거주 구역 확대<br>SH 일부 건조화</td>
+  <td class="left">NH 생물 다양성 ↑<br>대규모 이동 가능</td>
+</tr>
+</table>
+
+<!-- ==================== SECTION 4 ==================== -->
+<h2>4. 과거 인류 이동과 바람·기후 변화의 상관</h2>
+
+<h3>4-1. 주요 인류 이동 사건과 기후 상관 타임라인</h3>
+<div class="timeline">
+<div class="tl-item">
+  <div class="tl-time">~300,000년 전 — 호모 사피엔스 출현</div>
+  <div class="tl-desc">아프리카 동부·남부. 간빙기(MIS 9-7) 습윤 조건. ITCZ 북상으로 동아프리카 강수 증가 → 초원 확장 → 수렵·채집 적합</div>
+</div>
+<div class="tl-item">
+  <div class="tl-time">~130,000년 전 — 첫 아프리카 탈출 시도 (MIS 5e)</div>
+  <div class="tl-desc">에미안 간빙기. ε=24.0°, 65°N Q=535 W/m². <b>사하라 녹색화</b> → 레반트 경유 이동 가능. ITCZ ~18°N까지 북상 → 아라비아 습윤 → 이동 통로 개방. 그러나 이 계통은 소멸.</div>
+</div>
+<div class="tl-item">
+  <div class="tl-time">~70,000년 전 — 토바 화산 + 빙하기 강화</div>
+  <div class="tl-desc">MIS 4 빙하기. ε=22.5°로 하강. ITCZ 남하, 아프리카 건조화. <b>인류 인구 병목</b> (~수천~만 명). 강풍으로 먼지 확산, 기온 급락. 해안 피난처(남아프리카)만 적합.</div>
+</div>
+<div class="tl-item">
+  <div class="tl-time">~60,000년 전 — 성공적 아프리카 탈출 (Out of Africa)</div>
+  <div class="tl-desc">MIS 3 간빙기. 아프리카 강수 회복. <b>남부 경로</b>: 바브엘만데브 해협(해수면 -80m → 폭 15km) → 아라비아 남해안 → 인도. 해안선 편서풍 + 몬순이 이동 경로를 결정.</div>
+</div>
+<div class="tl-item">
+  <div class="tl-time">~45,000년 전 — 유럽·호주 도달</div>
+  <div class="tl-desc">해수면 -60m. 순다 육붕 노출 → 도서 동남아 이동 용이. 유럽에서 네안데르탈인과 조우. 편서풍대가 40°N에 위치 → 유럽 남부 온난습윤.</div>
+</div>
+<div class="tl-item">
+  <div class="tl-time">~25,000–15,000년 전 — 아메리카 진입</div>
+  <div class="tl-desc">LGM. 해수면 -120m → <b>베링 육교</b> 개방. 극동풍 약화 + 툰드라 초원(mammoth steppe). 빙하 회랑(Ice-Free Corridor) 또는 태평양 해안 루트로 남하. 편서풍 남하로 북미 중부 건조.</div>
+</div>
+<div class="tl-item">
+  <div class="tl-time">~11,700년 전 — 홀로세 시작, 농업 혁명</div>
+  <div class="tl-desc">급격한 온난화 (Younger Dryas 종료). 편서풍 북상 → 비옥한 초승달 지대에 적절한 강수. ITCZ 북상 → 나일강 범람 규칙적. <b>바람이 결정한 강수 패턴이 최초 농경 지역을 결정.</b></div>
+</div>
+<div class="tl-item">
+  <div class="tl-time">~5,500년 전 — 사하라 사막화</div>
+  <div class="tl-desc">ε 감소(24.1° → 23.7°) → ITCZ 남하 시작 → <b>아프리카 몬순 약화</b> → 사하라 급격 건조화(300년 내). 사하라 목축민 → 나일 계곡 집중 → 이집트 왕조 국가 형성. <b>바람 패턴 변화가 문명을 만듦.</b></div>
+</div>
+<div class="tl-item">
+  <div class="tl-time">~4,200년 전 — 4.2ka 이벤트</div>
+  <div class="tl-desc">ITCZ 추가 남하 + 편서풍 변동 → 전 지구적 가뭄. 아카드 제국 붕괴, 이집트 고왕국 멸망, 인더스 문명 쇠퇴. <b>바람 패턴의 수십 년 규모 변동이 문명을 멸망시킴.</b></div>
+</div>
+<div class="tl-item">
+  <div class="tl-time">~현재 — CO₂에 의한 패턴 교란</div>
+  <div class="tl-desc">궤도 추세(자연 냉각)와 반대로 급격한 온난화. 해들리 셀 확장(+0.5°/10년) → <b>아열대 건조대 확대</b> → 지중해·호주·미국 서부 가뭄 증가. 습구온도 한계 접근 지역 확대.</div>
+</div>
+</div>
+
+<!-- ==================== SECTION 5 ==================== -->
+<h2>5. 생물종 생존 가능 구역 — 바이옴 이동</h2>
+
+<h3>5-1. 주요 바이옴의 위도 범위 변화</h3>
+<table>
+<tr>
+  <th>바이옴</th>
+  <th>결정 조건</th>
+  <th>LGM (21ka)</th>
+  <th>홀로세 최적기 (6ka)</th>
+  <th style="background:#12203a">현재</th>
+  <th>+3°C 시나리오</th>
+  <th>이동 속도 필요</th>
+</tr>
+<tr>
+  <td class="left val">열대 우림</td>
+  <td class="left">T>18°C, P>1500mm, ITCZ</td>
+  <td class="val">5°S–8°N</td>
+  <td class="val good">12°S–18°N</td>
+  <td class="val" style="background:#12203a">10°S–10°N</td>
+  <td class="val">12°S–15°N</td>
+  <td class="val">5–10 km/10yr</td>
+</tr>
+<tr>
+  <td class="left val">사바나</td>
+  <td class="left">T>20°C, P=500–1500mm</td>
+  <td class="val">축소 (사막 확대)</td>
+  <td class="val good">최대 확장 (몬순↑)</td>
+  <td class="val" style="background:#12203a">10–25°</td>
+  <td class="val warn">축소 (건조화)</td>
+  <td class="val">10 km/10yr</td>
+</tr>
+<tr>
+  <td class="left val">아열대 사막</td>
+  <td class="left">P<250mm, 하강기류</td>
+  <td class="val danger">15–35° (최대)</td>
+  <td class="val good">25–30° (최소)</td>
+  <td class="val" style="background:#12203a">20–35°</td>
+  <td class="val danger">18–40° (확대)</td>
+  <td class="val">—</td>
+</tr>
+<tr>
+  <td class="left val">온대 낙엽림</td>
+  <td class="left">T=5–20°C, P>500mm</td>
+  <td class="val">35–42°N (축소)</td>
+  <td class="val good">33–55°N (확장)</td>
+  <td class="val" style="background:#12203a">30–50°N</td>
+  <td class="val">35–55°N (북상)</td>
+  <td class="val">50 km/10yr</td>
+</tr>
+<tr>
+  <td class="left val">한대 침엽림 (타이가)</td>
+  <td class="left">T=-5~5°C, 짧은 여름</td>
+  <td class="val">40–55°N (남하)</td>
+  <td class="val">55–70°N (북상)</td>
+  <td class="val" style="background:#12203a">50–65°N</td>
+  <td class="val">55–70°N (북상)</td>
+  <td class="val">30 km/10yr</td>
+</tr>
+<tr>
+  <td class="left val">툰드라</td>
+  <td class="left">T<0°C 대부분, P<300mm</td>
+  <td class="val">55–70°N (확대)</td>
+  <td class="val">68–80°N (축소)</td>
+  <td class="val" style="background:#12203a">65–75°N</td>
+  <td class="val warn">70–80°N (축소)</td>
+  <td class="val">—</td>
+</tr>
+<tr>
+  <td class="left val">빙상/빙모</td>
+  <td class="left">연중 T<0°C</td>
+  <td class="val frozen">40°N↑ 연중빙결</td>
+  <td class="val">75°N↑</td>
+  <td class="val" style="background:#12203a">~80°N↑</td>
+  <td class="val good">계절빙만</td>
+  <td class="val">—</td>
+</tr>
+</table>
+
+<h3>5-2. 종별 이동 속도 vs 기후 변화 속도</h3>
+<table>
+<tr>
+  <th>생물군</th>
+  <th>자연 이동 속도<br>(km/10년)</th>
+  <th>밀란코비치 기후 이동<br>(km/10년)</th>
+  <th>현재 기후 이동<br>(km/10년)</th>
+  <th>대응 가능성</th>
+</tr>
+<tr>
+  <td class="left val">나무 (종자 확산)</td>
+  <td class="val">1–5</td>
+  <td class="val good">0.1–0.5</td>
+  <td class="val danger">5–17</td>
+  <td class="left danger">심각한 지연 — 숲 쇠퇴 위험</td>
+</tr>
+<tr>
+  <td class="left val">초본 식물</td>
+  <td class="val">5–20</td>
+  <td class="val good">0.1–0.5</td>
+  <td class="val warn">5–17</td>
+  <td class="left warn">한계적 — 일부 종 탈락</td>
+</tr>
+<tr>
+  <td class="left val">대형 포유류</td>
+  <td class="val">10–50</td>
+  <td class="val good">0.1–0.5</td>
+  <td class="val warn">5–17</td>
+  <td class="left mild">대체로 가능 — 서식지 단편화가 장벽</td>
+</tr>
+<tr>
+  <td class="left val">소형 포유류</td>
+  <td class="val">2–10</td>
+  <td class="val good">0.1–0.5</td>
+  <td class="val danger">5–17</td>
+  <td class="left danger">위험 — 이동 장벽에 취약</td>
+</tr>
+<tr>
+  <td class="left val">조류</td>
+  <td class="val">50–200</td>
+  <td class="val good">0.1–0.5</td>
+  <td class="val good">5–17</td>
+  <td class="left good">이동 가능 — 먹이/서식지가 관건</td>
+</tr>
+<tr>
+  <td class="left val">곤충</td>
+  <td class="val">10–100</td>
+  <td class="val good">0.1–0.5</td>
+  <td class="val mild">5–17</td>
+  <td class="left mild">종에 따라 다양</td>
+</tr>
+<tr>
+  <td class="left val">산호초</td>
+  <td class="val">~0 (고착성)</td>
+  <td class="val good">0.1–0.5</td>
+  <td class="val danger">5–17</td>
+  <td class="left dead">이동 불가 — 온도 상승 시 백화·절멸</td>
+</tr>
+<tr>
+  <td class="left val">인류 (기술 사회)</td>
+  <td class="val good">무제한</td>
+  <td class="val good">0.1–0.5</td>
+  <td class="val good">5–17</td>
+  <td class="left good">기술적 적응 가능 — 에너지·물 비용 증가</td>
+</tr>
+</table>
+
+<div class="note">
+<b>핵심 위험:</b> 밀란코비치 주기에 의한 기후 이동 속도(~0.1~0.5 km/10년)는 대부분의 생물이 적응할 수 있었습니다.
+그러나 현재의 기후 이동 속도(<b>5~17 km/10년</b>)는 밀란코비치의 <b>30~170배</b>로, 나무·산호·소형 포유류는 따라갈 수 없습니다.
+이는 과거 대멸절과 유사한 속도이며, 서식지 단편화(도시·농경지)가 이동을 추가로 방해합니다.
+</div>
+
+<!-- ==================== SECTION 6 ==================== -->
+<h2>6. 미래 시나리오별 거주 가능 구역 변화</h2>
+
+<h3>6-1. 시나리오 비교</h3>
+<table>
+<tr>
+  <th>시나리오</th>
+  <th>기간</th>
+  <th>글로벌 ΔT</th>
+  <th>해수면</th>
+  <th>사막대 위도</th>
+  <th>습구35°C 지역</th>
+  <th>거주불능 인구</th>
+  <th>농경 적합 면적</th>
+</tr>
+<tr class="highlight-row">
+  <td class="left val">현재 기준</td>
+  <td>2024</td>
+  <td class="val">+1.2°C</td>
+  <td class="val">+0.2m</td>
+  <td class="val">20–35°</td>
+  <td class="val">연 수시간 (페르시아만)</td>
+  <td class="val">~0</td>
+  <td class="val">100% (기준)</td>
+</tr>
+<tr>
+  <td class="left val">궤도만 (+10kyr)</td>
+  <td>자연</td>
+  <td class="val cool">-1°C</td>
+  <td class="val">-10m</td>
+  <td class="val">18–33°</td>
+  <td class="val good">감소</td>
+  <td class="val good">~0</td>
+  <td class="val warn">-15% (냉각)</td>
+</tr>
+<tr>
+  <td class="left val">궤도만 (+50kyr)</td>
+  <td>자연</td>
+  <td class="val frozen">-3~-5°C</td>
+  <td class="val">-60m</td>
+  <td class="val">15–30°</td>
+  <td class="val good">없음</td>
+  <td class="val">고위도 한계</td>
+  <td class="val danger">-40% (빙하기)</td>
+</tr>
+<tr>
+  <td class="left val">CO₂ +1.5°C</td>
+  <td>2040s</td>
+  <td class="val warm">+1.5°C</td>
+  <td class="val">+0.3m</td>
+  <td class="val">21–36°</td>
+  <td class="val warn">간헐적</td>
+  <td class="val">~3억</td>
+  <td class="val">-5%</td>
+</tr>
+<tr>
+  <td class="left val">CO₂ +2°C</td>
+  <td>2050s</td>
+  <td class="val warm">+2°C</td>
+  <td class="val">+0.5m</td>
+  <td class="val warn">22–38°</td>
+  <td class="val warn">연 수십일</td>
+  <td class="val warn">~10억</td>
+  <td class="val warn">-10%</td>
+</tr>
+<tr>
+  <td class="left val">CO₂ +3°C</td>
+  <td>2070s</td>
+  <td class="val hot">+3°C</td>
+  <td class="val">+1m</td>
+  <td class="val danger">23–40°</td>
+  <td class="val danger">연 수주 (남아시아·중동)</td>
+  <td class="val danger">~20억</td>
+  <td class="val danger">-20%</td>
+</tr>
+<tr>
+  <td class="left val">CO₂ +4°C</td>
+  <td>2100</td>
+  <td class="val dead">+4°C</td>
+  <td class="val">+1~2m</td>
+  <td class="val danger">25–42°</td>
+  <td class="val dead">연 수개월 (열대·아열대)</td>
+  <td class="val dead">~35억</td>
+  <td class="val dead">-30~40%</td>
+</tr>
+</table>
+
+<h3>6-2. +3°C 시나리오 — 바람 패턴 변화와 영향</h3>
+<div class="grid2">
+<div class="card" style="border-color:#883333">
+<h4 style="color:#ff6b6b">거주 악화 지역</h4>
+<p><b>남아시아 (인도·방글라데시·파키스탄):</b></p>
+<p>• 몬순 강화하지만 불규칙화 → 홍수/가뭄 교차</p>
+<p>• 습구온도 35°C 초과 빈도 → 수억 명 열 사망 위험</p>
+<p>• 풍속 약화 → 체감 온도 저감 효과 감소</p>
+<p><b>중동·페르시아만:</b></p>
+<p>• 이미 Tw 33°C → 35°C 상시 초과</p>
+<p>• 아열대 고압대 극쪽 확장 → 추가 건조화</p>
+<p><b>사하라 주변·사헬:</b></p>
+<p>• ITCZ 이동 불규칙 → 가뭄 빈도 증가</p>
+<p>• 해들리 셀 확장 → 사막대 남하 → 수억 명 이주</p>
+<p><b>지중해 연안:</b></p>
+<p>• 편서풍 경로 극쪽 이동 → 겨울 강수 -30~50%</p>
+<p>• 여름 열파 빈도 x5 → 산불 위험 극증</p>
+<p><b>호주 내륙·미국 서부:</b></p>
+<p>• 아열대 고압대 확장 → 만성적 물 부족</p>
+</div>
+<div class="card" style="border-color:#226633">
+<h4 style="color:#55dd55">거주 개선 가능 지역</h4>
+<p><b>시베리아·캐나다 북부:</b></p>
+<p>• 영구동토 해빙 → 신규 농경지 가능</p>
+<p>• 생장기 연장 (+30~60일)</p>
+<p>• 단, 토양 미성숙, 인프라 부재, 모기·질병 문제</p>
+<p><b>스칸디나비아·알래스카:</b></p>
+<p>• 편서풍 극쪽 이동 → 온난화 + 적절 강수</p>
+<p>• 어업 생산성 변동 (한류어종 북상)</p>
+<p><b>그린란드 연안:</b></p>
+<p>• 빙상 후퇴 → 연안 거주 가능</p>
+<p>• 극소 면적, 극야 문제 잔존</p>
+<p><b>파타고니아·뉴질랜드 남부:</b></p>
+<p>• 편서풍대 극쪽 이동 → 약간 건조화하지만 온난</p>
+<p>• 기존에도 적합 → 인구 유입 증가</p>
+<p style="color:#ffe66d;margin-top:10px"><b>주의:</b> 새로 열리는 면적 < 잃는 면적. 순 거주 면적 <b>감소</b>.</p>
+</div>
+</div>
+
+<!-- ==================== SECTION 7 ==================== -->
+<h2>7. 종합 — 바람·기후 변화의 생존 영향 매트릭스</h2>
+
+<h3>7-1. 위도별 · 시대별 종합 거주적합도 (0–10점)</h3>
+<table>
+<tr>
+  <th>위도대</th>
+  <th>LGM</th>
+  <th>홀로세 최적기</th>
+  <th style="background:#12203a">현재</th>
+  <th>+2°C</th>
+  <th>+4°C</th>
+  <th>자연 빙하기</th>
+  <th>핵심 바람 결정인자</th>
+</tr>
+<tr>
+  <td class="val">80–90°N</td>
+  <td class="val frozen">0</td><td class="val frozen">1</td>
+  <td class="val frozen" style="background:#12203a">1</td>
+  <td class="val cool">2</td><td class="val cool">3</td><td class="val frozen">0</td>
+  <td class="left">극동풍 강도, 극야 기간</td>
+</tr>
+<tr>
+  <td class="val">60–80°N</td>
+  <td class="val frozen">1</td><td class="val cool">4</td>
+  <td class="val cool" style="background:#12203a">3</td>
+  <td class="val mild">5</td><td class="val mild">6</td><td class="val frozen">1</td>
+  <td class="left">편서풍 경로, 영구동토, 생장기</td>
+</tr>
+<tr>
+  <td class="val">40–60°N</td>
+  <td class="val cool">3</td><td class="val good">8</td>
+  <td class="val good" style="background:#12203a">8</td>
+  <td class="val good">7</td><td class="val mild">6</td><td class="val cool">3</td>
+  <td class="left">편서풍 강수, 제트기류 위치</td>
+</tr>
+<tr>
+  <td class="val">20–40°N</td>
+  <td class="val mild">5</td><td class="val good">8</td>
+  <td class="val" style="background:#12203a">6</td>
+  <td class="val warn">5</td><td class="val danger">3</td><td class="val mild">5</td>
+  <td class="left">아열대 고압대 위치, 해들리 셀 폭</td>
+</tr>
+<tr>
+  <td class="val">0–20°</td>
+  <td class="val mild">5</td><td class="val good">7</td>
+  <td class="val" style="background:#12203a">7</td>
+  <td class="val warn">5</td><td class="val danger">3</td><td class="val mild">5</td>
+  <td class="left">ITCZ 위치, 몬순 강도, 습구온도</td>
+</tr>
+<tr>
+  <td class="val">20–40°S</td>
+  <td class="val mild">5</td><td class="val mild">7</td>
+  <td class="val" style="background:#12203a">6</td>
+  <td class="val warn">5</td><td class="val warn">4</td><td class="val mild">5</td>
+  <td class="left">아열대 고압, 해양 영향</td>
+</tr>
+<tr>
+  <td class="val">40–60°S</td>
+  <td class="val cool">4</td><td class="val mild">6</td>
+  <td class="val" style="background:#12203a">6</td>
+  <td class="val mild">6</td><td class="val mild">6</td><td class="val cool">4</td>
+  <td class="left">Roaring 40s, 육지 희소</td>
+</tr>
+<tr>
+  <td class="val">60–90°S</td>
+  <td class="val frozen">0</td><td class="val frozen">0</td>
+  <td class="val frozen" style="background:#12203a">0</td>
+  <td class="val frozen">0</td><td class="val frozen">1</td><td class="val frozen">0</td>
+  <td class="left">카타바틱풍, 영구 빙상</td>
+</tr>
+</table>
+
+<h3>7-2. 최종 결론</h3>
+<div class="summary-box">
+<h3>바람이 지구 생명의 지도를 그린다</h3>
+<table>
+<tr><th>발견</th><th>설명</th></tr>
+<tr>
+  <td class="left val">1. 거주 가능 위도의 창</td>
+  <td class="left">지구 역사상 인류 거주 최적 위도는 <b>35°N~50°N</b> (편서풍 강수 벨트)이며, 이는 편서풍대의 위치에 의해 결정됩니다. 이 벨트가 남북으로 ~10° 이동하면 수십억 명의 운명이 바뀝니다.</td>
+</tr>
+<tr>
+  <td class="left val">2. ITCZ = 생명선</td>
+  <td class="left">ITCZ의 연간 이동 범위(경사각에 의해 결정)가 열대·아열대의 강수를 결정합니다. 6,000년 전 ITCZ 북상이 사하라를 초원으로, 현재의 남하가 사막으로 만들었습니다. <b>경사각 1°의 변화가 수백만 km²의 운명을 결정합니다.</b></td>
+</tr>
+<tr>
+  <td class="left val">3. 자연 주기 vs 인위적 변화</td>
+  <td class="left">밀란코비치 주기는 수만 년에 걸쳐 거주 가능 구역을 이동시켰고, 생물들은 적응할 시간이 있었습니다. 현재의 변화 속도는 자연 주기의 <b>30~170배</b>로, 대부분의 생물은 적응이 불가능합니다.</td>
+</tr>
+<tr>
+  <td class="left val">4. 이중 위협</td>
+  <td class="left">궤도 추세는 자연적 냉각(경사각↓ → 편서풍 강화·몬순 약화)을 가리키지만, CO₂는 반대 방향(온난화 → 해들리 셀 확장·건조대 확대)으로 작용합니다. 두 강제력의 불일치가 <b>전례 없는 기후 패턴</b>을 만들 수 있습니다.</td>
+</tr>
+<tr>
+  <td class="left val">5. 습구온도 한계</td>
+  <td class="left">+3°C 이상에서 남아시아·중동의 수십억 인구가 <b>습구온도 35°C 생리적 한계</b>에 도달합니다. 바람(냉각 효과)이 약화되면 한계에 더 빨리 도달하며, 이는 <b>인류 역사상 최대 규모의 이주</b>를 유발할 수 있습니다.</td>
+</tr>
+</table>
+</div>
+
+<div class="chart-wrap">
+<div class="chart-title"><b>위도별 · 시나리오별 거주적합도 비교</b></div>
+<canvas id="cvScenario" height="260"></canvas>
+</div>
+
+<footer style="text-align:center;padding:10px;color:#3a4a6a;font-size:.8em;border-top:1px solid #1a2a4a;">
+  바람·기후와 생존 가능 구역 변화 분석 — Earth Simulation Project
+<br>Built with <a href="https://claude.ai/claude-code" style="color:#5af;text-decoration:none">Claude Code</a> (Anthropic Claude Opus 4.6)
+</footer>
+
+</div><!-- container -->
+
+<!-- ===== CHARTS ===== -->
+<script>
+// Habitability index chart
+(function(){
+  const cv = document.getElementById('cvHabitat');
+  const rect = cv.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio||1;
+  const W = (rect.width-24), H = 220;
+  cv.width = W*dpr; cv.height = H*dpr;
+  cv.style.width = W+'px'; cv.style.height = H+'px';
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  const pad = {l:50,r:20,t:20,b:30};
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+
+  // Data: [lat, temp_score, precip_score, wind_score, total]
+  const data = [
+    [90,0,1,1,0.5], [80,1,2,2,1.5], [70,2,3,3,2.5],
+    [60,4,5,5,4.5], [55,6,7,6,6.5], [50,8,8,7,8],
+    [45,9,8,7,8.5], [40,8,7,6,7.5], [35,7,5,5,6],
+    [30,6,3,4,4], [25,5,3,5,4], [20,6,6,6,6],
+    [15,6,8,6,7], [10,5,9,5,6.5], [5,5,9,4,6],
+    [0,4,9,3,5.5], [-5,5,9,4,6], [-10,5,8,5,6],
+    [-15,6,7,6,6.5], [-20,6,5,5,5.5], [-25,6,4,5,5],
+    [-30,7,5,6,6], [-35,7,6,7,7], [-40,6,7,8,7],
+    [-45,5,7,8,6], [-50,4,6,9,5], [-55,3,4,8,4],
+    [-60,2,3,7,3], [-70,1,1,5,1.5], [-80,0,1,3,0.5],[-90,0,0,2,0]
+  ];
+
+  ctx.fillStyle = '#0a1225'; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle = '#151e35'; ctx.lineWidth = 0.5;
+  for(let i=0;i<=5;i++){
+    const y = pad.t + ch*i/5;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillStyle='#4a5a7a'; ctx.font='9px Courier New'; ctx.textAlign='right';
+    ctx.fillText((10-i*2).toFixed(0), pad.l-4, y+3);
+  }
+  ctx.fillStyle='#3a5a7a'; ctx.font='9px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('위도 (°)', W/2, H-3);
+
+  // Lines
+  const colors = {temp:'#ff6b6b', precip:'#5af', wind:'#ffe66d', total:'#55ff55'};
+  const labels = {temp:'기온', precip:'강수', wind:'바람', total:'종합'};
+  const indices = {temp:1, precip:2, wind:3, total:4};
+
+  for(const key of ['temp','precip','wind','total']) {
+    ctx.beginPath();
+    ctx.strokeStyle = colors[key];
+    ctx.lineWidth = key==='total' ? 2.5 : 1;
+    if(key!=='total') ctx.setLineDash([3,3]); else ctx.setLineDash([]);
+    for(let i=0;i<data.length;i++){
+      const x = pad.l + (i/(data.length-1))*cw;
+      const y = pad.t + ch - (data[i][indices[key]]/10)*ch;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // X labels
+  ctx.fillStyle='#3a5a7a'; ctx.font='8px Courier New'; ctx.textAlign='center';
+  for(let i=0;i<data.length;i+=3){
+    const x = pad.l + (i/(data.length-1))*cw;
+    ctx.fillText(data[i][0]+'°', x, H-16);
+  }
+
+  // Legend
+  let lx = pad.l + 10;
+  for(const key of ['temp','precip','wind','total']) {
+    ctx.fillStyle = colors[key];
+    ctx.fillRect(lx, pad.t-12, 12, 3);
+    ctx.fillText(labels[key], lx+20, pad.t-8);
+    lx += 60;
+  }
+})();
+
+// Scenario comparison chart
+(function(){
+  const cv = document.getElementById('cvScenario');
+  const rect = cv.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio||1;
+  const W = (rect.width-24), H = 260;
+  cv.width = W*dpr; cv.height = H*dpr;
+  cv.style.width = W+'px'; cv.style.height = H+'px';
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  const pad = {l:50,r:140,t:20,b:34};
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+
+  const lats = ['80-90°N','60-80°N','40-60°N','20-40°N','0-20°','20-40°S','40-60°S','60-90°S'];
+  const scenarios = [
+    {name:'LGM',          data:[0,1,3,5,5,5,4,0], color:'#66aaff'},
+    {name:'홀로세 최적기', data:[1,4,8,8,7,7,6,0], color:'#55dd55'},
+    {name:'현재',          data:[1,3,8,6,7,6,6,0], color:'#ffffff'},
+    {name:'+2°C',          data:[2,5,7,5,5,5,6,0], color:'#ffaa55'},
+    {name:'+4°C',          data:[3,6,6,3,3,4,6,1], color:'#ff5555'},
+    {name:'자연 빙하기',   data:[0,1,3,5,5,5,4,0], color:'#aabbff'},
+  ];
+
+  ctx.fillStyle = '#0a1225'; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle = '#151e35'; ctx.lineWidth = 0.5;
+  for(let i=0;i<=5;i++){
+    const y = pad.t + ch*i/5;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    ctx.fillStyle='#4a5a7a'; ctx.font='9px Courier New'; ctx.textAlign='right';
+    ctx.fillText((10-i*2), pad.l-4, y+3);
+  }
+
+  // Y label
+  ctx.save();
+  ctx.translate(12, pad.t+ch/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillStyle='#4a6a8a'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('거주 적합도 (0-10)', 0, 0);
+  ctx.restore();
+
+  // X labels
+  ctx.fillStyle='#4a6a8a'; ctx.font='8px sans-serif'; ctx.textAlign='center';
+  for(let i=0;i<lats.length;i++){
+    const x = pad.l + (i/(lats.length-1))*cw;
+    ctx.fillText(lats[i], x, H-8);
+  }
+
+  // Lines
+  for(const s of scenarios){
+    ctx.beginPath();
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = s.name==='현재' ? 2.5 : 1.5;
+    if(s.name==='자연 빙하기') ctx.setLineDash([4,4]); else ctx.setLineDash([]);
+    for(let i=0;i<s.data.length;i++){
+      const x = pad.l + (i/(s.data.length-1))*cw;
+      const y = pad.t + ch - (s.data[i]/10)*ch;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Dots
+    for(let i=0;i<s.data.length;i++){
+      const x = pad.l + (i/(s.data.length-1))*cw;
+      const y = pad.t + ch - (s.data[i]/10)*ch;
+      ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2);
+      ctx.fillStyle = s.color; ctx.fill();
+    }
+  }
+
+  // Legend
+  let ly = pad.t + 5;
+  const lx = pad.l + cw + 14;
+  for(const s of scenarios){
+    ctx.fillStyle = s.color;
+    ctx.fillRect(lx, ly, 14, 3);
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(s.name, lx+18, ly+4);
+    ly += 16;
+  }
+
+  // Optimal zone highlight
+  ctx.fillStyle = 'rgba(85,255,85,0.05)';
+  const x1 = pad.l + (2/(lats.length-1))*cw;
+  const x2 = pad.l + (3/(lats.length-1))*cw;
+  ctx.fillRect(x1, pad.t, x2-x1, ch);
+  ctx.fillStyle = '#55ff5530';
+  ctx.font = '8px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('문명 중심대', (x1+x2)/2, pad.t+ch-4);
+})();
+</script>
+</body>
+</html>

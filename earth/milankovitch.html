@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>밀란코비치 주기 시뮬레이션</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0e1a;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  h1 {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.8em;
+    background: linear-gradient(135deg, #1a1e3a, #0a0e1a);
+    border-bottom: 1px solid #2a3a5a;
+    letter-spacing: 2px;
+  }
+  h1 span { color: #5af; font-weight: normal; font-size: 0.6em; display: block; margin-top: 4px; }
+
+  .main-container {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 0;
+    height: calc(100vh - 90px);
+  }
+
+  .left-panel {
+    background: #0d1225;
+    border-right: 1px solid #1a2a4a;
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  .earth-view {
+    width: 100%;
+    aspect-ratio: 1;
+    position: relative;
+  }
+  #earthCanvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    background: #050810;
+  }
+
+  .info-box {
+    background: #111830;
+    border: 1px solid #1a2a4a;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    font-size: 0.85em;
+    line-height: 1.6;
+  }
+  .info-box h3 {
+    color: #5af;
+    margin-bottom: 6px;
+    font-size: 0.95em;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid #1a2040;
+  }
+  .info-row:last-child { border: none; }
+  .info-label { color: #8899bb; }
+  .info-value { color: #fff; font-weight: 600; font-family: 'Courier New', monospace; }
+
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 4px;
+    overflow-y: auto;
+  }
+
+  .chart-container {
+    background: #0d1225;
+    border: 1px solid #1a2a4a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    flex: 1;
+    min-height: 120px;
+    position: relative;
+  }
+  .chart-container h3 {
+    font-size: 0.82em;
+    color: #8899bb;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .chart-container h3 .period { color: #5a6a8a; font-weight: normal; }
+  .chart-container canvas {
+    width: 100%;
+    height: calc(100% - 22px);
+  }
+
+  .controls {
+    background: #0d1225;
+    border: 1px solid #1a2a4a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+  .controls label {
+    font-size: 0.82em;
+    color: #8899bb;
+    white-space: nowrap;
+  }
+  .controls input[type="range"] {
+    flex: 1;
+    accent-color: #5af;
+    height: 6px;
+  }
+  .controls button {
+    background: #1a2a4a;
+    border: 1px solid #2a3a5a;
+    color: #aac;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s;
+  }
+  .controls button:hover { background: #2a3a6a; color: #fff; }
+  .controls button.active { background: #2255aa; color: #fff; border-color: #5af; }
+
+  .time-display {
+    font-family: 'Courier New', monospace;
+    color: #5af;
+    font-size: 1em;
+    min-width: 180px;
+    text-align: center;
+  }
+
+  .speed-controls {
+    display: flex;
+    gap: 4px;
+  }
+  .speed-controls button {
+    padding: 4px 8px;
+    font-size: 0.75em;
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>밀란코비치 주기 시뮬레이션
+  <span>Milankovitch Cycles — 지구 궤도 요소의 장주기 변동</span>
+</h1>
+
+<div class="main-container">
+  <div class="left-panel">
+    <div class="earth-view">
+      <canvas id="earthCanvas"></canvas>
+    </div>
+
+    <div class="info-box">
+      <h3>현재 궤도 요소</h3>
+      <div class="info-row">
+        <span class="info-label">황도경사각 (Obliquity)</span>
+        <span class="info-value" id="valObliquity">23.44°</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">이심률 (Eccentricity)</span>
+        <span class="info-value" id="valEccentricity">0.0167</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">세차 지수 (Precession)</span>
+        <span class="info-value" id="valPrecession">0.000</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">65°N 여름 일사량</span>
+        <span class="info-value" id="valInsolation">— W/m²</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h3>주기 설명</h3>
+      <p style="font-size:0.8em; line-height:1.5; color:#8899bb;">
+        <span class="legend-dot" style="background:#ff6b6b;"></span><b style="color:#ff6b6b;">이심률</b>: 궤도 모양 변화 (~100k, ~400k년)<br>
+        <span class="legend-dot" style="background:#4ecdc4;"></span><b style="color:#4ecdc4;">황도경사각</b>: 자전축 기울기 (~41k년)<br>
+        <span class="legend-dot" style="background:#ffe66d;"></span><b style="color:#ffe66d;">세차운동</b>: 자전축 방향 회전 (~26k년)<br>
+        <span class="legend-dot" style="background:#a29bfe;"></span><b style="color:#a29bfe;">일사량</b>: 복합 효과 (65°N 하지)
+      </p>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="controls">
+      <button id="btnPlay" class="active" onclick="togglePlay()">▶ 재생</button>
+      <div class="speed-controls">
+        <button onclick="setSpeed(0.5)">0.5x</button>
+        <button onclick="setSpeed(1)" class="active" id="speed1">1x</button>
+        <button onclick="setSpeed(3)">3x</button>
+        <button onclick="setSpeed(5)">5x</button>
+      </div>
+      <label>시간:</label>
+      <input type="range" id="timeSlider" min="-500000" max="100000" value="0" step="100">
+      <div class="time-display" id="timeDisplay">현재 (0년)</div>
+    </div>
+
+    <div class="chart-container">
+      <h3>
+        <span><span class="legend-dot" style="background:#ff6b6b;"></span>궤도 이심률 (Eccentricity)</span>
+        <span class="period">~100,000년 / ~413,000년 주기</span>
+      </h3>
+      <canvas id="chartEcc"></canvas>
+    </div>
+
+    <div class="chart-container">
+      <h3>
+        <span><span class="legend-dot" style="background:#4ecdc4;"></span>황도경사각 (Obliquity)</span>
+        <span class="period">~41,000년 주기 | 22.1° — 24.5°</span>
+      </h3>
+      <canvas id="chartObl"></canvas>
+    </div>
+
+    <div class="chart-container">
+      <h3>
+        <span><span class="legend-dot" style="background:#ffe66d;"></span>세차 지수 (Climatic Precession)</span>
+        <span class="period">~23,000년 주기</span>
+      </h3>
+      <canvas id="chartPrec"></canvas>
+    </div>
+
+    <div class="chart-container">
+      <h3>
+        <span><span class="legend-dot" style="background:#a29bfe;"></span>65°N 하지 일사량 (Insolation)</span>
+        <span class="period">복합 주기</span>
+      </h3>
+      <canvas id="chartInsol"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  Milankovitch Cycle Calculations (Berger 1978 simplified)
+// ============================================================
+
+// Time in thousands of years from present (negative = past)
+function calcEccentricity(tKyr) {
+  // Simplified Fourier series for eccentricity
+  const t = tKyr;
+  return 0.028011
+    + 0.010738 * Math.cos(2 * Math.PI * t / 413.0 + 3.135)
+    + 0.008263 * Math.cos(2 * Math.PI * t / 100.0 + 0.208)
+    + 0.004095 * Math.cos(2 * Math.PI * t / 95.0 + 1.950)
+    + 0.003633 * Math.cos(2 * Math.PI * t / 123.8 + 4.885)
+    + 0.002425 * Math.cos(2 * Math.PI * t / 131.0 + 2.105)
+    + 0.001595 * Math.cos(2 * Math.PI * t / 2035.0 + 5.510);
+}
+
+function calcObliquity(tKyr) {
+  // Obliquity in degrees
+  const t = tKyr;
+  const eps0 = 23.320556; // mean obliquity
+  const deps = 1.0 * Math.cos(2 * Math.PI * t / 41.0 + 2.399)
+    + 0.430 * Math.cos(2 * Math.PI * t / 39.73 + 3.810)
+    + 0.280 * Math.cos(2 * Math.PI * t / 53.6 + 1.280)
+    + 0.175 * Math.cos(2 * Math.PI * t / 40.3 + 5.200)
+    + 0.125 * Math.cos(2 * Math.PI * t / 29.8 + 0.630);
+  return eps0 + deps;
+}
+
+function calcPrecessionAngle(tKyr) {
+  // General precession longitude in degrees
+  const t = tKyr;
+  // Approximate: precession angle increases ~50.29 arcsec/year = ~0.01397°/year
+  const psi = (360.0 * t / 25.771) ; // ~25,771 year period
+  return psi % 360;
+}
+
+function calcClimaticPrecession(tKyr) {
+  // Climatic precession index: e * sin(omega_tilde)
+  const e = calcEccentricity(tKyr);
+  const t = tKyr;
+  // Longitude of perihelion varies with multiple periods
+  const omega = 2 * Math.PI * t / 21.7 + 1.2
+    + 0.6 * Math.sin(2 * Math.PI * t / 23.7 + 0.5)
+    + 0.3 * Math.sin(2 * Math.PI * t / 18.97 + 2.1);
+  return e * Math.sin(omega);
+}
+
+function calcInsolation65N(tKyr) {
+  // Simplified 65°N summer solstice insolation (W/m²)
+  // Based on Berger & Loutre approximation
+  const obl = calcObliquity(tKyr);
+  const oblRad = obl * Math.PI / 180;
+  const cp = calcClimaticPrecession(tKyr);
+  const e = calcEccentricity(tKyr);
+
+  // Reference insolation at 65°N summer solstice
+  const Q0 = 475.0; // approximate mean value
+  // Sensitivity to obliquity and precession
+  const dQ_obl = 8.0 * (obl - 23.32); // ~8 W/m² per degree
+  const dQ_prec = -70.0 * cp; // precession effect
+  return Q0 + dQ_obl + dQ_prec;
+}
+
+// ============================================================
+//  Precompute data for charts
+// ============================================================
+const T_MIN = -500; // kyr
+const T_MAX = 100;  // kyr
+const N_POINTS = 2400;
+const dt = (T_MAX - T_MIN) / N_POINTS;
+
+const dataT = [];
+const dataEcc = [];
+const dataObl = [];
+const dataPrec = [];
+const dataInsol = [];
+
+for (let i = 0; i <= N_POINTS; i++) {
+  const t = T_MIN + i * dt;
+  dataT.push(t);
+  dataEcc.push(calcEccentricity(t));
+  dataObl.push(calcObliquity(t));
+  dataPrec.push(calcClimaticPrecession(t));
+  dataInsol.push(calcInsolation65N(t));
+}
+
+// ============================================================
+//  Chart Drawing
+// ============================================================
+function setupCanvas(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return { ctx, w: rect.width, h: rect.height };
+}
+
+function drawChart(canvas, data, color, yMin, yMax, currentTKyr, unit, decimals) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  const pad = { top: 8, bottom: 18, left: 52, right: 16 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Grid
+  ctx.strokeStyle = '#1a2040';
+  ctx.lineWidth = 1;
+  const ySteps = 4;
+  for (let i = 0; i <= ySteps; i++) {
+    const y = pad.top + (ch * i / ySteps);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(w - pad.right, y);
+    ctx.stroke();
+
+    const val = yMax - (yMax - yMin) * i / ySteps;
+    ctx.fillStyle = '#4a5a7a';
+    ctx.font = '10px Courier New';
+    ctx.textAlign = 'right';
+    ctx.fillText(val.toFixed(decimals) + unit, pad.left - 4, y + 3);
+  }
+
+  // X-axis labels
+  ctx.fillStyle = '#4a5a7a';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'center';
+  const xLabels = [-500, -400, -300, -200, -100, 0, 100];
+  for (const xl of xLabels) {
+    const x = pad.left + ((xl - T_MIN) / (T_MAX - T_MIN)) * cw;
+    if (x >= pad.left && x <= w - pad.right) {
+      ctx.fillText(xl + 'k', x, h - 2);
+    }
+  }
+
+  // Data line
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < data.length; i++) {
+    const x = pad.left + (i / N_POINTS) * cw;
+    const y = pad.top + ch - ((data[i] - yMin) / (yMax - yMin)) * ch;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Fill under curve
+  const lastX = pad.left + cw;
+  const baseY = pad.top + ch;
+  ctx.lineTo(lastX, baseY);
+  ctx.lineTo(pad.left, baseY);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, pad.top, 0, baseY);
+  grad.addColorStop(0, color + '30');
+  grad.addColorStop(1, color + '05');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Current time marker
+  const markerX = pad.left + ((currentTKyr - T_MIN) / (T_MAX - T_MIN)) * cw;
+  if (markerX >= pad.left && markerX <= w - pad.right) {
+    ctx.strokeStyle = '#ffffff88';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(markerX, pad.top);
+    ctx.lineTo(markerX, pad.top + ch);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Current value dot
+    const tIdx = Math.round(((currentTKyr - T_MIN) / (T_MAX - T_MIN)) * N_POINTS);
+    if (tIdx >= 0 && tIdx < data.length) {
+      const dotY = pad.top + ch - ((data[tIdx] - yMin) / (yMax - yMin)) * ch;
+      ctx.beginPath();
+      ctx.arc(markerX, dotY, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(markerX, dotY, 6, 0, Math.PI * 2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+}
+
+// ============================================================
+//  Earth 3D Visualization
+// ============================================================
+const earthCanvas = document.getElementById('earthCanvas');
+
+function drawEarth(tKyr) {
+  const rect = earthCanvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  earthCanvas.width = rect.width * dpr;
+  earthCanvas.height = rect.height * dpr;
+  const ctx = earthCanvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const w = rect.width;
+  const h = rect.height;
+  const cx = w / 2;
+  const cy = h / 2;
+  const R = Math.min(w, h) * 0.28;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Stars background
+  const starSeed = 42;
+  let rng = starSeed;
+  function pseudoRand() {
+    rng = (rng * 16807 + 0) % 2147483647;
+    return rng / 2147483647;
+  }
+  for (let i = 0; i < 80; i++) {
+    const sx = pseudoRand() * w;
+    const sy = pseudoRand() * h;
+    const sr = pseudoRand() * 1.2;
+    ctx.beginPath();
+    ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${0.3 + pseudoRand() * 0.5})`;
+    ctx.fill();
+  }
+
+  const obliquity = calcObliquity(tKyr);
+  const oblRad = obliquity * Math.PI / 180;
+  const ecc = calcEccentricity(tKyr);
+  const precAngle = calcPrecessionAngle(tKyr) * Math.PI / 180;
+
+  // Draw orbital ellipse
+  const orbitRx = R * 1.6;
+  const orbitRy = R * 0.5;
+  const orbitCx = cx;
+  const orbitCy = cy + R * 0.7;
+
+  ctx.save();
+  ctx.translate(orbitCx, orbitCy);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, orbitRx, orbitRy, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = '#2a3a5a';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 5]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Sun at focus
+  const sunOffset = ecc * orbitRx;
+  ctx.beginPath();
+  ctx.arc(-sunOffset, 0, 10, 0, Math.PI * 2);
+  const sunGrad = ctx.createRadialGradient(-sunOffset, 0, 0, -sunOffset, 0, 14);
+  sunGrad.addColorStop(0, '#ffee55');
+  sunGrad.addColorStop(0.6, '#ffaa22');
+  sunGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = sunGrad;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(-sunOffset, 0, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.restore();
+
+  // Earth position on orbit (animate around)
+  const animAngle = (performance.now() / 8000) + precAngle;
+  const earthOrbX = orbitCx + orbitRx * Math.cos(animAngle);
+  const earthOrbY = orbitCy + orbitRy * Math.sin(animAngle);
+
+  // Draw Earth
+  const earthR = R * 0.38;
+  const eX = cx;
+  const eY = cy - R * 0.15;
+
+  // Earth globe
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(eX, eY, earthR, 0, Math.PI * 2);
+  const earthGrad = ctx.createRadialGradient(eX - earthR * 0.3, eY - earthR * 0.3, earthR * 0.1, eX, eY, earthR);
+  earthGrad.addColorStop(0, '#4488cc');
+  earthGrad.addColorStop(0.4, '#2266aa');
+  earthGrad.addColorStop(0.8, '#1a4488');
+  earthGrad.addColorStop(1, '#0a2244');
+  ctx.fillStyle = earthGrad;
+  ctx.fill();
+
+  // Continents (simplified)
+  ctx.save();
+  ctx.clip();
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = '#44aa44';
+  // Simple continent shapes
+  const contRot = performance.now() / 15000;
+  for (let i = 0; i < 5; i++) {
+    const ca = contRot + i * 1.3;
+    const ccx = eX + earthR * 0.5 * Math.cos(ca);
+    const ccy = eY + earthR * 0.3 * Math.sin(ca * 0.7 + i);
+    ctx.beginPath();
+    ctx.ellipse(ccx, ccy, earthR * (0.15 + i * 0.04), earthR * (0.12 + i * 0.03), ca, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Atmosphere glow
+  ctx.beginPath();
+  ctx.arc(eX, eY, earthR + 3, 0, Math.PI * 2);
+  const atmoGrad = ctx.createRadialGradient(eX, eY, earthR - 2, eX, eY, earthR + 6);
+  atmoGrad.addColorStop(0, 'transparent');
+  atmoGrad.addColorStop(0.5, 'rgba(100,180,255,0.15)');
+  atmoGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = atmoGrad;
+  ctx.fill();
+
+  // Rotation axis
+  const axisLen = earthR * 1.8;
+  const axisTopX = eX - Math.sin(oblRad) * axisLen;
+  const axisTopY = eY - Math.cos(oblRad) * axisLen;
+  const axisBotX = eX + Math.sin(oblRad) * axisLen;
+  const axisBotY = eY + Math.cos(oblRad) * axisLen;
+
+  ctx.beginPath();
+  ctx.moveTo(axisBotX, axisBotY);
+  ctx.lineTo(axisTopX, axisTopY);
+  ctx.strokeStyle = '#4ecdc4';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Arrow at top
+  const arrowSize = 8;
+  const arrowAngle = Math.atan2(axisTopY - eY, axisTopX - eX);
+  ctx.beginPath();
+  ctx.moveTo(axisTopX, axisTopY);
+  ctx.lineTo(axisTopX - arrowSize * Math.cos(arrowAngle - 0.4), axisTopY - arrowSize * Math.sin(arrowAngle - 0.4));
+  ctx.moveTo(axisTopX, axisTopY);
+  ctx.lineTo(axisTopX - arrowSize * Math.cos(arrowAngle + 0.4), axisTopY - arrowSize * Math.sin(arrowAngle + 0.4));
+  ctx.stroke();
+
+  // Vertical reference line
+  ctx.beginPath();
+  ctx.moveTo(eX, eY - axisLen - 10);
+  ctx.lineTo(eX, eY + axisLen + 10);
+  ctx.strokeStyle = '#ffffff22';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Obliquity angle arc
+  ctx.beginPath();
+  const arcR = earthR * 0.9;
+  const startAngle = -Math.PI / 2;
+  const endAngle = -Math.PI / 2 + oblRad;
+  ctx.arc(eX, eY, arcR, Math.min(startAngle, endAngle), Math.max(startAngle, endAngle));
+  ctx.strokeStyle = '#ffe66d';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Obliquity label
+  const labelAngle = (startAngle + endAngle) / 2;
+  const labelR = arcR + 14;
+  ctx.fillStyle = '#ffe66d';
+  ctx.font = 'bold 12px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText(obliquity.toFixed(1) + '°', eX + labelR * Math.cos(labelAngle), eY + labelR * Math.sin(labelAngle) + 4);
+
+  // Equatorial plane line
+  ctx.beginPath();
+  const eqLen = earthR * 1.5;
+  const perpAngle = oblRad;
+  ctx.moveTo(eX - Math.cos(perpAngle) * eqLen, eY + Math.sin(perpAngle) * eqLen * 0.15);
+  ctx.lineTo(eX + Math.cos(perpAngle) * eqLen, eY - Math.sin(perpAngle) * eqLen * 0.15);
+  ctx.strokeStyle = '#ff6b6b55';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.restore();
+
+  // Precession circle at top
+  const precR = 18;
+  const precCx = axisTopX;
+  const precCy = axisTopY - 20;
+  ctx.beginPath();
+  ctx.ellipse(eX, precCy, precR, precR * 0.35, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = '#ffe66d55';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Precession indicator dot
+  const precDotX = eX + precR * Math.cos(precAngle);
+  const precDotY = precCy + precR * 0.35 * Math.sin(precAngle);
+  ctx.beginPath();
+  ctx.arc(precDotX, precDotY, 3, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffe66d';
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#5a6a8a';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('세차운동', eX, precCy - precR * 0.35 - 6);
+
+  ctx.fillStyle = '#4ecdc4';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('자전축', axisTopX + 8, axisTopY);
+
+  // Eccentricity info
+  ctx.fillStyle = '#ff6b6b88';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`e = ${ecc.toFixed(4)}`, orbitCx, orbitCy + orbitRy + 16);
+}
+
+// ============================================================
+//  Animation & Controls
+// ============================================================
+let currentTime = 0; // years from present
+let playing = false;
+let speed = 1;
+let animId;
+
+const timeSlider = document.getElementById('timeSlider');
+const timeDisplay = document.getElementById('timeDisplay');
+
+function formatTime(years) {
+  if (Math.abs(years) < 100) return `현재 (${years}년)`;
+  const ky = (years / 1000).toFixed(1);
+  if (years < 0) return `${Math.abs(ky)}k년 전`;
+  return `${ky}k년 후`;
+}
+
+function updateDisplay() {
+  const tKyr = currentTime / 1000;
+
+  // Update info values
+  document.getElementById('valObliquity').textContent = calcObliquity(tKyr).toFixed(2) + '°';
+  document.getElementById('valEccentricity').textContent = calcEccentricity(tKyr).toFixed(5);
+  document.getElementById('valPrecession').textContent = calcClimaticPrecession(tKyr).toFixed(4);
+  document.getElementById('valInsolation').textContent = calcInsolation65N(tKyr).toFixed(1) + ' W/m²';
+
+  timeDisplay.textContent = formatTime(currentTime);
+  timeSlider.value = currentTime;
+
+  // Draw charts
+  const eccMin = Math.min(...dataEcc) - 0.003;
+  const eccMax = Math.max(...dataEcc) + 0.003;
+  drawChart(document.getElementById('chartEcc'), dataEcc, '#ff6b6b', eccMin, eccMax, tKyr, '', 3);
+
+  const oblMin = Math.min(...dataObl) - 0.3;
+  const oblMax = Math.max(...dataObl) + 0.3;
+  drawChart(document.getElementById('chartObl'), dataObl, '#4ecdc4', oblMin, oblMax, tKyr, '°', 1);
+
+  const precMin = Math.min(...dataPrec) - 0.005;
+  const precMax = Math.max(...dataPrec) + 0.005;
+  drawChart(document.getElementById('chartPrec'), dataPrec, '#ffe66d', precMin, precMax, tKyr, '', 3);
+
+  const insolMin = Math.min(...dataInsol) - 5;
+  const insolMax = Math.max(...dataInsol) + 5;
+  drawChart(document.getElementById('chartInsol'), dataInsol, '#a29bfe', insolMin, insolMax, tKyr, '', 0);
+
+  // Draw Earth
+  drawEarth(tKyr);
+}
+
+let lastFrameTime = 0;
+function animate(timestamp) {
+  if (!lastFrameTime) lastFrameTime = timestamp;
+  const delta = timestamp - lastFrameTime;
+  lastFrameTime = timestamp;
+
+  if (playing) {
+    // Move forward in time: speed * 500 years per second
+    currentTime += speed * 500 * (delta / 1000);
+    if (currentTime > T_MAX * 1000) currentTime = T_MIN * 1000;
+    if (currentTime < T_MIN * 1000) currentTime = T_MIN * 1000;
+  }
+
+  updateDisplay();
+  animId = requestAnimationFrame(animate);
+}
+
+function togglePlay() {
+  playing = !playing;
+  const btn = document.getElementById('btnPlay');
+  btn.textContent = playing ? '⏸ 일시정지' : '▶ 재생';
+  btn.classList.toggle('active', playing);
+}
+
+function setSpeed(s) {
+  speed = s;
+  document.querySelectorAll('.speed-controls button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+timeSlider.addEventListener('input', () => {
+  currentTime = parseInt(timeSlider.value);
+  if (playing) togglePlay();
+});
+
+// Handle resize
+window.addEventListener('resize', () => {
+  updateDisplay();
+});
+
+// Start
+requestAnimationFrame(animate);
+</script>
+<footer style="text-align:center;padding:10px;color:#3a4a6a;font-size:.8em;border-top:1px solid #1a2a4a;">
+  밀란코비치 주기 시뮬레이션 — Earth Simulation Project
+<br>Built with <a href="https://claude.ai/claude-code" style="color:#5af;text-decoration:none">Claude Code</a> (Anthropic Claude Opus 4.6)
+</footer>
+</body>
+</html>

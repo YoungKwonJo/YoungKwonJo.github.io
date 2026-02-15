@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지구 시뮬레이션 프로젝트 — 관리 인덱스</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060c1a;color:#c8cce0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.container{max-width:1100px;margin:0 auto;padding:30px 24px}
+header{text-align:center;padding:40px 0 30px;border-bottom:1px solid #1a2a4a;margin-bottom:36px}
+header h1{font-size:2em;letter-spacing:2px;margin-bottom:6px}
+header h1 span{background:linear-gradient(90deg,#5af,#4ecdc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header p{color:#5a7a9a;font-size:.9em;margin-top:8px}
+
+.project-meta{display:flex;gap:20px;justify-content:center;margin:16px 0 0;flex-wrap:wrap}
+.meta-item{background:#0c1530;border:1px solid #152040;border-radius:6px;padding:6px 16px;font-size:.8em}
+.meta-item b{color:#5af}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-top:10px}
+.card{background:linear-gradient(135deg,#0a1225,#0e1835);border:1px solid #1a2a5a;border-radius:12px;padding:24px;transition:all .3s;position:relative;overflow:hidden}
+.card:hover{border-color:#3a5a8a;transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0}
+.card:nth-child(1)::before{background:linear-gradient(90deg,#ff6b6b,#ff9966)}
+.card:nth-child(2)::before{background:linear-gradient(90deg,#4ecdc4,#5af)}
+.card:nth-child(3)::before{background:linear-gradient(90deg,#ffe66d,#ffaa44)}
+.card:nth-child(4)::before{background:linear-gradient(90deg,#a29bfe,#6c5ce7)}
+.card:nth-child(5)::before{background:linear-gradient(90deg,#55efc4,#00b894)}
+.card .num{position:absolute;top:14px;right:18px;font-size:2.5em;font-weight:800;color:#ffffff08;line-height:1}
+.card h2{font-size:1.15em;margin-bottom:10px;color:#fff}
+.card h2 small{display:block;font-size:.65em;color:#5a8abf;font-weight:normal;margin-top:2px}
+.card p{font-size:.82em;color:#8899bb;line-height:1.6;margin-bottom:12px}
+.card .tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+.card .tag{font-size:.7em;padding:2px 8px;border-radius:3px;background:#152040;color:#6a8aaa;border:1px solid #1a2a4a}
+.card .stats{font-size:.75em;color:#4a6a8a;display:flex;gap:12px;margin-bottom:14px}
+.card a.btn{display:inline-block;padding:8px 20px;background:#1a3060;border:1px solid #2a4a7a;border-radius:6px;color:#5af;text-decoration:none;font-size:.85em;transition:.2s}
+.card a.btn:hover{background:#2a4a8a;color:#fff}
+
+h2.section{color:#5af;font-size:1.1em;margin:36px 0 14px;padding:8px 12px;background:#0c1530;border-left:3px solid #5af;border-radius:0 6px 6px 0}
+
+.flow{display:flex;align-items:stretch;gap:0;margin:20px 0;overflow-x:auto;padding-bottom:10px}
+.flow-item{flex:1;min-width:180px;background:#0a1225;border:1px solid #152040;padding:14px;text-align:center;position:relative}
+.flow-item:first-child{border-radius:8px 0 0 8px}
+.flow-item:last-child{border-radius:0 8px 8px 0}
+.flow-item h4{color:#5af;font-size:.85em;margin-bottom:6px}
+.flow-item p{font-size:.75em;color:#7a8aaa;line-height:1.4}
+.flow-item::after{content:'>';position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:#2a3a5a;font-size:1.2em;z-index:1}
+.flow-item:last-child::after{content:''}
+
+.toc-list{list-style:none;padding:0}
+.toc-list li{padding:6px 0;border-bottom:1px solid #0e1530}
+.toc-list li a{color:#5af;text-decoration:none;font-size:.88em}
+.toc-list li a:hover{color:#8cf}
+.toc-list li .desc{color:#5a7a9a;font-size:.78em;margin-left:8px}
+
+footer{margin-top:50px;padding:20px 0;border-top:1px solid #1a2a4a;text-align:center;color:#3a4a6a;font-size:.8em}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+<h1><span>지구 시뮬레이션 프로젝트</span></h1>
+<p>밀란코비치 주기 · 공전/자전 · 대기순환 · 기후 변화 종합 시뮬레이션</p>
+<div class="project-meta">
+  <div class="meta-item">시뮬레이션: <b>6개</b></div>
+  <div class="meta-item">문서: <b>6개 MD</b></div>
+  <div class="meta-item">총 코드: <b>~5,500줄</b></div>
+  <div class="meta-item">생성일: <b>2026-02-14</b></div>
+  <div class="meta-item">기술: <b>HTML5 · Canvas 2D · Vanilla JS</b></div>
+</div>
+</header>
+
+<div class="cards">
+
+  <div class="card">
+    <div class="num">01</div>
+    <h2>밀란코비치 주기 시뮬레이션<small>milankovitch.html</small></h2>
+    <p>이심률·황도경사각·세차운동 3대 궤도 요소의 장주기 변동을 시각화. 500,000년 과거~100,000년 미래까지 시계열 차트와 3D 지구 축 시각화.</p>
+    <div class="tags">
+      <span class="tag">이심률</span><span class="tag">황도경사각</span><span class="tag">세차운동</span>
+      <span class="tag">65°N 일사량</span><span class="tag">Berger 1978</span>
+    </div>
+    <div class="stats">767줄 · 4개 차트 · 실시간 애니메이션</div>
+    <a href="milankovitch.html" class="btn">열기 →</a>
+  </div>
+
+  <div class="card">
+    <div class="num">02</div>
+    <h2>지구 공전·자전·대기순환<small>earth-simulation.html</small></h2>
+    <p>태양 공전 궤도, 3D 자전 지구본(대륙/해양), 세계 지도 위 3,000개 바람 입자 애니메이션. 해들리·페렐·극순환 + 몬순 + 제트기류 모델.</p>
+    <div class="tags">
+      <span class="tag">공전</span><span class="tag">자전</span><span class="tag">대륙/해양</span>
+      <span class="tag">바람입자</span><span class="tag">ITCZ</span><span class="tag">몬순</span>
+    </div>
+    <div class="stats">900줄 · 3개 캔버스 · 3,000 파티클</div>
+    <a href="earth-simulation.html" class="btn">열기 →</a>
+  </div>
+
+  <div class="card">
+    <div class="num">03</div>
+    <h2>조건별 바람·온도 레퍼런스<small>reference.html</small></h2>
+    <p>위도·황도경사각·이심률·계절·육지/해양·세차 각 조건별 바람 방향·속도·온도 수치를 체계적 표로 정리. 공식 및 핵심 상수 포함.</p>
+    <div class="tags">
+      <span class="tag">위도별</span><span class="tag">계절별</span><span class="tag">육지/해양</span>
+      <span class="tag">공식</span><span class="tag">수치 레퍼런스</span>
+    </div>
+    <div class="stats">1,125줄 · 15개 표 · 8개 섹션</div>
+    <a href="reference.html" class="btn">열기 →</a>
+  </div>
+
+  <div class="card">
+    <div class="num">04</div>
+    <h2>과거-현재 추세 분석<small>trend-analysis.html</small></h2>
+    <p>과거 800,000년간 궤도 요소·기후 변화를 현재와 비교. 과거 간빙기별 정량 비교, 변화율 분석, 바람 추세, CO₂ 영향 종합 판단.</p>
+    <div class="tags">
+      <span class="tag">800kyr 비교</span><span class="tag">간빙기 순위</span><span class="tag">변화율</span>
+      <span class="tag">CO₂ vs 궤도</span><span class="tag">미래 전망</span>
+    </div>
+    <div class="stats">1,105줄 · 5개 차트 · 6개 분석 섹션</div>
+    <a href="trend-analysis.html" class="btn">열기 →</a>
+  </div>
+
+  <div class="card">
+    <div class="num">05</div>
+    <h2>바람·기후와 생존 가능 구역<small>habitability.html</small></h2>
+    <p>바람→강수→생존 인과 사슬, 인간 생리적 한계(습구온도 35°C), 시대별 거주 가능 면적, 과거 인류 이동 상관, 바이옴 이동 속도, 미래 시나리오 분석.</p>
+    <div class="tags">
+      <span class="tag">거주적합성</span><span class="tag">습구온도</span><span class="tag">인류 이동</span>
+      <span class="tag">바이옴</span><span class="tag">미래 시나리오</span>
+    </div>
+    <div class="stats">차트 2개 · 생존 한계 분석 · 시나리오 비교</div>
+    <a href="habitability.html" class="btn">열기 →</a>
+  </div>
+
+  <div class="card">
+    <div class="num">06</div>
+    <h2>빙하기는 인간에게 좋은가?<small>ice-age-human.html</small></h2>
+    <p>빙하기 vs 간빙기 거주 가능성 정량 비교. 거주 적합 면적, 바람 패턴, 역사적 증거, 양쪽 극단의 위험성 분석.</p>
+    <div class="tags">
+      <span class="tag">빙하기 vs 간빙기</span><span class="tag">거주 면적</span><span class="tag">역사 증거</span>
+      <span class="tag">양극단 역설</span>
+    </div>
+    <div class="stats">차트 3개 · 시대별 비교 · 스펙트럼 분석</div>
+    <a href="ice-age-human.html" class="btn">열기 →</a>
+  </div>
+
+  <div class="card">
+    <div class="num">07</div>
+    <h2>전체 로직 설명서<small>logic-overview.html</small></h2>
+    <p>프로젝트 전체의 과학적 원리, 수학 모델, 알고리즘, 데이터 흐름을 종합 설명. 각 모듈 간 연결 관계와 계산 파이프라인 해설.</p>
+    <div class="tags">
+      <span class="tag">아키텍처</span><span class="tag">수학 모델</span><span class="tag">알고리즘</span>
+      <span class="tag">데이터 흐름</span><span class="tag">과학 원리</span>
+    </div>
+    <div class="stats">종합 설명서 · 로직 다이어그램 · 수식 해설</div>
+    <a href="logic-overview.html" class="btn">열기 →</a>
+  </div>
+
+</div>
+
+<h2 class="section">프로젝트 구조 및 데이터 흐름</h2>
+<div class="flow">
+  <div class="flow-item">
+    <h4>궤도 역학 계산</h4>
+    <p>Berger 1978<br>푸리에 급수<br>e(t), ε(t), ω(t)</p>
+  </div>
+  <div class="flow-item">
+    <h4>일사량 계산</h4>
+    <p>태양 적위 계산<br>65°N 하지 일사량<br>Q(φ, δ, e)</p>
+  </div>
+  <div class="flow-item">
+    <h4>대기순환 모델</h4>
+    <p>3셀 순환<br>ITCZ 이동<br>몬순 + 코리올리</p>
+  </div>
+  <div class="flow-item">
+    <h4>시각화 렌더링</h4>
+    <p>Canvas 2D<br>구면투영·차트<br>입자 시스템</p>
+  </div>
+  <div class="flow-item">
+    <h4>분석 및 비교</h4>
+    <p>과거 800kyr 비교<br>추세 벡터<br>종합 판단</p>
+  </div>
+</div>
+
+<h2 class="section">파일 간 관계</h2>
+<ul class="toc-list">
+  <li><a href="milankovitch.html">01. milankovitch.html</a> <span class="desc">— 궤도 계산 엔진 (기반 모듈) → 02, 04에 동일 수식 공유</span></li>
+  <li><a href="earth-simulation.html">02. earth-simulation.html</a> <span class="desc">— 시각화 엔진 (01의 궤도 파라미터를 3D + 바람으로 확장)</span></li>
+  <li><a href="reference.html">03. reference.html</a> <span class="desc">— 수치 레퍼런스 (01, 02의 계산 결과를 조건별 표로 정리)</span></li>
+  <li><a href="trend-analysis.html">04. trend-analysis.html</a> <span class="desc">— 분석 모듈 (01의 800kyr 데이터에 고기후 데이터 오버레이)</span></li>
+  <li><a href="habitability.html">05. habitability.html</a> <span class="desc">— 바람·기후 → 인류/생물 생존 가능 구역 변화 분석</span></li>
+  <li><a href="ice-age-human.html">06. ice-age-human.html</a> <span class="desc">— 빙하기 vs 간빙기 거주 가능성 비교, 양극단 역설</span></li>
+  <li><a href="logic-overview.html">07. logic-overview.html</a> <span class="desc">— 문서화 (01~06 전체의 과학 원리·알고리즘·구조 설명)</span></li>
+</ul>
+
+<footer>
+Earth Simulation Project &mdash; 밀란코비치 주기 · 대기순환 · 기후 변화 종합 시뮬레이션
+<br>Built with <a href="https://claude.ai/claude-code" style="color:#5af;text-decoration:none">Claude Code</a> (Anthropic Claude Opus 4.6)
+</footer>
+</div>
+</body>
+</html>
