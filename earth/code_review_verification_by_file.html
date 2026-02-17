@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>주제(파일)별 검증성/로직 분석</title>
+<style>
+  body { font-family: Arial, sans-serif; line-height: 1.6; margin: 24px; color: #111; }
+  h1, h2, h3 { margin: 0 0 8px; }
+  h2 { margin-top: 28px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+  h3 { margin-top: 16px; }
+  ul { margin: 6px 0 14px 18px; }
+  li { margin: 6px 0; }
+  code { background: #f4f4f4; padding: 0 4px; border-radius: 3px; }
+  .file { font-weight: bold; }
+  .note { color: #444; }
+</style>
+</head>
+<body>
+  <h1>과학적 주장/수치 검증성 및 로직 관점 분석 (파일별)</h1>
+
+  <h2>문서 파일 (first/docs)</h2>
+
+  <h3><span class="file">first/docs/01-orbital-mechanics.md</span></h3>
+  <ul>
+    <li>검증성 부족: Berger 1978 언급은 있으나, 계수/범위/정확도 근거가 표나 인용으로 분리되어 있지 않음.</li>
+    <li>검증성 부족: “현재 값/추세/최댓값/최솟값”은 기준 연도 및 데이터 출처가 명시되지 않음.</li>
+    <li>로직 리스크: tKyr 부호 규약(과거 음수)과 코드 사용 규약이 문서와 완전히 일치하는지 검증 흐름 부재.</li>
+    <li>개선: 수식별 출처와 유효 범위(±1Myr 등)를 명시하고, 기준 연도와 데이터 버전 표기.</li>
+  </ul>
+
+  <h3><span class="file">first/docs/02-atmosphere.md</span></h3>
+  <ul>
+    <li>검증성 부족: 풍속/강수/기온 수치가 표로 제시되나 기후 정상값(예: 1981–2010)인지 불명확.</li>
+    <li>검증성 부족: “Roaring 40s/Furious 50s” 등의 정성 서술은 출처 없이 사용됨.</li>
+    <li>로직 리스크: ITCZ 이동계수(0.6), 코리올리 보정 등 경험적 상수가 근거 없이 고정됨.</li>
+    <li>개선: 표의 데이터 출처(재분석/관측)와 기준 기간을 명시하고, 상수의 근거/민감도 분석을 추가.</li>
+  </ul>
+
+  <h3><span class="file">first/docs/03-reference-data.md</span></h3>
+  <ul>
+    <li>검증성 부족: 수치 레퍼런스가 다량 제시되나 원자료(데이터셋/논문/모델) 인용이 없음.</li>
+    <li>검증성 부족: “현재” 값(예: 태양상수, CO₂ 등)의 기준 연도 불명.</li>
+    <li>로직 리스크: 여러 표가 서로 다른 가정(현대/과거/가상 시나리오)을 혼합하는데 구분 라벨이 약함.</li>
+    <li>개선: 표마다 데이터 출처와 기준 연도를 표시하고, 시나리오/가정 구분을 명확히 표시.</li>
+  </ul>
+
+  <h3><span class="file">first/docs/04-trend-analysis.md</span></h3>
+  <ul>
+    <li>검증성 부족: 800kyr 비교, MIS 간빙기 지속기간, 온도/해수면 수치에 대한 출처 부재.</li>
+    <li>검증성 부족: “현재 CO₂ 420 ppm” 등 시점 의존 지표가 기준 연도 없이 사용됨.</li>
+    <li>로직 리스크: 궤도 요인과 CO₂ 효과를 결론 수준으로 결합하지만 정량 모델/가정이 불투명.</li>
+    <li>개선: 핵심 지표에 출처와 범위를 명시하고, 결론을 도출하는 계산 단계(혹은 링크)를 분리.</li>
+  </ul>
+
+  <h3><span class="file">first/docs/05-habitability.md</span></h3>
+  <ul>
+    <li>검증성 부족: 습구온도 한계, 거주 가능 면적(%) 등 강한 수치 주장에 출처가 없음.</li>
+    <li>검증성 부족: “+3°C에서 수십억 명 영향” 같은 인구 추정 근거가 불명.</li>
+    <li>로직 리스크: 생리 한계 → 거주 불능 인구로 바로 연결하는 모델링 가정이 누락됨.</li>
+    <li>개선: 생리 한계/인구 노출에 대한 출처, 계산 방식(노출 인구 산정)을 명시.</li>
+  </ul>
+
+  <h3><span class="file">first/docs/06-architecture.md</span></h3>
+  <ul>
+    <li>검증성 부족: “정확도” 표기(±1Myr 내 수%)가 근거 인용 없이 제공됨.</li>
+    <li>로직 리스크: 데이터 흐름은 제시되나 실제 코드 구현과의 1:1 매핑 검증 방법이 없음.</li>
+    <li>개선: 설계도-코드 대응표(파일/함수)와 검증 체크리스트 추가.</li>
+  </ul>
+
+  <h3><span class="file">first/docs/07-ice-age-human.md</span></h3>
+  <ul>
+    <li>검증성 부족: 인구 규모, 사막 면적, 거주 가능 비율 등 강한 결론이 출처 없이 서술됨.</li>
+    <li>검증성 부족: “빙하기는 인간에게 매우 불리” 같은 결론적 주장에 근거 구조가 약함.</li>
+    <li>로직 리스크: 복합 원인(기후, 기술, 사회)을 단일 기후 요인으로 설명하는 단순화 위험.</li>
+    <li>개선: 주요 수치와 역사적 주장에 대한 출처/근거 문단 분리, 반례/불확실성 병기.</li>
+  </ul>
+
+  <h2>시뮬레이션 파일 (first/simulations)</h2>
+
+  <h3><span class="file">first/simulations/milankovitch.html</span></h3>
+  <ul>
+    <li>검증성 부족: 간략화 계수/주기 사용 근거가 코드 주석 수준이며 출처/유효 범위 미표기.</li>
+    <li>로직 리스크: 단순화된 세차/일사량 공식이 문서와 완전히 일치하는지 확인 가능한 테스트 부재.</li>
+    <li>개선: 계수 출처, 단순화 근거, 비교 그래프(예: Laskar vs 본 모델) 추가.</li>
+  </ul>
+
+  <h3><span class="file">first/simulations/earth-simulation.html</span></h3>
+  <ul>
+    <li>검증성 부족: 대륙 폴리곤/육지 마스크 정확도 근거가 없음.</li>
+    <li>로직 리스크: ITCZ/몬순/제트 모델이 경험적 규칙 기반이며 민감도/오차 범위가 제시되지 않음.</li>
+    <li>개선: 육지 마스크 데이터 출처와 해상도 한계를 문서화하고, 파라미터 민감도 결과를 간단히 표시.</li>
+  </ul>
+
+  <h3><span class="file">first/simulations/reference.html</span></h3>
+  <ul>
+    <li>검증성 부족: 대규모 표 데이터의 원천 불명. 단일 파일에 수치가 하드코딩되어 재현성 낮음.</li>
+    <li>로직 리스크: 시각화만 존재하고 데이터 검증 규칙(허용 범위/이상치)이 없음.</li>
+    <li>개선: 데이터 파일을 분리하고, 출처/버전 메타데이터 포함.</li>
+  </ul>
+
+  <h3><span class="file">first/simulations/trend-analysis.html</span></h3>
+  <ul>
+    <li>검증성 부족: 과거-현재 비교 데이터의 출처와 계산 근거가 코드에 드러나지 않음.</li>
+    <li>로직 리스크: 시계열/적분(빙하 지수 등) 계산이 단순 규칙 기반으로 보이며 검증 기준이 없음.</li>
+    <li>개선: 데이터 소스와 계산 파이프라인을 문서화하고, 샘플 값에 대한 검증 테스트 추가.</li>
+  </ul>
+
+  <h3><span class="file">first/simulations/habitability.html</span></h3>
+  <ul>
+    <li>검증성 부족: 거주 적합도 점수/지표가 임의 스케일로 보이며 과학적 근거 불명.</li>
+    <li>로직 리스크: 여러 지표(기온/강수/바람)가 단순 합산일 가능성이 높고 가중치 근거가 없음.</li>
+    <li>개선: 지표 정의/가중치 근거를 명시하고, 범위별 민감도 표시.</li>
+  </ul>
+
+  <h3><span class="file">first/simulations/ice-age-human.html</span></h3>
+  <ul>
+    <li>검증성 부족: 인류 인구, 거주 면적, 온난화 시나리오 수치의 출처 부재.</li>
+    <li>로직 리스크: 역사적 사건과 기후의 인과를 단일 요인으로 연결하는 단순화 위험.</li>
+    <li>개선: 근거 데이터(연구/보고서)를 인용하고, 인과 주장에 불확실성 범위 표기.</li>
+  </ul>
+
+  <h3><span class="file">first/simulations/logic-overview.html</span></h3>
+  <ul>
+    <li>검증성 부족: 알고리즘 요약은 있으나 실제 코드와 1:1 검증 가능한 링크/테스트가 없음.</li>
+    <li>로직 리스크: 개요 문서가 정성적 흐름 위주라, 수치 검증 기준을 담지 못함.</li>
+    <li>개선: 함수-수식 매핑, 테스트 샘플, 허용 오차 범위를 추가.</li>
+  </ul>
+
+  <h3><span class="file">first/simulations/migration-analysis.html</span></h3>
+  <ul>
+    <li>검증성 부족: 이동 경로/기후 연동 데이터가 내장값일 가능성이 높아 출처 불명.</li>
+    <li>로직 리스크: 이동 경로 모델이 단순 선형 보간에 의존할 경우 역사·지형 제약 반영 부족.</li>
+    <li>개선: 이동 경로 데이터 출처와 제약 조건(지형/해수면)을 명시.</li>
+  </ul>
+
+  <h3><span class="file">first/simulations/index.html</span></h3>
+  <ul>
+    <li>검증성 부족: “총 코드 ~5,500줄” 등 메타 수치의 산출 근거가 불명.</li>
+    <li>로직 리스크: 대시보드 정보가 소스/배포 사이에서 불일치할 가능성.</li>
+    <li>개선: 자동 산출 값은 빌드 시 계산하여 삽입하거나, 추정치임을 명시.</li>
+  </ul>
+
+  <h2>공통 개선 방향 (요약)</h2>
+  <ul>
+    <li>모든 주요 수치/그래프에 출처, 기준 연도, 데이터 버전 표기.</li>
+    <li>핵심 로직(궤도/바람/거주 적합도)에 대한 단위 테스트와 검증 샘플 제공.</li>
+    <li>가정/단순화는 별도 섹션으로 분리하고, 적용 범위와 한계를 명확히 기재.</li>
+  </ul>
+</body>
+</html>
