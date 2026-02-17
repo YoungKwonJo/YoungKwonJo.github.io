@@ -391,12 +391,48 @@ function calcInsol(tKyr) {
   return 475.0 + 8.0*(obl-23.32) - 70.0*cp;
 }
 function calcOrbitalTemp(tKyr) {
-  const Q = calcInsol(tKyr);
-  let ice = 0;
-  for (let dt = 0; dt < 8; dt++) {
-    ice += (475 - calcInsol(tKyr - dt)) * 0.12;
+  // Data-driven temperature anomaly (°C vs present)
+  // Based on EPICA/Vostok ice core + ocean sediment records
+  // Piecewise linear interpolation between known paleoclimate data points
+  const dataPoints = [
+    // [tKyr, °C anomaly vs present]
+    [-130, -2.0],   // MIS 6 glacial end
+    [-125, +1.0],   // Eemian interglacial peak (MIS 5e)
+    [-115, -1.0],   // Last glacial inception
+    [-100, -4.0],   // MIS 5d stadial
+    [-82,  -1.5],   // MIS 5a interstadial
+    [-70,  -4.0],   // MIS 4 stadial (Out of Africa)
+    [-60,  -2.0],   // MIS 3 interstadial
+    [-45,  -2.5],   // MIS 3 mid
+    [-30,  -4.0],   // Cooling toward LGM
+    [-21,  -5.5],   // Last Glacial Maximum
+    [-18,  -4.5],   // Start deglaciation
+    [-14.7,-1.5],   // Bølling warming
+    [-12.9,-3.0],   // Younger Dryas cold snap
+    [-11.7,-0.5],   // Holocene start
+    [-9,   +0.5],   // Early Holocene optimum
+    [-6,   +0.8],   // Mid-Holocene thermal maximum
+    [-3,    0.0],   // Neoglaciation cooling
+    [-1,   +0.3],   // Medieval Warm Period
+    [-0.3, -0.4],   // Little Ice Age
+    [0,     0.0],   // Present (reference)
+    [0.1,  +2.0],   // Near future anthropogenic
+  ];
+
+  // Clamp to data range
+  if (tKyr <= dataPoints[0][0]) return dataPoints[0][1];
+  if (tKyr >= dataPoints[dataPoints.length-1][0]) return dataPoints[dataPoints.length-1][1];
+
+  // Find bracketing points and linearly interpolate
+  for (let i = 0; i < dataPoints.length - 1; i++) {
+    const [t0, v0] = dataPoints[i];
+    const [t1, v1] = dataPoints[i + 1];
+    if (tKyr >= t0 && tKyr <= t1) {
+      const f = (tKyr - t0) / (t1 - t0);
+      return v0 + f * (v1 - v0);
+    }
   }
-  return (Q - 475) * 0.05 - ice * 0.3 + (calcObl(tKyr) - 23.3) * 0.4;
+  return 0;
 }
 
 // ============================================================
@@ -1026,19 +1062,21 @@ function drawMigrationTimeline() {
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Migration events
+  // Migration events — markers placed ON the temperature curve
   const events = [
-    { t: -70, label: '아프리카 탈출', color: '#ff6b6b', y: 0.15 },
-    { t: -15, label: '베링 육교', color: '#66aaff', y: 0.25 },
-    { t: -9, label: '사하라 녹색화', color: '#44cc88', y: 0.15 },
-    { t: -4, label: '반투 확산', color: '#ffe66d', y: 0.35 },
-    { t: -1.5, label: '게르만 대이동', color: '#a29bfe', y: 0.25 },
-    { t: 0.1, label: '미래 +2°C', color: '#ff4444', y: 0.1 },
+    { t: -70, label: '아프리카 탈출', color: '#ff6b6b', labelOff: -20 },
+    { t: -15, label: '베링 육교', color: '#66aaff', labelOff: -20 },
+    { t: -9, label: '사하라 녹색화', color: '#44cc88', labelOff: 18 },
+    { t: -4, label: '반투 확산', color: '#ffe66d', labelOff: -20 },
+    { t: -1.5, label: '게르만 대이동', color: '#a29bfe', labelOff: 18 },
+    { t: 0.1, label: '미래 +2°C', color: '#ff4444', labelOff: -20 },
   ];
 
   for (const ev of events) {
     const x = pad.l + ((ev.t-tMin)/(tMax-tMin))*cw;
-    const markerY = pad.t + ch * ev.y;
+    // Find actual temperature at this time and place marker on curve
+    const evTemp = calcOrbitalTemp(ev.t);
+    const markerY = pad.t + ch - ((evTemp - tMinV)/(tMaxV - tMinV))*ch;
 
     // Vertical line
     ctx.strokeStyle = ev.color + '60';
@@ -1059,16 +1097,25 @@ function drawMigrationTimeline() {
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Label
+    // Label — offset above or below the curve to avoid overlap
+    const ly = markerY + ev.labelOff;
     ctx.fillStyle = ev.color;
     ctx.font = 'bold 9px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(ev.label, x, markerY - 10);
+    ctx.fillText(ev.label, x, ly);
+
+    // Connector line from label to marker
+    ctx.strokeStyle = ev.color + '40';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x, markerY + (ev.labelOff > 0 ? 6 : -6));
+    ctx.lineTo(x, ly + (ev.labelOff > 0 ? -10 : 4));
+    ctx.stroke();
 
     // Time label
     ctx.fillStyle = '#5a7a9a';
     ctx.font = '8px Courier New';
-    ctx.fillText(ev.t + 'kyr', x, markerY + 16);
+    ctx.fillText(ev.t + 'kyr', x, ly + (ev.labelOff > 0 ? 12 : -10));
   }
 
   // Current marker
