@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시기별 온도 변화 & 생물 이동 추론 분석</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060c1a;color:#c8cce0;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.7}
+.container{max-width:1440px;margin:0 auto;padding:16px 20px}
+h1{text-align:center;padding:18px;font-size:1.5em;border-bottom:1px solid #1a2a4a;margin-bottom:12px}
+h1 small{display:block;color:#5a8abf;font-size:.52em;font-weight:normal;margin-top:4px}
+h2{color:#5af;font-size:1.1em;margin:30px 0 10px;padding:8px 12px;background:#0c1530;border-left:3px solid #5af;border-radius:0 6px 6px 0}
+h3{color:#4ecdc4;font-size:.92em;margin:16px 0 8px}
+p{font-size:.85em;color:#8899bb;margin:4px 0 10px}
+.note{background:#0c1530;border:1px solid #152040;border-radius:6px;padding:10px 14px;font-size:.82em;margin:10px 0 16px}
+table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:.8em}
+th{background:#0e1835;color:#5a9acf;padding:7px 8px;text-align:center;border:1px solid #1a2a4a;font-weight:600;white-space:nowrap}
+td{padding:5px 8px;border:1px solid #152040;text-align:center;vertical-align:middle}
+tr:nth-child(even) td{background:#0a1225}
+.left{text-align:left}
+.val{font-family:'Courier New',monospace;color:#fff;font-weight:600}
+.up{color:#ff6b6b}
+.down{color:#66aaff}
+.stable{color:#ffe66d}
+.pos{color:#ff8866}
+.neg{color:#66bbff}
+.highlight-row td{background:#12203a !important;border-color:#2a4a7a}
+.chart-wrap{background:#0a1020;border:1px solid #152040;border-radius:8px;padding:10px 12px;margin:10px 0}
+.chart-wrap .chart-title{font-size:.82em;color:#6a8aaa;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.chart-wrap .chart-title span{color:#3a5a7a;font-size:.9em}
+canvas{display:block;width:100%;cursor:crosshair}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:1000px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{background:#0a1225;border:1px solid #152040;border-radius:8px;padding:14px}
+.card h4{font-size:.88em;margin-bottom:8px}
+.card p{margin:3px 0;font-size:.8em}
+.summary-box{background:linear-gradient(135deg,#0c1530,#101a35);border:1px solid #2a3a6a;border-radius:10px;padding:18px 22px;margin:16px 0}
+.summary-box h3{color:#ffe66d;margin-top:0}
+.tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:.75em;margin:0 2px}
+.tag-cold{background:#0a1a3a;color:#66aaff;border:1px solid #2244aa}
+.tag-warm{background:#2a1a0a;color:#ffaa44;border:1px solid #885522}
+.tag-now{background:#1a2a1a;color:#66ff66;border:1px solid #228822}
+.tag-hot{background:#2a0a0a;color:#ff6666;border:1px solid #882222}
+.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.controls label{font-size:.8em;color:#6a8aaa}
+.controls select{background:#0e1835;color:#c8cce0;border:1px solid #2a3a5a;border-radius:4px;padding:4px 8px;font-size:.82em}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0;font-size:.75em;color:#7a8aaa}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-swatch{width:12px;height:12px;border-radius:2px}
+.infographic{display:flex;align-items:center;gap:0;margin:14px 0;overflow-x:auto}
+.info-step{flex:1;min-width:140px;background:#0a1225;border:1px solid #152040;padding:12px;text-align:center;position:relative}
+.info-step:first-child{border-radius:8px 0 0 8px}
+.info-step:last-child{border-radius:0 8px 8px 0}
+.info-step h4{color:#5af;font-size:.82em;margin-bottom:4px}
+.info-step p{font-size:.72em;color:#7a8aaa;line-height:1.3;margin:0}
+.info-step::after{content:'>';position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:#2a3a5a;font-size:1.2em;z-index:1}
+.info-step:last-child::after{content:''}
+.event-card{background:#0c1530;border:1px solid #1a2a5a;border-radius:8px;padding:12px 16px;margin:8px 0}
+.event-card h4{color:#ffaa44;font-size:.88em;margin-bottom:4px}
+.event-card .when{color:#5af;font-size:.78em}
+.event-card p{font-size:.78em;margin:4px 0 0}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>시기별 온도 변화 & 생물 이동 추론 분석
+<small>Temperature Change Over Time & Inferred Biotic Migration Pressure — 7개 시기, 4개 캔버스, 등온선 이동 속도 추론</small>
+</h1>
+
+<!-- ===== 섹션 1: 개요 ===== -->
+<h2>1. 개요 — 온도 변화가 생물 이동을 만든다</h2>
+
+<div class="summary-box">
+<h3>핵심 인과 사슬</h3>
+<p style="color:#c8cce0;font-size:.88em">
+궤도 강제력(밀란코비치) → 일사량 변화 → 지구 온도 변화 → 등온선 이동 → 서식지(바이옴) 이동 → 종의 이동 또는 멸종.
+<br>현재 인위적 온난화 속도는 자연 변화의 <span class="up" style="font-weight:700">~100배</span>. 대부분의 수목은 따라갈 수 없다.
+</p>
+</div>
+
+<div class="infographic">
+  <div class="info-step"><h4>궤도 변화</h4><p>이심률·경사각<br>세차 (kyr 주기)</p></div>
+  <div class="info-step"><h4>일사량 변화</h4><p>65°N 하지<br>±50 W/m²</p></div>
+  <div class="info-step"><h4>온도 변화</h4><p>전지구 ±5°C<br>극지방 ±10°C</p></div>
+  <div class="info-step"><h4>등온선 이동</h4><p>위도 방향<br>수백 km</p></div>
+  <div class="info-step"><h4>바이옴 이동</h4><p>산림대 이동<br>빙상 전진/후퇴</p></div>
+  <div class="info-step"><h4>종 이동/멸종</h4><p>이동 능력 <br>초과 시 멸종</p></div>
+</div>
+
+<h3>종별 이동 능력 비교</h3>
+<table>
+<tr><th>종/그룹</th><th>이동 속도</th><th>적응 전략</th><th>등온선 추적 능력</th></tr>
+<tr><td class="left">인류 (수렵채집)</td><td class="val">~50 km/yr</td><td>도구, 의복, 불</td><td class="up">충분</td></tr>
+<tr><td class="left">대형 포유류</td><td class="val">~10 km/yr</td><td>계절 이동</td><td class="stable">경계적</td></tr>
+<tr><td class="left">소형 포유류·조류</td><td class="val">~5 km/yr</td><td>서식지 전환</td><td class="stable">경계적</td></tr>
+<tr><td class="left">수목 (종자 확산)</td><td class="val">~0.5 km/yr</td><td>장거리 종자 비산</td><td class="down">부족</td></tr>
+<tr><td class="left">토양 생물</td><td class="val">~0.01 km/yr</td><td>휴면</td><td class="down">극히 부족</td></tr>
+</table>
+
+<div class="note">
+<b>등온선 이동 속도란?</b> 특정 온도 선(예: 연평균 10°C)이 위도 방향으로 움직이는 속도.
+자연 빙하기 전환 시 ~0.1-1 km/yr, 현재 인위적 온난화 시 ~4-10 km/yr.
+수목(~0.5 km/yr)이 따라갈 수 없는 속도.
+</div>
+
+
+<!-- ===== 섹션 2: 시기별 전지구 온도 분포 맵 ===== -->
+<h2>2. 시기별 전지구 온도 분포 맵</h2>
+<p>드롭다운에서 두 시기를 선택하여 나란히 비교. 360×180 격자(2° 해상도)에 위도·경도별 온도를 계산합니다.</p>
+
+<div class="controls">
+  <label>시기 A:</label>
+  <select id="selA">
+    <option value="-20">LGM 마지막 빙하기 최대 (-20kyr)</option>
+    <option value="-12">퇴빙기 (-12kyr)</option>
+    <option value="-6">홀로세 최적기 (-6kyr)</option>
+    <option value="-1">중세 온난기 (-1kyr)</option>
+    <option value="-0.3">소빙기 (-0.3kyr)</option>
+    <option value="0" selected>현재 (0)</option>
+    <option value="0.1">미래 +2°C (+0.1kyr)</option>
+  </select>
+  <label>시기 B:</label>
+  <select id="selB">
+    <option value="-20" selected>LGM 마지막 빙하기 최대 (-20kyr)</option>
+    <option value="-12">퇴빙기 (-12kyr)</option>
+    <option value="-6">홀로세 최적기 (-6kyr)</option>
+    <option value="-1">중세 온난기 (-1kyr)</option>
+    <option value="-0.3">소빙기 (-0.3kyr)</option>
+    <option value="0">현재 (0)</option>
+    <option value="0.1">미래 +2°C (+0.1kyr)</option>
+  </select>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#1a0a4a"></div> -30°C</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#2266cc"></div> -10°C</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#44bbaa"></div> 0°C</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#aacc44"></div> 10°C</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#ffaa22"></div> 20°C</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#cc2200"></div> 30°C+</div>
+</div>
+
+<div class="grid2">
+  <div class="chart-wrap">
+    <div class="chart-title"><b id="labelA">시기 A: 현재</b><span>연평균 온도 (°C)</span></div>
+    <canvas id="cvTempA" height="260"></canvas>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-title"><b id="labelB">시기 B: LGM</b><span>연평균 온도 (°C)</span></div>
+    <canvas id="cvTempB" height="260"></canvas>
+  </div>
+</div>
+
+
+<!-- ===== 섹션 3: 온도 변화량 맵 ΔT ===== -->
+<h2>3. 온도 변화량 맵 (ΔT = B - A)</h2>
+<p>두 시기의 차이를 시각화. 파랑=한랭화, 흰색=무변화, 빨강=온난화. 오른쪽에 위도별 평균 ΔT 프로파일.</p>
+
+<div class="chart-wrap">
+  <div class="chart-title"><b>ΔT 맵 + 위도별 평균 프로파일</b><span>파랑(-10°C) ~ 흰색(0) ~ 빨강(+10°C)</span></div>
+  <canvas id="cvDeltaT" height="300"></canvas>
+</div>
+
+
+<!-- ===== 섹션 4: 등온선 이동 속도 & 화살표 ===== -->
+<h2>4. 등온선 이동 속도 & 이동 능력 비교</h2>
+<p>등온선(0°C, 10°C, 20°C)이 두 시기 사이에 얼마나 이동했는지 화살표로 표시. 종별 이동 능력 오버레이.</p>
+
+<div class="chart-wrap">
+  <div class="chart-title"><b>등온선 이동 방향·속도</b><span>화살표 길이 ∝ 이동 속도 (km/yr)</span></div>
+  <canvas id="cvIsotherm" height="340"></canvas>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#66aaff"></div> 0°C 등온선</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#44cc88"></div> 10°C 등온선</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#ffaa44"></div> 20°C 등온선</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#ff4444;opacity:.3"></div> 수목 한계 (0.5 km/yr)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#44ff44;opacity:.3"></div> 인류 한계 (50 km/yr)</div>
+</div>
+
+
+<!-- ===== 섹션 5: 인류 이동 추론 6대 이벤트 ===== -->
+<h2>5. 인류 이동 추론 — 6대 이벤트</h2>
+<p>기후 변화가 주요 인류 이동을 촉발한 메커니즘을 등온선 이동 관점에서 분석합니다.</p>
+
+<div class="chart-wrap">
+  <div class="chart-title"><b>인류 대이동 이벤트 타임라인 & 등온선 이동</b><span>온도 추이 + 이벤트 마커</span></div>
+  <canvas id="cvMigration" height="280"></canvas>
+</div>
+
+<div class="grid2">
+  <div class="event-card">
+    <h4>1. 아프리카 탈출 (Out of Africa)</h4>
+    <div class="when">~70,000년 전 (MIS 4 한랭기)</div>
+    <p>아프리카 건조화 → 사하라 확대 → 인류 레반트 경유 유라시아 진출. 해수면 하강으로 아라비아 반도 해안 루트 개방. 등온선 남하로 열대 축소가 이동 압력 생성.</p>
+  </div>
+  <div class="event-card">
+    <h4>2. 베링 육교 횡단</h4>
+    <div class="when">~15,000년 전 (LGM 직후)</div>
+    <p>해수면 -120m → 베링지아 노출 → 시베리아→알래스카 도보 이동. LGM 후반 등온선 북상 시작으로 빙하 회랑 개방. 대형 포유류 이동 경로를 따라 인류 진출.</p>
+  </div>
+  <div class="event-card">
+    <h4>3. 사하라 녹색화 이동</h4>
+    <div class="when">~9,000~5,000년 전 (홀로세 최적기)</div>
+    <p>궤도 세차 → 아프리카 몬순 강화 → 사하라 습윤화(녹색 사하라). 인류·동물 사하라 진출. 5kyr 전 건조화 복귀 시 이집트 나일강 유역으로 집중 → 문명 발생.</p>
+  </div>
+  <div class="event-card">
+    <h4>4. 반투 확산</h4>
+    <div class="when">~4,000~1,000년 전</div>
+    <p>서아프리카 카메룬 기원, 농경 기술 보유. 사하라 건조화로 열대림 후퇴 → 사바나 확장이 이동 통로 개방. 2000년간 아프리카 남반부 전역으로 확산.</p>
+  </div>
+  <div class="event-card">
+    <h4>5. 게르만 민족 대이동</h4>
+    <div class="when">~1,500년 전 (AD 300-600)</div>
+    <p>로마 온난기 종료 → 한랭화 시작 → 동유럽 초원 생산성 감소 → 훈족 서진 → 게르만족 연쇄 이동. 등온선 남하가 유목민 이동 압력 생성.</p>
+  </div>
+  <div class="event-card">
+    <h4>6. 미래: 열대 탈출 시나리오</h4>
+    <div class="when">2050~2100 (+2~4°C)</div>
+    <p>열대·아열대 습구온도 35°C 초과 시 인체 냉각 불가 → 거주 불능. 등온선 극방향 이동 속도 ~10 km/yr. 수십억 인구의 고위도 이동 압력 발생 가능.</p>
+  </div>
+</div>
+
+
+<!-- ===== 섹션 6: 바이옴 이동 분석 ===== -->
+<h2>6. 바이옴 이동 분석</h2>
+<p>위도대별 바이옴 경계가 시기에 따라 어떻게 변하는지 분석. 이동 속도와 종 적응 능력 비교.</p>
+
+<h3>시기별 바이옴 경계 (위도)</h3>
+<table>
+<tr>
+  <th>바이옴 경계</th>
+  <th class="tag-cold">LGM<br>-20kyr</th>
+  <th>퇴빙기<br>-12kyr</th>
+  <th class="tag-warm">홀로세<br>-6kyr</th>
+  <th>현재<br>0</th>
+  <th class="tag-hot">미래<br>+2°C</th>
+  <th>LGM→현재<br>이동 속도</th>
+</tr>
+<tr>
+  <td class="left">열대/아열대 경계 (~20°C)</td>
+  <td class="val">18°N</td><td class="val">22°N</td><td class="val">25°N</td><td class="val">23°N</td><td class="val">27°N</td>
+  <td class="val up">~0.03°/kyr ≈ 0.3 km/yr</td>
+</tr>
+<tr>
+  <td class="left">온대/냉대 경계 (~10°C)</td>
+  <td class="val">35°N</td><td class="val">42°N</td><td class="val">48°N</td><td class="val">45°N</td><td class="val">50°N</td>
+  <td class="val up">~0.5°/kyr ≈ 0.6 km/yr</td>
+</tr>
+<tr>
+  <td class="left">냉대/툰드라 경계 (~0°C)</td>
+  <td class="val">45°N</td><td class="val">52°N</td><td class="val">60°N</td><td class="val">58°N</td><td class="val">63°N</td>
+  <td class="val up">~0.65°/kyr ≈ 0.7 km/yr</td>
+</tr>
+<tr>
+  <td class="left">영구동토 남한계</td>
+  <td class="val">40°N</td><td class="val">50°N</td><td class="val">62°N</td><td class="val">60°N</td><td class="val">65°N</td>
+  <td class="val up">~1.0°/kyr ≈ 1.1 km/yr</td>
+</tr>
+</table>
+
+<h3>이동 속도 vs 종 적응 능력 매트릭스</h3>
+<table>
+<tr>
+  <th>변화 유형</th>
+  <th>등온선 속도</th>
+  <th>인류</th>
+  <th>대형 포유류</th>
+  <th>수목</th>
+  <th>토양 생물</th>
+</tr>
+<tr>
+  <td class="left">자연 빙하기 전환 (10kyr)</td>
+  <td class="val">0.3-1 km/yr</td>
+  <td style="background:#1a3a1a">추적 가능</td>
+  <td style="background:#1a3a1a">추적 가능</td>
+  <td style="background:#2a2a1a">경계적</td>
+  <td style="background:#3a1a1a">추적 불가</td>
+</tr>
+<tr>
+  <td class="left">퇴빙기 급변 (1-2kyr)</td>
+  <td class="val">1-5 km/yr</td>
+  <td style="background:#1a3a1a">추적 가능</td>
+  <td style="background:#1a3a1a">추적 가능</td>
+  <td style="background:#3a1a1a">추적 불가</td>
+  <td style="background:#3a1a1a">추적 불가</td>
+</tr>
+<tr>
+  <td class="left">현재 인위적 온난화</td>
+  <td class="val up">4-10 km/yr</td>
+  <td style="background:#1a3a1a">추적 가능</td>
+  <td style="background:#2a2a1a">경계적</td>
+  <td style="background:#3a1a1a">추적 불가</td>
+  <td style="background:#3a1a1a">추적 불가</td>
+</tr>
+<tr>
+  <td class="left">미래 +4°C (100yr)</td>
+  <td class="val up">10-40 km/yr</td>
+  <td style="background:#2a2a1a">사회적 장벽</td>
+  <td style="background:#3a1a1a">추적 불가</td>
+  <td style="background:#3a1a1a">추적 불가</td>
+  <td style="background:#3a1a1a">추적 불가</td>
+</tr>
+</table>
+
+
+<!-- ===== 섹션 7: 종합 — 미래 이동 시나리오 ===== -->
+<h2>7. 종합 — 미래 이동 시나리오</h2>
+
+<div class="grid3">
+  <div class="card">
+    <h4 style="color:#ffe66d">+1.5°C 시나리오</h4>
+    <p>등온선 속도: ~3-5 km/yr</p>
+    <p>영향권 인구: ~5억</p>
+    <p>수목 추적 실패: <span class="up">80%</span></p>
+    <p>대형 포유류 추적 가능: <span class="stable">50%</span></p>
+    <p style="color:#ffe66d">파리 협정 목표. 관리 가능하나 생태계 스트레스 심각.</p>
+  </div>
+  <div class="card">
+    <h4 style="color:#ffaa44">+2°C 시나리오</h4>
+    <p>등온선 속도: ~5-10 km/yr</p>
+    <p>영향권 인구: ~15억</p>
+    <p>수목 추적 실패: <span class="up">95%</span></p>
+    <p>대형 포유류 추적 가능: <span class="stable">30%</span></p>
+    <p style="color:#ffaa44">열대 일부 거주 부적합. 대규모 기후 난민 시작.</p>
+  </div>
+  <div class="card">
+    <h4 style="color:#ff6b6b">+4°C 시나리오</h4>
+    <p>등온선 속도: ~10-40 km/yr</p>
+    <p>영향권 인구: ~35억</p>
+    <p>수목 추적 실패: <span class="up">99%</span></p>
+    <p>대형 포유류 추적 가능: <span class="down">5%</span></p>
+    <p style="color:#ff6b6b">열대·아열대 광범위 거주 불가. 대멸종급 생태 변화.</p>
+  </div>
+</div>
+
+<div class="summary-box" style="margin-top:20px">
+<h3>결론: 속도가 문제다</h3>
+<p style="color:#c8cce0;font-size:.88em">
+과거 빙하기-간빙기 전환의 온도 변화 <b>폭</b>(~5°C)은 현재 예상(2-4°C)과 유사하지만,
+<span class="up" style="font-weight:700">변화 속도</span>가 결정적으로 다르다.
+</p>
+<table style="margin:12px 0">
+<tr><th>지표</th><th>자연 전환 (빙하기→간빙기)</th><th>현재 인위적 온난화</th><th>배율</th></tr>
+<tr><td class="left">온도 변화</td><td class="val">~5°C / 10,000yr</td><td class="val up">~2°C / 100yr</td><td class="val up">×100</td></tr>
+<tr><td class="left">등온선 이동</td><td class="val">~0.5 km/yr</td><td class="val up">~5 km/yr</td><td class="val up">×10</td></tr>
+<tr><td class="left">수목 추적</td><td class="val stable">경계적 (~0.5 km/yr)</td><td class="val up">불가능</td><td>—</td></tr>
+<tr><td class="left">생태계 적응 시간</td><td class="val">수천 년</td><td class="val up">수십 년</td><td class="val up">×100</td></tr>
+</table>
+<p style="color:#ff9966;font-size:.9em;font-weight:600">
+현재 변화 속도는 과거 어떤 자연 변화보다도 빠르며, 대부분의 생물종이 따라갈 수 없는 수준이다.
+</p>
+</div>
+
+
+</div><!-- container -->
+
+<script>
+// ============================================================
+// 1. Milankovitch Orbital Functions (from trend-analysis.html)
+// ============================================================
+function calcEcc(tKyr) {
+  return 0.028011
+    + 0.010738*Math.cos(2*Math.PI*tKyr/413.0+3.135)
+    + 0.008263*Math.cos(2*Math.PI*tKyr/100.0+0.208)
+    + 0.004095*Math.cos(2*Math.PI*tKyr/95.0+1.950)
+    + 0.003633*Math.cos(2*Math.PI*tKyr/123.8+4.885)
+    + 0.002425*Math.cos(2*Math.PI*tKyr/131.0+2.105);
+}
+function calcObl(tKyr) {
+  return 23.320556
+    + 1.0*Math.cos(2*Math.PI*tKyr/41.0+2.399)
+    + 0.43*Math.cos(2*Math.PI*tKyr/39.73+3.810)
+    + 0.28*Math.cos(2*Math.PI*tKyr/53.6+1.280)
+    + 0.175*Math.cos(2*Math.PI*tKyr/40.3+5.200);
+}
+function calcPrec(tKyr) {
+  const e = calcEcc(tKyr);
+  const omega = 2*Math.PI*tKyr/21.7+1.2
+    + 0.6*Math.sin(2*Math.PI*tKyr/23.7+0.5)
+    + 0.3*Math.sin(2*Math.PI*tKyr/18.97+2.1);
+  return e * Math.sin(omega);
+}
+function calcInsol(tKyr) {
+  const obl = calcObl(tKyr);
+  const cp = calcPrec(tKyr);
+  return 475.0 + 8.0*(obl-23.32) - 70.0*cp;
+}
+function calcOrbitalTemp(tKyr) {
+  const Q = calcInsol(tKyr);
+  let ice = 0;
+  for (let dt = 0; dt < 8; dt++) {
+    ice += (475 - calcInsol(tKyr - dt)) * 0.12;
+  }
+  return (Q - 475) * 0.05 - ice * 0.3 + (calcObl(tKyr) - 23.3) * 0.4;
+}
+
+// ============================================================
+// 2. Grid Temperature Model — calcTemp(lat, lon, tKyr)
+// ============================================================
+// Simple noise for continent-like variation
+function simpleNoise(x, y) {
+  const n = Math.sin(x*12.9898 + y*78.233) * 43758.5453;
+  return n - Math.floor(n);
+}
+
+// Simplified land detection (major landmasses only, for thermal contrast)
+// Returns 1 for land, 0 for ocean (rough approximation)
+function isLandSimple(lat, lon) {
+  // Eurasia
+  if (lat > 35 && lat < 72 && lon > -10 && lon < 140) return 1;
+  // Africa
+  if (lat > -35 && lat < 37 && lon > -18 && lon < 52) {
+    if (lat > 5 || lon > -18) return 1;
+  }
+  // North America
+  if (lat > 15 && lat < 72 && lon > -170 && lon < -50) return 1;
+  // South America
+  if (lat > -56 && lat < 13 && lon > -82 && lon < -34) return 1;
+  // Australia
+  if (lat > -44 && lat < -10 && lon > 112 && lon < 155) return 1;
+  // Antarctica
+  if (lat < -65) return 1;
+  // India
+  if (lat > 8 && lat < 35 && lon > 68 && lon < 90) return 1;
+  // Southeast Asia / Indonesia
+  if (lat > -8 && lat < 20 && lon > 95 && lon < 140) return 1;
+  return 0;
+}
+
+// Simplified elevation (km) for lapse rate
+function getElevSimple(lat, lon) {
+  let elev = 0;
+  // Himalayas
+  const dH = Math.sqrt(Math.pow((lat-30)/5,2) + Math.pow((lon-85)/15,2));
+  if (dH < 1) elev = Math.max(elev, 4.5*(1-dH));
+  // Andes
+  const dA = Math.abs(lon-(-67))/3;
+  if (lat > -55 && lat < 10 && dA < 1) elev = Math.max(elev, 3.0*(1-dA));
+  // Rockies
+  const dR = Math.abs(lon-(-110))/5;
+  if (lat > 30 && lat < 60 && dR < 1) elev = Math.max(elev, 2.5*(1-dR));
+  // Alps
+  const dAl = Math.sqrt(Math.pow((lat-46)/2,2)+Math.pow((lon-10)/5,2));
+  if (dAl < 1) elev = Math.max(elev, 2.0*(1-dAl));
+  // Tibetan Plateau
+  const dT = Math.sqrt(Math.pow((lat-33)/5,2)+Math.pow((lon-90)/15,2));
+  if (dT < 1) elev = Math.max(elev, 4.0*(1-dT));
+  // East African Rift
+  const dE = Math.sqrt(Math.pow((lat-(-2))/8,2)+Math.pow((lon-35)/4,2));
+  if (dE < 1) elev = Math.max(elev, 2.5*(1-dE));
+  // Greenland
+  if (lat > 60 && lat < 83 && lon > -55 && lon < -20) elev = Math.max(elev, 1.5);
+  // Antarctica
+  if (lat < -70) elev = Math.max(elev, 2.5);
+  return elev;
+}
+
+// Period definitions
+const PERIODS = [
+  { code:'LGM', label:'마지막 빙하기 최대', tKyr:-20, extra:-5.0 },
+  { code:'DEG', label:'퇴빙기',           tKyr:-12, extra:-2.5 },
+  { code:'HOL', label:'홀로세 최적기',     tKyr:-6,  extra:+0.8 },
+  { code:'MID', label:'중세 온난기',       tKyr:-1,  extra:+0.3 },
+  { code:'LIA', label:'소빙기',           tKyr:-0.3,extra:-0.4 },
+  { code:'NOW', label:'현재',             tKyr:0,   extra:0 },
+  { code:'FUT', label:'미래 +2°C',        tKyr:0.1, extra:+2.0 },
+];
+
+function getPeriod(tKyr) {
+  // Find closest period
+  let best = PERIODS[5]; // default NOW
+  let bestD = Infinity;
+  for (const p of PERIODS) {
+    const d = Math.abs(p.tKyr - tKyr);
+    if (d < bestD) { bestD = d; best = p; }
+  }
+  return best;
+}
+
+/**
+ * Calculate temperature at (lat, lon) for time tKyr
+ * lat: -90..+90, lon: -180..+180
+ */
+function calcTemp(lat, lon, tKyr) {
+  // Base temperature from latitude (equator 28°C, poles ~-17°C)
+  const Tbase = 28 - 0.005 * lat * lat;
+
+  // Elevation lapse rate (-6.5°C per km)
+  const elev = getElevSimple(lat, lon);
+  const Telev = -6.5 * elev;
+
+  // Ocean thermal buffer (+5°C for ocean)
+  const land = isLandSimple(lat, lon);
+  const Tocean = land ? 0 : 5;
+
+  // Orbital / ice-age forcing
+  const period = getPeriod(tKyr);
+  const Torbital = period.extra;
+
+  // Polar amplification: higher latitudes get more change
+  const polarAmp = 1.0 + 1.5 * Math.pow(Math.abs(lat)/90, 2);
+  const Torbital_amp = Torbital * polarAmp;
+
+  // Small spatial noise for visual variety
+  const noise = (simpleNoise(lat*0.1, lon*0.1) - 0.5) * 2;
+
+  return Tbase + Telev + Tocean + Torbital_amp + noise;
+}
+
+// ============================================================
+// 3. Temperature colormap
+// ============================================================
+function tempToColor(T) {
+  // -30 to +35°C range
+  const t = Math.max(-30, Math.min(35, T));
+  const f = (t + 30) / 65; // 0..1
+  let r, g, b;
+  if (f < 0.15) {
+    // deep purple-blue (-30 to -20)
+    const s = f / 0.15;
+    r = 26 + s*8; g = 10 + s*30; b = 74 + s*130;
+  } else if (f < 0.31) {
+    // blue (-20 to -10)
+    const s = (f-0.15)/0.16;
+    r = 34 - s*0; g = 40 + s*62; b = 204 - s*4;
+  } else if (f < 0.46) {
+    // cyan-teal (-10 to 0)
+    const s = (f-0.31)/0.15;
+    r = 34 + s*34; g = 102 + s*85; b = 200 - s*30;
+  } else if (f < 0.62) {
+    // green-yellow (0 to 10)
+    const s = (f-0.46)/0.16;
+    r = 68 + s*102; g = 187 + s*17; b = 170 - s*102;
+  } else if (f < 0.77) {
+    // yellow-orange (10 to 20)
+    const s = (f-0.62)/0.15;
+    r = 170 + s*85; g = 204 - s*34; b = 68 - s*34;
+  } else if (f < 0.92) {
+    // orange-red (20 to 30)
+    const s = (f-0.77)/0.15;
+    r = 255; g = 170 - s*120; b = 34 - s*34;
+  } else {
+    // deep red (30+)
+    const s = (f-0.92)/0.08;
+    r = 255 - s*51; g = 50 - s*30; b = 0;
+  }
+  return [Math.round(r), Math.round(g), Math.round(b)];
+}
+
+function deltaToColor(dT) {
+  // -10 to +10 range, blue-white-red diverging
+  const t = Math.max(-10, Math.min(10, dT));
+  const f = (t + 10) / 20; // 0..1
+  let r, g, b;
+  if (f < 0.5) {
+    // blue to white
+    const s = f / 0.5;
+    r = Math.round(34 + s*221);
+    g = Math.round(102 + s*153);
+    b = Math.round(204 + s*51);
+  } else {
+    // white to red
+    const s = (f - 0.5) / 0.5;
+    r = 255;
+    g = Math.round(255 - s*200);
+    b = Math.round(255 - s*240);
+  }
+  return [r, g, b];
+}
+
+// ============================================================
+// 4. Simplified coastline polylines for overlay
+// ============================================================
+const COAST_LINES = [
+  // Eurasia (simplified)
+  [[-10,36],[0,43],[10,45],[20,40],[30,41],[40,42],[50,40],[60,38],[70,37],[80,30],[85,22],[90,22],[95,16],[100,14],[105,10],[110,20],[120,25],[130,36],[135,40],[140,43],[142,48],[140,55],[135,60],[130,55],[120,55],[110,50],[100,50],[90,55],[80,55],[70,62],[60,60],[50,55],[45,60],[40,65],[35,70],[30,72],[20,70],[15,65],[10,55],[5,52],[0,50],[-5,48],[-10,44],[-10,36]],
+  // Africa
+  [[-18,15],[-15,28],[-5,36],[10,37],[15,32],[25,32],[33,30],[35,25],[43,12],[50,2],[45,-5],[40,-15],[35,-25],[32,-34],[27,-34],[20,-30],[15,-25],[12,-15],[10,-5],[5,0],[0,5],[-5,5],[-8,10],[-15,12],[-18,15]],
+  // N America
+  [[-170,62],[-165,65],[-155,70],[-140,70],[-130,60],[-125,50],[-120,40],[-115,32],[-105,25],[-100,20],[-95,18],[-90,20],[-85,25],[-80,30],[-75,35],[-70,42],[-65,45],[-65,50],[-60,52],[-55,50],[-60,55],[-70,58],[-80,62],[-90,60],[-100,65],[-110,70],[-125,72],[-140,72],[-155,70]],
+  // S America
+  [[-82,10],[-78,5],[-80,0],[-78,-5],[-75,-10],[-70,-18],[-65,-22],[-58,-34],[-66,-55],[-72,-50],[-75,-40],[-72,-30],[-70,-20],[-75,-15],[-80,-5],[-78,0],[-82,10]],
+  // Australia
+  [[130,-12],[140,-14],[150,-22],[153,-28],[150,-35],[142,-38],[136,-35],[130,-32],[115,-34],[114,-25],[120,-15],[130,-12]],
+];
+
+// ============================================================
+// 5. Rendering functions
+// ============================================================
+const GRID_W = 180, GRID_H = 90; // 2-degree resolution
+
+function computeTempGrid(tKyr) {
+  const grid = new Float32Array(GRID_W * GRID_H);
+  for (let j = 0; j < GRID_H; j++) {
+    const lat = 90 - j * 2 - 1; // center of cell
+    for (let i = 0; i < GRID_W; i++) {
+      const lon = -180 + i * 2 + 1;
+      grid[j * GRID_W + i] = calcTemp(lat, lon, tKyr);
+    }
+  }
+  return grid;
+}
+
+function drawTempMap(canvasId, grid, title) {
+  const canvas = document.getElementById(canvasId);
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = rect.width - 24;
+  const h = Math.round(w * 0.5);
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // Draw temperature pixels
+  const imgData = ctx.createImageData(GRID_W, GRID_H);
+  for (let j = 0; j < GRID_H; j++) {
+    for (let i = 0; i < GRID_W; i++) {
+      const T = grid[j * GRID_W + i];
+      const [r, g, b] = tempToColor(T);
+      const idx = (j * GRID_W + i) * 4;
+      imgData.data[idx] = r;
+      imgData.data[idx+1] = g;
+      imgData.data[idx+2] = b;
+      imgData.data[idx+3] = 255;
+    }
+  }
+  // Scale up
+  const tmpCv = document.createElement('canvas');
+  tmpCv.width = GRID_W; tmpCv.height = GRID_H;
+  tmpCv.getContext('2d').putImageData(imgData, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(tmpCv, 0, 0, w, h);
+
+  // Draw coastlines
+  drawCoastOverlay(ctx, w, h);
+
+  // Temperature labels
+  ctx.fillStyle = '#ffffff80';
+  ctx.font = '9px Courier New';
+  ctx.textAlign = 'right';
+  for (let lat = -60; lat <= 60; lat += 30) {
+    const y = ((90 - lat) / 180) * h;
+    ctx.fillText(lat + '°', 28, y + 3);
+  }
+  ctx.textAlign = 'center';
+  for (let lon = -120; lon <= 120; lon += 60) {
+    const x = ((lon + 180) / 360) * w;
+    ctx.fillText(lon + '°', x, h - 3);
+  }
+}
+
+function drawCoastOverlay(ctx, w, h) {
+  ctx.strokeStyle = '#ffffff40';
+  ctx.lineWidth = 0.8;
+  for (const line of COAST_LINES) {
+    ctx.beginPath();
+    for (let i = 0; i < line.length; i++) {
+      const [lon, lat] = line[i];
+      const x = ((lon + 180) / 360) * w;
+      const y = ((90 - lat) / 180) * h;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+}
+
+function drawDeltaMap(gridA, gridB, tA, tB) {
+  const canvas = document.getElementById('cvDeltaT');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const totalW = rect.width - 24;
+  const mapW = Math.round(totalW * 0.78);
+  const profW = totalW - mapW - 10;
+  const h = Math.round(mapW * 0.5);
+  canvas.width = totalW * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = totalW + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // Delta grid
+  const delta = new Float32Array(GRID_W * GRID_H);
+  const latAvg = new Float32Array(GRID_H);
+  for (let j = 0; j < GRID_H; j++) {
+    let sum = 0;
+    for (let i = 0; i < GRID_W; i++) {
+      const d = gridB[j*GRID_W+i] - gridA[j*GRID_W+i];
+      delta[j*GRID_W+i] = d;
+      sum += d;
+    }
+    latAvg[j] = sum / GRID_W;
+  }
+
+  // Draw delta map
+  const imgData = ctx.createImageData(GRID_W, GRID_H);
+  for (let j = 0; j < GRID_H; j++) {
+    for (let i = 0; i < GRID_W; i++) {
+      const d = delta[j*GRID_W+i];
+      const [r, g, b] = deltaToColor(d);
+      const idx = (j*GRID_W+i)*4;
+      imgData.data[idx]=r; imgData.data[idx+1]=g; imgData.data[idx+2]=b; imgData.data[idx+3]=255;
+    }
+  }
+  const tmpCv = document.createElement('canvas');
+  tmpCv.width=GRID_W; tmpCv.height=GRID_H;
+  tmpCv.getContext('2d').putImageData(imgData, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(tmpCv, 0, 0, mapW, h);
+
+  // Coast overlay on delta map
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, mapW, h);
+  ctx.clip();
+  drawCoastOverlay(ctx, mapW, h);
+  ctx.restore();
+
+  // Latitude average ΔT profile
+  const profX = mapW + 10;
+  const maxDT = 12;
+  ctx.fillStyle = '#0a1020';
+  ctx.fillRect(profX, 0, profW, h);
+  ctx.strokeStyle = '#152040';
+  ctx.lineWidth = 0.5;
+
+  // Zero line
+  const zeroX = profX + profW * 0.5;
+  ctx.strokeStyle = '#ffffff30';
+  ctx.beginPath();
+  ctx.moveTo(zeroX, 0); ctx.lineTo(zeroX, h);
+  ctx.stroke();
+
+  // Profile line
+  ctx.beginPath();
+  ctx.strokeStyle = '#ff9966';
+  ctx.lineWidth = 1.5;
+  for (let j = 0; j < GRID_H; j++) {
+    const y = (j / GRID_H) * h;
+    const x = profX + profW * 0.5 + (latAvg[j] / maxDT) * (profW * 0.5);
+    if (j === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Profile labels
+  ctx.fillStyle = '#5a7a9a';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('-'+maxDT+'°C', profX+8, h-3);
+  ctx.fillText('0', zeroX, h-3);
+  ctx.fillText('+'+maxDT+'°C', profX+profW-8, h-3);
+  ctx.fillText('ΔT 위도 평균', profX+profW/2, 10);
+}
+
+// ============================================================
+// 6. Isotherm shift visualization
+// ============================================================
+function drawIsothermMap(gridA, gridB, tKyrA, tKyrB) {
+  const canvas = document.getElementById('cvIsotherm');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = rect.width - 24;
+  const h = Math.round(w * 0.52);
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // Background - dark ocean
+  ctx.fillStyle = '#060c1a';
+  ctx.fillRect(0, 0, w, h);
+
+  // Draw faint temperature map (period A as background)
+  const imgData = ctx.createImageData(GRID_W, GRID_H);
+  for (let j = 0; j < GRID_H; j++) {
+    for (let i = 0; i < GRID_W; i++) {
+      const T = gridA[j*GRID_W+i];
+      const [r, g, b] = tempToColor(T);
+      const idx = (j*GRID_W+i)*4;
+      imgData.data[idx]=Math.round(r*0.3);
+      imgData.data[idx+1]=Math.round(g*0.3);
+      imgData.data[idx+2]=Math.round(b*0.3);
+      imgData.data[idx+3]=255;
+    }
+  }
+  const tmpCv = document.createElement('canvas');
+  tmpCv.width=GRID_W; tmpCv.height=GRID_H;
+  tmpCv.getContext('2d').putImageData(imgData, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(tmpCv, 0, 0, w, h);
+
+  drawCoastOverlay(ctx, w, h);
+
+  // For each isotherm, find its latitude in both periods and draw shift arrows
+  const isotherms = [
+    { T: 0, color: '#66aaff', label: '0°C' },
+    { T: 10, color: '#44cc88', label: '10°C' },
+    { T: 20, color: '#ffaa44', label: '20°C' },
+  ];
+
+  const dtKyr = Math.abs(tKyrB - tKyrA);
+
+  for (const iso of isotherms) {
+    // For each longitude column, find where this isotherm crosses
+    for (let i = 2; i < GRID_W; i += 6) { // every 12 degrees
+      const lon = -180 + i * 2 + 1;
+
+      // Find isotherm latitude in gridA (Northern Hemisphere)
+      let latA_N = null, latA_S = null;
+      let latB_N = null, latB_S = null;
+
+      for (let j = 1; j < GRID_H; j++) {
+        const tA0 = gridA[(j-1)*GRID_W+i];
+        const tA1 = gridA[j*GRID_W+i];
+        if ((tA0 >= iso.T && tA1 < iso.T) || (tA0 < iso.T && tA1 >= iso.T)) {
+          const frac = (iso.T - tA0) / (tA1 - tA0);
+          const lat = 90 - ((j - 1 + frac) * 2);
+          if (lat >= 0 && latA_N === null) latA_N = lat;
+          if (lat < 0 && latA_S === null) latA_S = lat;
+        }
+      }
+      for (let j = 1; j < GRID_H; j++) {
+        const tB0 = gridB[(j-1)*GRID_W+i];
+        const tB1 = gridB[j*GRID_W+i];
+        if ((tB0 >= iso.T && tB1 < iso.T) || (tB0 < iso.T && tB1 >= iso.T)) {
+          const frac = (iso.T - tB0) / (tB1 - tB0);
+          const lat = 90 - ((j - 1 + frac) * 2);
+          if (lat >= 0 && latB_N === null) latB_N = lat;
+          if (lat < 0 && latB_S === null) latB_S = lat;
+        }
+      }
+
+      // Draw arrows for Northern Hemisphere crossing
+      if (latA_N !== null && latB_N !== null) {
+        const x = ((lon + 180) / 360) * w;
+        const yA = ((90 - latA_N) / 180) * h;
+        const yB = ((90 - latB_N) / 180) * h;
+        drawArrow(ctx, x, yA, x, yB, iso.color);
+      }
+      // Southern Hemisphere
+      if (latA_S !== null && latB_S !== null) {
+        const x = ((lon + 180) / 360) * w;
+        const yA = ((90 - latA_S) / 180) * h;
+        const yB = ((90 - latB_S) / 180) * h;
+        drawArrow(ctx, x, yA, x, yB, iso.color);
+      }
+    }
+
+    // Draw isotherm lines for period A (dashed) and B (solid)
+    drawIsothermLine(ctx, gridA, iso.T, w, h, iso.color, true);
+    drawIsothermLine(ctx, gridB, iso.T, w, h, iso.color, false);
+  }
+
+  // Migration ability zones
+  if (dtKyr > 0) {
+    // Tree migration limit band (~0.5 km/yr ≈ ~0.005°/yr)
+    // For the time span, max tracking = 0.5 * dtKyr * 1000 km ≈ 0.5*dtKyr*1000/111 degrees
+    const treeMaxDeg = 0.5 * dtKyr * 1000 / 111;
+    // Show as faint bands? Just add legend text
+    ctx.fillStyle = '#ff444440';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('수목 한계: ' + treeMaxDeg.toFixed(1) + '° ('+dtKyr.toFixed(1)+'kyr 간)', 10, h-30);
+    ctx.fillStyle = '#44ff4440';
+    ctx.fillText('인류: 쉽게 추적 가능', 10, h-16);
+  }
+
+  // Labels
+  ctx.fillStyle = '#ffffff80';
+  ctx.font = '9px Courier New';
+  ctx.textAlign = 'right';
+  for (let lat = -60; lat <= 60; lat += 30) {
+    const y = ((90-lat)/180)*h;
+    ctx.fillText(lat+'°', 28, y+3);
+  }
+
+  // Legend for dashed vs solid
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#8899bb';
+  ctx.fillText('--- 시기 A (이전)  ── 시기 B (이후)', w-10, 14);
+}
+
+function drawIsothermLine(ctx, grid, T, w, h, color, dashed) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = dashed ? 1 : 1.5;
+  ctx.setLineDash(dashed ? [4, 4] : []);
+  ctx.globalAlpha = dashed ? 0.5 : 0.9;
+  ctx.beginPath();
+  let started = false;
+
+  for (let i = 0; i < GRID_W; i++) {
+    // Find latitude where temperature = T in this column
+    let found = false;
+    for (let j = 1; j < GRID_H; j++) {
+      const t0 = grid[(j-1)*GRID_W+i];
+      const t1 = grid[j*GRID_W+i];
+      if ((t0 >= T && t1 < T) || (t0 < T && t1 >= T)) {
+        const frac = (T - t0) / (t1 - t0);
+        const lat = 90 - ((j-1+frac)*2);
+        if (lat >= 0) { // Northern hemisphere only for clarity
+          const x = (i/GRID_W)*w;
+          const y = ((90-lat)/180)*h;
+          if (!started) { ctx.moveTo(x, y); started = true; }
+          else ctx.lineTo(x, y);
+          found = true;
+          break;
+        }
+      }
+    }
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.globalAlpha = 1;
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, color) {
+  const dx = x2-x1, dy = y2-y1;
+  const len = Math.sqrt(dx*dx+dy*dy);
+  if (len < 2) return;
+
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.globalAlpha = 0.7;
+
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+
+  // Arrowhead
+  const angle = Math.atan2(dy, dx);
+  const headLen = Math.min(6, len*0.3);
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2-headLen*Math.cos(angle-0.4), y2-headLen*Math.sin(angle-0.4));
+  ctx.lineTo(x2-headLen*Math.cos(angle+0.4), y2-headLen*Math.sin(angle+0.4));
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+// ============================================================
+// 7. Migration events timeline chart
+// ============================================================
+function drawMigrationTimeline() {
+  const canvas = document.getElementById('cvMigration');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = rect.width - 24;
+  const h = 260;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pad = { t: 20, b: 28, l: 52, r: 20 };
+  const cw = w - pad.l - pad.r;
+  const ch = h - pad.t - pad.b;
+
+  // Time range: -100kyr to +1kyr
+  const tMin = -100, tMax = 1;
+
+  // Calculate temperature anomaly time series
+  const N = 1000;
+  const temps = [];
+  for (let i = 0; i <= N; i++) {
+    const t = tMin + (tMax - tMin) * i / N;
+    temps.push(calcOrbitalTemp(t));
+  }
+  const tMinV = Math.min(...temps) - 1;
+  const tMaxV = Math.max(...temps) + 1;
+
+  // Grid
+  ctx.strokeStyle = '#151e35';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + ch * i / 4;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w-pad.r, y); ctx.stroke();
+    const val = tMaxV - (tMaxV-tMinV)*i/4;
+    ctx.fillStyle = '#4a5a7a'; ctx.font = '9px Courier New'; ctx.textAlign = 'right';
+    ctx.fillText(val.toFixed(1)+'°C', pad.l-4, y+3);
+  }
+
+  // X axis
+  ctx.fillStyle = '#3a4a6a'; ctx.font = '9px Courier New'; ctx.textAlign = 'center';
+  for (let t = -100; t <= 0; t += 10) {
+    const x = pad.l + ((t-tMin)/(tMax-tMin))*cw;
+    ctx.fillText(t+'k', x, h-5);
+    ctx.strokeStyle = '#151e35';
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t+ch); ctx.stroke();
+  }
+
+  // Temperature line
+  ctx.beginPath();
+  ctx.strokeStyle = '#ff9966';
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i <= N; i++) {
+    const x = pad.l + (i/N)*cw;
+    const y = pad.t + ch - ((temps[i]-tMinV)/(tMaxV-tMinV))*ch;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Fill
+  const lastX = pad.l + cw;
+  ctx.lineTo(lastX, pad.t+ch);
+  ctx.lineTo(pad.l, pad.t+ch);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t+ch);
+  grad.addColorStop(0, '#ff996620');
+  grad.addColorStop(1, '#ff996603');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Migration events
+  const events = [
+    { t: -70, label: '아프리카 탈출', color: '#ff6b6b', y: 0.15 },
+    { t: -15, label: '베링 육교', color: '#66aaff', y: 0.25 },
+    { t: -9, label: '사하라 녹색화', color: '#44cc88', y: 0.15 },
+    { t: -4, label: '반투 확산', color: '#ffe66d', y: 0.35 },
+    { t: -1.5, label: '게르만 대이동', color: '#a29bfe', y: 0.25 },
+    { t: 0.1, label: '미래 +2°C', color: '#ff4444', y: 0.1 },
+  ];
+
+  for (const ev of events) {
+    const x = pad.l + ((ev.t-tMin)/(tMax-tMin))*cw;
+    const markerY = pad.t + ch * ev.y;
+
+    // Vertical line
+    ctx.strokeStyle = ev.color + '60';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(x, pad.t);
+    ctx.lineTo(x, pad.t + ch);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Marker dot
+    ctx.beginPath();
+    ctx.arc(x, markerY, 5, 0, Math.PI*2);
+    ctx.fillStyle = ev.color;
+    ctx.fill();
+    ctx.strokeStyle = '#060c1a';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle = ev.color;
+    ctx.font = 'bold 9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(ev.label, x, markerY - 10);
+
+    // Time label
+    ctx.fillStyle = '#5a7a9a';
+    ctx.font = '8px Courier New';
+    ctx.fillText(ev.t + 'kyr', x, markerY + 16);
+  }
+
+  // Current marker
+  const nowX = pad.l + ((0-tMin)/(tMax-tMin))*cw;
+  const nowTemp = calcOrbitalTemp(0);
+  const nowY = pad.t + ch - ((nowTemp-tMinV)/(tMaxV-tMinV))*ch;
+  ctx.beginPath(); ctx.arc(nowX, nowY, 4, 0, Math.PI*2);
+  ctx.fillStyle = '#55ff55'; ctx.fill();
+  ctx.beginPath(); ctx.arc(nowX, nowY, 6, 0, Math.PI*2);
+  ctx.strokeStyle = '#55ff55'; ctx.lineWidth = 1.5; ctx.stroke();
+}
+
+
+// ============================================================
+// 8. Main render / update
+// ============================================================
+let gridA = null, gridB = null;
+let tKyrA = 0, tKyrB = -20;
+
+const periodNames = {
+  '-20': 'LGM 마지막 빙하기 최대',
+  '-12': '퇴빙기',
+  '-6': '홀로세 최적기',
+  '-1': '중세 온난기',
+  '-0.3': '소빙기',
+  '0': '현재',
+  '0.1': '미래 +2°C',
+};
+
+function updateAll() {
+  const selA = document.getElementById('selA');
+  const selB = document.getElementById('selB');
+  tKyrA = parseFloat(selA.value);
+  tKyrB = parseFloat(selB.value);
+
+  document.getElementById('labelA').textContent = '시기 A: ' + (periodNames[selA.value] || selA.value);
+  document.getElementById('labelB').textContent = '시기 B: ' + (periodNames[selB.value] || selB.value);
+
+  gridA = computeTempGrid(tKyrA);
+  gridB = computeTempGrid(tKyrB);
+
+  drawTempMap('cvTempA', gridA, 'A');
+  drawTempMap('cvTempB', gridB, 'B');
+  drawDeltaMap(gridA, gridB, tKyrA, tKyrB);
+  drawIsothermMap(gridA, gridB, tKyrA, tKyrB);
+  drawMigrationTimeline();
+}
+
+document.getElementById('selA').addEventListener('change', updateAll);
+document.getElementById('selB').addEventListener('change', updateAll);
+window.addEventListener('resize', updateAll);
+
+// Initial render
+updateAll();
+</script>
+</body>
+</html>

@@ -26,6 +26,9 @@ header p{color:#5a7a9a;font-size:.9em;margin-top:8px}
 .card:nth-child(3)::before{background:linear-gradient(90deg,#ffe66d,#ffaa44)}
 .card:nth-child(4)::before{background:linear-gradient(90deg,#a29bfe,#6c5ce7)}
 .card:nth-child(5)::before{background:linear-gradient(90deg,#55efc4,#00b894)}
+.card:nth-child(6)::before{background:linear-gradient(90deg,#74b9ff,#0984e3)}
+.card:nth-child(7)::before{background:linear-gradient(90deg,#fd79a8,#e84393)}
+.card:nth-child(8)::before{background:linear-gradient(90deg,#ff9966,#ff6b6b)}
 .card .num{position:absolute;top:14px;right:18px;font-size:2.5em;font-weight:800;color:#ffffff08;line-height:1}
 .card h2{font-size:1.15em;margin-bottom:10px;color:#fff}
 .card h2 small{display:block;font-size:.65em;color:#5a8abf;font-weight:normal;margin-top:2px}
@@ -63,7 +66,7 @@ footer{margin-top:50px;padding:20px 0;border-top:1px solid #1a2a4a;text-align:ce
 <h1><span>지구 시뮬레이션 프로젝트</span></h1>
 <p>밀란코비치 주기 · 공전/자전 · 대기순환 · 기후 변화 종합 시뮬레이션</p>
 <div class="project-meta">
-  <div class="meta-item">시뮬레이션: <b>6개</b></div>
+  <div class="meta-item">시뮬레이션: <b>7개</b></div>
   <div class="meta-item">문서: <b>6개 MD</b></div>
   <div class="meta-item">총 코드: <b>~5,500줄</b></div>
   <div class="meta-item">생성일: <b>2026-02-14</b></div>
@@ -157,6 +160,18 @@ footer{margin-top:50px;padding:20px 0;border-top:1px solid #1a2a4a;text-align:ce
     <a href="logic-overview.html" class="btn">열기 →</a>
   </div>
 
+  <div class="card">
+    <div class="num">08</div>
+    <h2>시기별 온도 변화 & 생물 이동 추론<small>migration-analysis.html</small></h2>
+    <p>7개 시기별 전지구 온도 분포를 격자 계산하고, 등온선 이동 속도로부터 인류·동식물의 이동 압력을 추론. 6대 인류 대이동 이벤트와 기후 변화의 인과 관계 분석.</p>
+    <div class="tags">
+      <span class="tag">온도 분포</span><span class="tag">등온선 이동</span><span class="tag">이동 압력</span>
+      <span class="tag">인류 대이동</span><span class="tag">바이옴</span><span class="tag">미래 시나리오</span>
+    </div>
+    <div class="stats">~700줄 · 4개 캔버스 · 7개 분석 섹션</div>
+    <a href="migration-analysis.html" class="btn">열기 →</a>
+  </div>
+
 </div>
 
 <h2 class="section">프로젝트 구조 및 데이터 흐름</h2>
@@ -192,6 +207,7 @@ footer{margin-top:50px;padding:20px 0;border-top:1px solid #1a2a4a;text-align:ce
   <li><a href="habitability.html">05. habitability.html</a> <span class="desc">— 바람·기후 → 인류/생물 생존 가능 구역 변화 분석</span></li>
   <li><a href="ice-age-human.html">06. ice-age-human.html</a> <span class="desc">— 빙하기 vs 간빙기 거주 가능성 비교, 양극단 역설</span></li>
   <li><a href="logic-overview.html">07. logic-overview.html</a> <span class="desc">— 문서화 (01~06 전체의 과학 원리·알고리즘·구조 설명)</span></li>
+  <li><a href="migration-analysis.html">08. migration-analysis.html</a> <span class="desc">— 시기별 온도 변화 & 등온선 이동 속도로 인류·생물 이동 추론</span></li>
 </ul>
 
 <footer>
