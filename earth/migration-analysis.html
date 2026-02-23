@@ -14,6 +14,9 @@ h2{color:#5af;font-size:1.1em;margin:30px 0 10px;padding:8px 12px;background:#0c
 h3{color:#4ecdc4;font-size:.92em;margin:16px 0 8px}
 p{font-size:.85em;color:#8899bb;margin:4px 0 10px}
 .note{background:#0c1530;border:1px solid #152040;border-radius:6px;padding:10px 14px;font-size:.82em;margin:10px 0 16px}
+.caveat{background:#1a1020;border:1px solid #2a1540;border-left:3px solid #a29bfe;border-radius:0 6px 6px 0;padding:10px 14px;font-size:.78em;margin:10px 0 16px;color:#9a8abb}
+.caveat b{color:#a29bfe}
+.source{font-size:.72em;color:#4a6a8a;font-style:italic;margin:2px 0 8px}
 table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:.8em}
 th{background:#0e1835;color:#5a9acf;padding:7px 8px;text-align:center;border:1px solid #1a2a4a;font-weight:600;white-space:nowrap}
 td{padding:5px 8px;border:1px solid #152040;text-align:center;vertical-align:middle}
@@ -61,6 +64,7 @@ canvas{display:block;width:100%;cursor:crosshair}
 .event-card h4{color:#ffaa44;font-size:.88em;margin-bottom:4px}
 .event-card .when{color:#5af;font-size:.78em}
 .event-card p{font-size:.78em;margin:4px 0 0}
+.event-card .caveat-inline{color:#9a8abb;font-size:.72em;margin-top:4px;font-style:italic}
 </style>
 </head>
 <body>
@@ -77,14 +81,23 @@ canvas{display:block;width:100%;cursor:crosshair}
 <h3>핵심 인과 사슬</h3>
 <p style="color:#c8cce0;font-size:.88em">
 궤도 강제력(밀란코비치) → 일사량 변화 → 지구 온도 변화 → 등온선 이동 → 서식지(바이옴) 이동 → 종의 이동 또는 멸종.
-<br>현재 인위적 온난화 속도는 자연 변화의 <span class="up" style="font-weight:700">~100배</span>. 대부분의 수목은 따라갈 수 없다.
+<br>현재 인위적 온난화 속도는 자연 빙하기-간빙기 전환 대비 <span class="up" style="font-weight:700">약 10~100배 빠름</span>.
+단, 이 비교는 시간 해상도가 다른 기록 간의 비교이므로 주의가 필요하다 (아래 주석 참조).
 </p>
+</div>
+
+<div class="caveat">
+<b>비교 시 주의사항:</b> "~100배" 비교의 기준은 빙하기→간빙기 전환의 평균 변화율(~5°C/10,000yr ≈ 0.005°C/10yr)과
+현재 관측 변화율(~0.2°C/10yr)의 비율이다.
+그러나 궤도 기록의 시간 해상도는 수백~수천 년이므로, 과거에도 수십 년 단위의 급격한 변화(예: 영거 드라이아스 종료 시 ~10°C/50yr)가 있었을 수 있다.
+따라서 "자연의 100배"는 <b>장기 평균 대비</b>이며, 모든 자연 변화보다 빠르다는 뜻은 아니다.
+<br><span class="source">참고: Marcott et al. (2013) Science; IPCC AR6 WG1 Ch.2</span>
 </div>
 
 <div class="infographic">
   <div class="info-step"><h4>궤도 변화</h4><p>이심률·경사각<br>세차 (kyr 주기)</p></div>
   <div class="info-step"><h4>일사량 변화</h4><p>65°N 하지<br>±50 W/m²</p></div>
-  <div class="info-step"><h4>온도 변화</h4><p>전지구 ±5°C<br>극지방 ±10°C</p></div>
+  <div class="info-step"><h4>온도 변화</h4><p>직접 효과 ±2-4°C<br>+ 피드백(빙하·CO₂·알베도)<br>→ 총 ±5°C</p></div>
   <div class="info-step"><h4>등온선 이동</h4><p>위도 방향<br>수백 km</p></div>
   <div class="info-step"><h4>바이옴 이동</h4><p>산림대 이동<br>빙상 전진/후퇴</p></div>
   <div class="info-step"><h4>종 이동/멸종</h4><p>이동 능력 <br>초과 시 멸종</p></div>
@@ -92,24 +105,33 @@ canvas{display:block;width:100%;cursor:crosshair}
 
 <h3>종별 이동 능력 비교</h3>
 <table>
-<tr><th>종/그룹</th><th>이동 속도</th><th>적응 전략</th><th>등온선 추적 능력</th></tr>
-<tr><td class="left">인류 (수렵채집)</td><td class="val">~50 km/yr</td><td>도구, 의복, 불</td><td class="up">충분</td></tr>
-<tr><td class="left">대형 포유류</td><td class="val">~10 km/yr</td><td>계절 이동</td><td class="stable">경계적</td></tr>
-<tr><td class="left">소형 포유류·조류</td><td class="val">~5 km/yr</td><td>서식지 전환</td><td class="stable">경계적</td></tr>
-<tr><td class="left">수목 (종자 확산)</td><td class="val">~0.5 km/yr</td><td>장거리 종자 비산</td><td class="down">부족</td></tr>
-<tr><td class="left">토양 생물</td><td class="val">~0.01 km/yr</td><td>휴면</td><td class="down">극히 부족</td></tr>
+<tr><th>종/그룹</th><th>평균 이동 속도</th><th>최대 기록</th><th>적응 전략</th><th>등온선 추적 능력</th></tr>
+<tr><td class="left">인류 (수렵채집)</td><td class="val">~50 km/yr</td><td class="val">—</td><td>도구, 의복, 불</td><td class="up">충분</td></tr>
+<tr><td class="left">대형 포유류</td><td class="val">~10 km/yr</td><td class="val">~30 km/yr</td><td>계절 이동</td><td class="stable">경계적</td></tr>
+<tr><td class="left">소형 포유류·조류</td><td class="val">~5 km/yr</td><td class="val">~20 km/yr</td><td>서식지 전환</td><td class="stable">경계적</td></tr>
+<tr><td class="left">수목 (종자 확산)</td><td class="val">~0.05-0.5 km/yr</td><td class="val">~1-5 km/yr</td><td>장거리 종자 비산</td><td class="down">대부분 부족</td></tr>
+<tr><td class="left">토양 생물</td><td class="val">~0.01 km/yr</td><td class="val">—</td><td>휴면</td><td class="down">극히 부족</td></tr>
 </table>
+<p class="source">수목 이동: 평균값 0.05-0.5 km/yr, 일부 참나무류 화석 기록에서 최대 1-5 km/yr (Clark et al. 1998; McLachlan et al. 2005).
+평균과 최대의 차이는 장거리 종자 비산(조류 매개 등)에 의함.</p>
 
 <div class="note">
 <b>등온선 이동 속도란?</b> 특정 온도 선(예: 연평균 10°C)이 위도 방향으로 움직이는 속도.
 자연 빙하기 전환 시 ~0.1-1 km/yr, 현재 인위적 온난화 시 ~4-10 km/yr.
-수목(~0.5 km/yr)이 따라갈 수 없는 속도.
+수목 평균(~0.05-0.5 km/yr)으로는 현재 속도를 따라갈 수 없으나, 일부 종의 최대 확산 속도(~1-5 km/yr)는 과거 퇴빙기 수준에 근접한다.
 </div>
 
 
 <!-- ===== 섹션 2: 시기별 전지구 온도 분포 맵 ===== -->
 <h2>2. 시기별 전지구 온도 분포 맵</h2>
-<p>드롭다운에서 두 시기를 선택하여 나란히 비교. 360×180 격자(2° 해상도)에 위도·경도별 온도를 계산합니다.</p>
+<p>드롭다운에서 두 시기를 선택하여 나란히 비교. 180×90 격자(2° 해상도)에 위도·경도별 온도를 계산합니다.</p>
+
+<div class="caveat">
+<b>모델 한계:</b> 격자 온도는 위도 기반 T(lat) + 고도 감률 + 해양 완충 + 시기별 편차의 단순 매개변수화(parameterization)이다.
+해양 순환(걸프 스트림 등), ENSO, 몬순의 경도별 비대칭, 구름·수증기 피드백은 반영되지 않는다.
+걸프 스트림만으로 서유럽이 같은 위도 북미보다 5-10°C 높아지는 효과가 있으나 이 모델에는 미포함.
+<br><span class="source">참고: 한계 상세는 06-architecture.html 리뷰 참조</span>
+</div>
 
 <div class="controls">
   <label>시기 A:</label>
@@ -178,8 +200,14 @@ canvas{display:block;width:100%;cursor:crosshair}
   <div class="legend-item"><div class="legend-swatch" style="background:#66aaff"></div> 0°C 등온선</div>
   <div class="legend-item"><div class="legend-swatch" style="background:#44cc88"></div> 10°C 등온선</div>
   <div class="legend-item"><div class="legend-swatch" style="background:#ffaa44"></div> 20°C 등온선</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:#ff4444;opacity:.3"></div> 수목 한계 (0.5 km/yr)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#ff4444;opacity:.3"></div> 수목 평균 한계 (0.5 km/yr)</div>
   <div class="legend-item"><div class="legend-swatch" style="background:#44ff44;opacity:.3"></div> 인류 한계 (50 km/yr)</div>
+</div>
+
+<div class="caveat">
+<b>등온선 이동 ≠ 바이옴 이동:</b> 등온선은 온도만 반영하지만, 실제 바이옴 이동은 강수량, 토양, 지형, 경쟁 관계 등 다수 요인에 의존한다.
+특히 티베트 고원(충분한 강수지만 고도 때문에 거주 불가), 중동 사막 도시(낮은 강수지만 수자원 관리로 거주 가능) 등 온도만으로 설명되지 않는 사례가 많다.
+<br><span class="source">참고: Loarie et al. (2009) Nature; Burrows et al. (2011) Science</span>
 </div>
 
 
@@ -187,41 +215,55 @@ canvas{display:block;width:100%;cursor:crosshair}
 <h2>5. 인류 이동 추론 — 6대 이벤트</h2>
 <p>기후 변화가 주요 인류 이동을 촉발한 메커니즘을 등온선 이동 관점에서 분석합니다.</p>
 
+<div class="caveat">
+<b>기후 결정론의 한계:</b> 아래 서술은 기후가 이동의 <b>핵심 촉발 요인</b>이었음을 보여주나,
+인류 이동은 기술 혁신, 사회 조직, 인구 압력, 무역 네트워크, 질병, 전쟁 등 다수의 복합 요인에 의해 결정되었다.
+기후는 "유일한 원인"이 아니라 "배경 조건 및 촉발자" 역할을 한 것으로 이해해야 한다.
+</div>
+
 <div class="chart-wrap">
-  <div class="chart-title"><b>인류 대이동 이벤트 타임라인 & 등온선 이동</b><span>온도 추이 + 이벤트 마커</span></div>
+  <div class="chart-title"><b>인류 대이동 이벤트 타임라인 & 온도 추이</b><span>EPICA/Vostok 기반 온도 편차 (°C vs 현재)</span></div>
   <canvas id="cvMigration" height="280"></canvas>
 </div>
+<p class="source">온도 데이터: EPICA Dome C / Vostok 빙핵 + 해양 퇴적물 기록 기반 구간 선형 보간 (Jouzel et al. 2007; Lisiecki & Raymo 2005)</p>
 
 <div class="grid2">
   <div class="event-card">
     <h4>1. 아프리카 탈출 (Out of Africa)</h4>
     <div class="when">~70,000년 전 (MIS 4 한랭기)</div>
     <p>아프리카 건조화 → 사하라 확대 → 인류 레반트 경유 유라시아 진출. 해수면 하강으로 아라비아 반도 해안 루트 개방. 등온선 남하로 열대 축소가 이동 압력 생성.</p>
+    <p class="caveat-inline">토바 화산(~74ka)과의 관련성은 논쟁 중. Smith et al.(2018)은 기후 영향이 종전 추정보다 작을 수 있음을 제시. 유전적 병목의 시기도 토바와 정확히 일치하지 않을 수 있다.</p>
   </div>
   <div class="event-card">
     <h4>2. 베링 육교 횡단</h4>
-    <div class="when">~15,000년 전 (LGM 직후)</div>
-    <p>해수면 -120m → 베링지아 노출 → 시베리아→알래스카 도보 이동. LGM 후반 등온선 북상 시작으로 빙하 회랑 개방. 대형 포유류 이동 경로를 따라 인류 진출.</p>
+    <div class="when">~15,000년 전 (LGM 직후, 아직 한랭기)</div>
+    <p>해수면 -120m → 베링지아 노출 → 시베리아→알래스카 도보 이동. 당시 전지구 평균 기온은 현재 대비 약 <b>-2~-4°C</b>로 아직 한랭기였으나, 퇴빙 시작으로 빙하 회랑이 점차 개방. 대형 포유류 이동 경로를 따라 인류 진출.</p>
   </div>
   <div class="event-card">
     <h4>3. 사하라 녹색화 이동</h4>
     <div class="when">~9,000~5,000년 전 (홀로세 최적기)</div>
-    <p>궤도 세차 → 아프리카 몬순 강화 → 사하라 습윤화(녹색 사하라). 인류·동물 사하라 진출. 5kyr 전 건조화 복귀 시 이집트 나일강 유역으로 집중 → 문명 발생.</p>
+    <p>궤도 세차 → 아프리카 몬순 강화 → 사하라 습윤화(녹색 사하라). 인류·동물 사하라 진출.
+    5kyr 전 건조화 복귀 시 나일강 유역으로 인구 집중.</p>
+    <p class="caveat-inline">이집트 문명의 형성은 기후 변화 외에도 나일 범람 농업의 장기적 발전, 사회적 조직화, 무역 네트워크 등 다수 요인이 복합적으로 작용. 기후는 촉발 요인의 하나.</p>
   </div>
   <div class="event-card">
     <h4>4. 반투 확산</h4>
     <div class="when">~4,000~1,000년 전</div>
-    <p>서아프리카 카메룬 기원, 농경 기술 보유. 사하라 건조화로 열대림 후퇴 → 사바나 확장이 이동 통로 개방. 2000년간 아프리카 남반부 전역으로 확산.</p>
+    <p>서아프리카 카메룬 기원, 농경 기술 보유. 사하라 건조화로 열대림 후퇴 → 사바나 확장이 이동 통로 개방. 2000년간 아프리카 남반부 전역으로 확산. 농경 기술과 철기 문화가 이동의 핵심 동력.</p>
   </div>
   <div class="event-card">
     <h4>5. 게르만 민족 대이동</h4>
     <div class="when">~1,500년 전 (AD 300-600)</div>
-    <p>로마 온난기 종료 → 한랭화 시작 → 동유럽 초원 생산성 감소 → 훈족 서진 → 게르만족 연쇄 이동. 등온선 남하가 유목민 이동 압력 생성.</p>
+    <p>로마 온난기 종료 → 한랭화 시작 → 동유럽 초원 생산성 감소 → 훈족 서진 → 게르만족 연쇄 이동. 등온선 남하가 유목민 이동 압력 생성. 로마 제국의 내부 약화도 결합 요인.</p>
   </div>
   <div class="event-card">
     <h4>6. 미래: 열대 탈출 시나리오</h4>
     <div class="when">2050~2100 (+2~4°C)</div>
-    <p>열대·아열대 습구온도 35°C 초과 시 인체 냉각 불가 → 거주 불능. 등온선 극방향 이동 속도 ~10 km/yr. 수십억 인구의 고위도 이동 압력 발생 가능.</p>
+    <p>열대·아열대 습구온도 35°C 초과 시 인체 냉각 불가 → 거주 불능.
+    등온선 극방향 이동 속도 ~10 km/yr.</p>
+    <p class="caveat-inline">단, 현대 기술(에어컨, 담수화, 첨단 농업, 도시 인프라)로 적응 가능한 범위가 있어,
+    수렵채집 시대와 단순 비교는 부적절. 기술 적응과 사회경제적 역량이 핵심 변수.
+    Xu et al.(2020)의 "~10억 명 거주 불능" 추정치도 적응 시나리오에 따라 크게 변동.</p>
   </div>
 </div>
 
@@ -230,7 +272,14 @@ canvas{display:block;width:100%;cursor:crosshair}
 <h2>6. 바이옴 이동 분석</h2>
 <p>위도대별 바이옴 경계가 시기에 따라 어떻게 변하는지 분석. 이동 속도와 종 적응 능력 비교.</p>
 
-<h3>시기별 바이옴 경계 (위도)</h3>
+<div class="caveat">
+<b>거주가능면적의 정의:</b> 아래 분석에서 "거주 적합"은 <b>수렵채집 생활 기준</b>(연평균 -5°C 이상, 연 강수 250mm 이상, 습구온도 35°C 미만)이다.
+현대 기술(인프라, 에너지, 관개 등) 기반으로는 거주 가능 면적이 크게 확대되므로 해석에 주의.
+또한 거주 가능성은 온도 외에도 토양, 지형, 수자원 접근성, 생태계 서비스에 의존한다.
+<br><span class="source">정의 기준: Xu et al. (2020) PNAS; Sherwood & Huber (2010)</span>
+</div>
+
+<h3>시기별 바이옴 경계 (위도) — 북반구 기준</h3>
 <table>
 <tr>
   <th>바이옴 경계</th>
@@ -262,50 +311,58 @@ canvas{display:block;width:100%;cursor:crosshair}
   <td class="val up">~1.0°/kyr ≈ 1.1 km/yr</td>
 </tr>
 </table>
+<p class="source">바이옴 경계: PMIP4 앙상블 중앙값 기반 추정. 모델 간 불확실성 ±2-4° 존재 (Kageyama et al. 2021).</p>
 
 <h3>이동 속도 vs 종 적응 능력 매트릭스</h3>
 <table>
 <tr>
   <th>변화 유형</th>
   <th>등온선 속도</th>
+  <th>반응 유형</th>
   <th>인류</th>
   <th>대형 포유류</th>
-  <th>수목</th>
+  <th>수목 (평균/최대)</th>
   <th>토양 생물</th>
 </tr>
 <tr>
   <td class="left">자연 빙하기 전환 (10kyr)</td>
   <td class="val">0.3-1 km/yr</td>
+  <td style="color:#6a8aaa">평형 반응</td>
   <td style="background:#1a3a1a">추적 가능</td>
   <td style="background:#1a3a1a">추적 가능</td>
-  <td style="background:#2a2a1a">경계적</td>
+  <td style="background:#2a2a1a">경계/가능</td>
   <td style="background:#3a1a1a">추적 불가</td>
 </tr>
 <tr>
   <td class="left">퇴빙기 급변 (1-2kyr)</td>
   <td class="val">1-5 km/yr</td>
+  <td style="color:#6a8aaa">과도 반응</td>
   <td style="background:#1a3a1a">추적 가능</td>
   <td style="background:#1a3a1a">추적 가능</td>
-  <td style="background:#3a1a1a">추적 불가</td>
+  <td style="background:#3a1a1a">평균 불가 / 최대 경계</td>
   <td style="background:#3a1a1a">추적 불가</td>
 </tr>
 <tr>
   <td class="left">현재 인위적 온난화</td>
   <td class="val up">4-10 km/yr</td>
-  <td style="background:#1a3a1a">추적 가능</td>
+  <td style="color:#ff8866">과도 반응</td>
+  <td style="background:#1a3a1a">추적 가능*</td>
   <td style="background:#2a2a1a">경계적</td>
-  <td style="background:#3a1a1a">추적 불가</td>
+  <td style="background:#3a1a1a">불가</td>
   <td style="background:#3a1a1a">추적 불가</td>
 </tr>
 <tr>
   <td class="left">미래 +4°C (100yr)</td>
   <td class="val up">10-40 km/yr</td>
-  <td style="background:#2a2a1a">사회적 장벽</td>
+  <td style="color:#ff6b6b">과도 반응</td>
+  <td style="background:#2a2a1a">사회적 장벽*</td>
   <td style="background:#3a1a1a">추적 불가</td>
-  <td style="background:#3a1a1a">추적 불가</td>
+  <td style="background:#3a1a1a">불가</td>
   <td style="background:#3a1a1a">추적 불가</td>
 </tr>
 </table>
+<p class="source">* 인류의 경우 현대 기술(에어컨, 인프라)로 <b>물리적 이동 없이 적응 가능</b>한 범위가 존재하나, 경제적·사회적 비용이 핵심 제약.
+<br>"평형 반응"은 강제력 변화가 느려 계가 준(準)평형 상태를 유지하는 경우, "과도 반응"은 강제력이 빨라 계가 비평형 상태인 경우. 현재와 빙하기 전환은 메커니즘이 근본적으로 다르므로 직접 비교에 한계가 있다.</p>
 
 
 <!-- ===== 섹션 7: 종합 — 미래 이동 시나리오 ===== -->
@@ -315,28 +372,30 @@ canvas{display:block;width:100%;cursor:crosshair}
   <div class="card">
     <h4 style="color:#ffe66d">+1.5°C 시나리오</h4>
     <p>등온선 속도: ~3-5 km/yr</p>
-    <p>영향권 인구: ~5억</p>
-    <p>수목 추적 실패: <span class="up">80%</span></p>
-    <p>대형 포유류 추적 가능: <span class="stable">50%</span></p>
-    <p style="color:#ffe66d">파리 협정 목표. 관리 가능하나 생태계 스트레스 심각.</p>
+    <p>영향권 인구: ~5억 <span style="color:#6a8aaa;font-size:.7em">(적응 미반영)</span></p>
+    <p>수목 추적 실패: <span class="up">~80%</span> <span style="color:#6a8aaa;font-size:.7em">(평균 기준)</span></p>
+    <p>대형 포유류 추적 가능: <span class="stable">~50%</span></p>
+    <p style="color:#ffe66d;font-size:.78em">파리 협정 목표. 기술 적응으로 관리 가능하나 생태계 스트레스 심각.</p>
   </div>
   <div class="card">
     <h4 style="color:#ffaa44">+2°C 시나리오</h4>
     <p>등온선 속도: ~5-10 km/yr</p>
-    <p>영향권 인구: ~15억</p>
-    <p>수목 추적 실패: <span class="up">95%</span></p>
-    <p>대형 포유류 추적 가능: <span class="stable">30%</span></p>
-    <p style="color:#ffaa44">열대 일부 거주 부적합. 대규모 기후 난민 시작.</p>
+    <p>영향권 인구: ~10-20억 <span style="color:#6a8aaa;font-size:.7em">(적응 수준에 따라)</span></p>
+    <p>수목 추적 실패: <span class="up">~95%</span> <span style="color:#6a8aaa;font-size:.7em">(평균 기준)</span></p>
+    <p>대형 포유류 추적 가능: <span class="stable">~30%</span></p>
+    <p style="color:#ffaa44;font-size:.78em">열대 일부 거주 부적합. 기후 난민 발생. 기술 적응 비용 급증.</p>
   </div>
   <div class="card">
     <h4 style="color:#ff6b6b">+4°C 시나리오</h4>
     <p>등온선 속도: ~10-40 km/yr</p>
-    <p>영향권 인구: ~35억</p>
-    <p>수목 추적 실패: <span class="up">99%</span></p>
-    <p>대형 포유류 추적 가능: <span class="down">5%</span></p>
-    <p style="color:#ff6b6b">열대·아열대 광범위 거주 불가. 대멸종급 생태 변화.</p>
+    <p>영향권 인구: ~20-40억 <span style="color:#6a8aaa;font-size:.7em">(적응 한계 초과)</span></p>
+    <p>수목 추적 실패: <span class="up">~99%</span></p>
+    <p>대형 포유류 추적 가능: <span class="down">~5%</span></p>
+    <p style="color:#ff6b6b;font-size:.78em">열대·아열대 광범위 거주 불가. 대멸종급 생태 변화. 기술 적응으로도 한계.</p>
   </div>
 </div>
+<p class="source">인구 영향 추정: Xu et al. (2020) PNAS의 "human climate niche" 분석 기반, 적응 역량에 따라 ±50% 변동 가능.
+수목 추적률은 Loarie et al. (2009) 기후 속도 분석 + Clark et al. (1998) 화석 확산 데이터의 평균 기준.</p>
 
 <div class="summary-box" style="margin-top:20px">
 <h3>결론: 속도가 문제다</h3>
@@ -346,14 +405,38 @@ canvas{display:block;width:100%;cursor:crosshair}
 </p>
 <table style="margin:12px 0">
 <tr><th>지표</th><th>자연 전환 (빙하기→간빙기)</th><th>현재 인위적 온난화</th><th>배율</th></tr>
-<tr><td class="left">온도 변화</td><td class="val">~5°C / 10,000yr</td><td class="val up">~2°C / 100yr</td><td class="val up">×100</td></tr>
+<tr><td class="left">온도 변화</td><td class="val">~5°C / 10,000yr</td><td class="val up">~2°C / 100yr</td><td class="val up">×100 (장기평균 대비)</td></tr>
 <tr><td class="left">등온선 이동</td><td class="val">~0.5 km/yr</td><td class="val up">~5 km/yr</td><td class="val up">×10</td></tr>
-<tr><td class="left">수목 추적</td><td class="val stable">경계적 (~0.5 km/yr)</td><td class="val up">불가능</td><td>—</td></tr>
+<tr><td class="left">수목 추적</td><td class="val stable">경계적 (평균 0.05-0.5)</td><td class="val up">대부분 불가</td><td>—</td></tr>
+<tr><td class="left">반응 유형</td><td class="val">평형 반응 (느린 강제)</td><td class="val up">과도 반응 (급격한 강제)</td><td>질적 차이</td></tr>
 <tr><td class="left">생태계 적응 시간</td><td class="val">수천 년</td><td class="val up">수십 년</td><td class="val up">×100</td></tr>
 </table>
-<p style="color:#ff9966;font-size:.9em;font-weight:600">
-현재 변화 속도는 과거 어떤 자연 변화보다도 빠르며, 대부분의 생물종이 따라갈 수 없는 수준이다.
+<p style="color:#ff9966;font-size:.88em;font-weight:600">
+현재 변화 속도는 과거 장기 평균 자연 변화보다 빠르며, 대부분의 생물종이 따라갈 수 없는 수준이다.
 </p>
+<p style="color:#9a8abb;font-size:.78em">
+단, 과거에도 영거 드라이아스 종료(~11.7ka) 등 수십 년 단위의 급격한 변화가 있었다.
+현재의 고유한 위험은 속도뿐 아니라 <b>지속성</b>(CO₂ 잔류 수천~수만 년, Archer 2009)과
+<b>서식지 파편화</b>(농지·도시에 의한 이동 통로 차단)의 결합에 있다.
+</p>
+</div>
+
+<div class="note" style="margin-top:20px">
+<b>데이터 출처 및 참고문헌</b><br>
+Berger (1978) — 궤도 요소 푸리에 급수 계수<br>
+Jouzel et al. (2007) — EPICA Dome C 빙핵 온도 기록<br>
+Lisiecki & Raymo (2005) — LR04 해양 퇴적물 δ18O 스택<br>
+Clark et al. (1998) — 퇴빙기 수목 확산 속도<br>
+McLachlan et al. (2005) — 수목 이동의 분자 증거 재검토<br>
+Loarie et al. (2009) — 전지구 기후 속도 (climate velocity)<br>
+Burrows et al. (2011) — 해양 기후 속도<br>
+Xu et al. (2020) — 인류 기후 적소 (human climate niche)<br>
+Sherwood & Huber (2010) — 습구온도 35°C 한계<br>
+Marcott et al. (2013) — 홀로세 온도 재구성<br>
+Kageyama et al. (2021) — PMIP4 LGM 시뮬레이션<br>
+Smith et al. (2018) — 토바 화산 기후 영향 재평가<br>
+Archer (2009) — CO₂ 대기 잔류 시간<br>
+IPCC AR6 (2021) — 기후변화 종합 평가<br>
 </div>
 
 
@@ -362,6 +445,9 @@ canvas{display:block;width:100%;cursor:crosshair}
 <script>
 // ============================================================
 // 1. Milankovitch Orbital Functions (from trend-analysis.html)
+// NOTE: Used for insolation calculations only. Temperature is
+// data-driven (EPICA/Vostok), NOT derived from these.
+// Berger(1978) 26항 중 5-6항만 사용 → ±500kyr 내 ±2-3% 오차.
 // ============================================================
 function calcEcc(tKyr) {
   return 0.028011
@@ -386,16 +472,22 @@ function calcPrec(tKyr) {
   return e * Math.sin(omega);
 }
 function calcInsol(tKyr) {
+  // Linear approximation of 65°N summer insolation
+  // Valid near central values; ±5 W/m² typical, ±15-20 W/m² at extremes
   const obl = calcObl(tKyr);
   const cp = calcPrec(tKyr);
   return 475.0 + 8.0*(obl-23.32) - 70.0*cp;
 }
+
+// ============================================================
+// Temperature anomaly: EPICA/Vostok data-driven interpolation
+// NOT derived from orbital functions (100kyr cycle requires
+// nonlinear feedbacks: ice-albedo, CO₂, ocean circulation)
+// ============================================================
 function calcOrbitalTemp(tKyr) {
-  // Data-driven temperature anomaly (°C vs present)
-  // Based on EPICA/Vostok ice core + ocean sediment records
-  // Piecewise linear interpolation between known paleoclimate data points
   const dataPoints = [
     // [tKyr, °C anomaly vs present]
+    // Sources: Jouzel et al. (2007), Lisiecki & Raymo (2005)
     [-130, -2.0],   // MIS 6 glacial end
     [-125, +1.0],   // Eemian interglacial peak (MIS 5e)
     [-115, -1.0],   // Last glacial inception
@@ -419,11 +511,9 @@ function calcOrbitalTemp(tKyr) {
     [0.1,  +2.0],   // Near future anthropogenic
   ];
 
-  // Clamp to data range
   if (tKyr <= dataPoints[0][0]) return dataPoints[0][1];
   if (tKyr >= dataPoints[dataPoints.length-1][0]) return dataPoints[dataPoints.length-1][1];
 
-  // Find bracketing points and linearly interpolate
   for (let i = 0; i < dataPoints.length - 1; i++) {
     const [t0, v0] = dataPoints[i];
     const [t1, v1] = dataPoints[i + 1];
@@ -437,66 +527,48 @@ function calcOrbitalTemp(tKyr) {
 
 // ============================================================
 // 2. Grid Temperature Model — calcTemp(lat, lon, tKyr)
+// PARAMETERIZATION: T_base(lat) + lapse_rate + ocean_buffer + period_offset
+// Known limitations: no ocean currents (Gulf Stream etc.), no ENSO,
+// no monsoon longitude asymmetry, no cloud/vapor feedback
 // ============================================================
-// Simple noise for continent-like variation
 function simpleNoise(x, y) {
   const n = Math.sin(x*12.9898 + y*78.233) * 43758.5453;
   return n - Math.floor(n);
 }
 
-// Simplified land detection (major landmasses only, for thermal contrast)
-// Returns 1 for land, 0 for ocean (rough approximation)
 function isLandSimple(lat, lon) {
-  // Eurasia
   if (lat > 35 && lat < 72 && lon > -10 && lon < 140) return 1;
-  // Africa
   if (lat > -35 && lat < 37 && lon > -18 && lon < 52) {
     if (lat > 5 || lon > -18) return 1;
   }
-  // North America
   if (lat > 15 && lat < 72 && lon > -170 && lon < -50) return 1;
-  // South America
   if (lat > -56 && lat < 13 && lon > -82 && lon < -34) return 1;
-  // Australia
   if (lat > -44 && lat < -10 && lon > 112 && lon < 155) return 1;
-  // Antarctica
   if (lat < -65) return 1;
-  // India
   if (lat > 8 && lat < 35 && lon > 68 && lon < 90) return 1;
-  // Southeast Asia / Indonesia
   if (lat > -8 && lat < 20 && lon > 95 && lon < 140) return 1;
   return 0;
 }
 
-// Simplified elevation (km) for lapse rate
 function getElevSimple(lat, lon) {
   let elev = 0;
-  // Himalayas
   const dH = Math.sqrt(Math.pow((lat-30)/5,2) + Math.pow((lon-85)/15,2));
   if (dH < 1) elev = Math.max(elev, 4.5*(1-dH));
-  // Andes
   const dA = Math.abs(lon-(-67))/3;
   if (lat > -55 && lat < 10 && dA < 1) elev = Math.max(elev, 3.0*(1-dA));
-  // Rockies
   const dR = Math.abs(lon-(-110))/5;
   if (lat > 30 && lat < 60 && dR < 1) elev = Math.max(elev, 2.5*(1-dR));
-  // Alps
   const dAl = Math.sqrt(Math.pow((lat-46)/2,2)+Math.pow((lon-10)/5,2));
   if (dAl < 1) elev = Math.max(elev, 2.0*(1-dAl));
-  // Tibetan Plateau
   const dT = Math.sqrt(Math.pow((lat-33)/5,2)+Math.pow((lon-90)/15,2));
   if (dT < 1) elev = Math.max(elev, 4.0*(1-dT));
-  // East African Rift
   const dE = Math.sqrt(Math.pow((lat-(-2))/8,2)+Math.pow((lon-35)/4,2));
   if (dE < 1) elev = Math.max(elev, 2.5*(1-dE));
-  // Greenland
   if (lat > 60 && lat < 83 && lon > -55 && lon < -20) elev = Math.max(elev, 1.5);
-  // Antarctica
   if (lat < -70) elev = Math.max(elev, 2.5);
   return elev;
 }
 
-// Period definitions
 const PERIODS = [
   { code:'LGM', label:'마지막 빙하기 최대', tKyr:-20, extra:-5.0 },
   { code:'DEG', label:'퇴빙기',           tKyr:-12, extra:-2.5 },
@@ -508,8 +580,7 @@ const PERIODS = [
 ];
 
 function getPeriod(tKyr) {
-  // Find closest period
-  let best = PERIODS[5]; // default NOW
+  let best = PERIODS[5];
   let bestD = Infinity;
   for (const p of PERIODS) {
     const d = Math.abs(p.tKyr - tKyr);
@@ -518,33 +589,18 @@ function getPeriod(tKyr) {
   return best;
 }
 
-/**
- * Calculate temperature at (lat, lon) for time tKyr
- * lat: -90..+90, lon: -180..+180
- */
 function calcTemp(lat, lon, tKyr) {
-  // Base temperature from latitude (equator 28°C, poles ~-17°C)
   const Tbase = 28 - 0.005 * lat * lat;
-
-  // Elevation lapse rate (-6.5°C per km)
   const elev = getElevSimple(lat, lon);
   const Telev = -6.5 * elev;
-
-  // Ocean thermal buffer (+5°C for ocean)
   const land = isLandSimple(lat, lon);
   const Tocean = land ? 0 : 5;
-
-  // Orbital / ice-age forcing
   const period = getPeriod(tKyr);
   const Torbital = period.extra;
-
-  // Polar amplification: higher latitudes get more change
+  // Polar amplification (direct effect ~1.5x, with feedbacks up to ~2.5x)
   const polarAmp = 1.0 + 1.5 * Math.pow(Math.abs(lat)/90, 2);
   const Torbital_amp = Torbital * polarAmp;
-
-  // Small spatial noise for visual variety
   const noise = (simpleNoise(lat*0.1, lon*0.1) - 0.5) * 2;
-
   return Tbase + Telev + Tocean + Torbital_amp + noise;
 }
 
@@ -552,36 +608,28 @@ function calcTemp(lat, lon, tKyr) {
 // 3. Temperature colormap
 // ============================================================
 function tempToColor(T) {
-  // -30 to +35°C range
   const t = Math.max(-30, Math.min(35, T));
-  const f = (t + 30) / 65; // 0..1
+  const f = (t + 30) / 65;
   let r, g, b;
   if (f < 0.15) {
-    // deep purple-blue (-30 to -20)
     const s = f / 0.15;
     r = 26 + s*8; g = 10 + s*30; b = 74 + s*130;
   } else if (f < 0.31) {
-    // blue (-20 to -10)
     const s = (f-0.15)/0.16;
     r = 34 - s*0; g = 40 + s*62; b = 204 - s*4;
   } else if (f < 0.46) {
-    // cyan-teal (-10 to 0)
     const s = (f-0.31)/0.15;
     r = 34 + s*34; g = 102 + s*85; b = 200 - s*30;
   } else if (f < 0.62) {
-    // green-yellow (0 to 10)
     const s = (f-0.46)/0.16;
     r = 68 + s*102; g = 187 + s*17; b = 170 - s*102;
   } else if (f < 0.77) {
-    // yellow-orange (10 to 20)
     const s = (f-0.62)/0.15;
     r = 170 + s*85; g = 204 - s*34; b = 68 - s*34;
   } else if (f < 0.92) {
-    // orange-red (20 to 30)
     const s = (f-0.77)/0.15;
     r = 255; g = 170 - s*120; b = 34 - s*34;
   } else {
-    // deep red (30+)
     const s = (f-0.92)/0.08;
     r = 255 - s*51; g = 50 - s*30; b = 0;
   }
@@ -589,18 +637,15 @@ function tempToColor(T) {
 }
 
 function deltaToColor(dT) {
-  // -10 to +10 range, blue-white-red diverging
   const t = Math.max(-10, Math.min(10, dT));
-  const f = (t + 10) / 20; // 0..1
+  const f = (t + 10) / 20;
   let r, g, b;
   if (f < 0.5) {
-    // blue to white
     const s = f / 0.5;
     r = Math.round(34 + s*221);
     g = Math.round(102 + s*153);
     b = Math.round(204 + s*51);
   } else {
-    // white to red
     const s = (f - 0.5) / 0.5;
     r = 255;
     g = Math.round(255 - s*200);
@@ -613,27 +658,22 @@ function deltaToColor(dT) {
 // 4. Simplified coastline polylines for overlay
 // ============================================================
 const COAST_LINES = [
-  // Eurasia (simplified)
   [[-10,36],[0,43],[10,45],[20,40],[30,41],[40,42],[50,40],[60,38],[70,37],[80,30],[85,22],[90,22],[95,16],[100,14],[105,10],[110,20],[120,25],[130,36],[135,40],[140,43],[142,48],[140,55],[135,60],[130,55],[120,55],[110,50],[100,50],[90,55],[80,55],[70,62],[60,60],[50,55],[45,60],[40,65],[35,70],[30,72],[20,70],[15,65],[10,55],[5,52],[0,50],[-5,48],[-10,44],[-10,36]],
-  // Africa
   [[-18,15],[-15,28],[-5,36],[10,37],[15,32],[25,32],[33,30],[35,25],[43,12],[50,2],[45,-5],[40,-15],[35,-25],[32,-34],[27,-34],[20,-30],[15,-25],[12,-15],[10,-5],[5,0],[0,5],[-5,5],[-8,10],[-15,12],[-18,15]],
-  // N America
   [[-170,62],[-165,65],[-155,70],[-140,70],[-130,60],[-125,50],[-120,40],[-115,32],[-105,25],[-100,20],[-95,18],[-90,20],[-85,25],[-80,30],[-75,35],[-70,42],[-65,45],[-65,50],[-60,52],[-55,50],[-60,55],[-70,58],[-80,62],[-90,60],[-100,65],[-110,70],[-125,72],[-140,72],[-155,70]],
-  // S America
   [[-82,10],[-78,5],[-80,0],[-78,-5],[-75,-10],[-70,-18],[-65,-22],[-58,-34],[-66,-55],[-72,-50],[-75,-40],[-72,-30],[-70,-20],[-75,-15],[-80,-5],[-78,0],[-82,10]],
-  // Australia
   [[130,-12],[140,-14],[150,-22],[153,-28],[150,-35],[142,-38],[136,-35],[130,-32],[115,-34],[114,-25],[120,-15],[130,-12]],
 ];
 
 // ============================================================
 // 5. Rendering functions
 // ============================================================
-const GRID_W = 180, GRID_H = 90; // 2-degree resolution
+const GRID_W = 180, GRID_H = 90;
 
 function computeTempGrid(tKyr) {
   const grid = new Float32Array(GRID_W * GRID_H);
   for (let j = 0; j < GRID_H; j++) {
-    const lat = 90 - j * 2 - 1; // center of cell
+    const lat = 90 - j * 2 - 1;
     for (let i = 0; i < GRID_W; i++) {
       const lon = -180 + i * 2 + 1;
       grid[j * GRID_W + i] = calcTemp(lat, lon, tKyr);
@@ -655,7 +695,6 @@ function drawTempMap(canvasId, grid, title) {
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  // Draw temperature pixels
   const imgData = ctx.createImageData(GRID_W, GRID_H);
   for (let j = 0; j < GRID_H; j++) {
     for (let i = 0; i < GRID_W; i++) {
@@ -668,17 +707,14 @@ function drawTempMap(canvasId, grid, title) {
       imgData.data[idx+3] = 255;
     }
   }
-  // Scale up
   const tmpCv = document.createElement('canvas');
   tmpCv.width = GRID_W; tmpCv.height = GRID_H;
   tmpCv.getContext('2d').putImageData(imgData, 0, 0);
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(tmpCv, 0, 0, w, h);
 
-  // Draw coastlines
   drawCoastOverlay(ctx, w, h);
 
-  // Temperature labels
   ctx.fillStyle = '#ffffff80';
   ctx.font = '9px Courier New';
   ctx.textAlign = 'right';
@@ -723,7 +759,6 @@ function drawDeltaMap(gridA, gridB, tA, tB) {
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  // Delta grid
   const delta = new Float32Array(GRID_W * GRID_H);
   const latAvg = new Float32Array(GRID_H);
   for (let j = 0; j < GRID_H; j++) {
@@ -736,7 +771,6 @@ function drawDeltaMap(gridA, gridB, tA, tB) {
     latAvg[j] = sum / GRID_W;
   }
 
-  // Draw delta map
   const imgData = ctx.createImageData(GRID_W, GRID_H);
   for (let j = 0; j < GRID_H; j++) {
     for (let i = 0; i < GRID_W; i++) {
@@ -752,7 +786,6 @@ function drawDeltaMap(gridA, gridB, tA, tB) {
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(tmpCv, 0, 0, mapW, h);
 
-  // Coast overlay on delta map
   ctx.save();
   ctx.beginPath();
   ctx.rect(0, 0, mapW, h);
@@ -760,22 +793,17 @@ function drawDeltaMap(gridA, gridB, tA, tB) {
   drawCoastOverlay(ctx, mapW, h);
   ctx.restore();
 
-  // Latitude average ΔT profile
   const profX = mapW + 10;
   const maxDT = 12;
   ctx.fillStyle = '#0a1020';
   ctx.fillRect(profX, 0, profW, h);
-  ctx.strokeStyle = '#152040';
-  ctx.lineWidth = 0.5;
 
-  // Zero line
   const zeroX = profX + profW * 0.5;
   ctx.strokeStyle = '#ffffff30';
   ctx.beginPath();
   ctx.moveTo(zeroX, 0); ctx.lineTo(zeroX, h);
   ctx.stroke();
 
-  // Profile line
   ctx.beginPath();
   ctx.strokeStyle = '#ff9966';
   ctx.lineWidth = 1.5;
@@ -786,7 +814,6 @@ function drawDeltaMap(gridA, gridB, tA, tB) {
   }
   ctx.stroke();
 
-  // Profile labels
   ctx.fillStyle = '#5a7a9a';
   ctx.font = '8px Courier New';
   ctx.textAlign = 'center';
@@ -812,11 +839,9 @@ function drawIsothermMap(gridA, gridB, tKyrA, tKyrB) {
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  // Background - dark ocean
   ctx.fillStyle = '#060c1a';
   ctx.fillRect(0, 0, w, h);
 
-  // Draw faint temperature map (period A as background)
   const imgData = ctx.createImageData(GRID_W, GRID_H);
   for (let j = 0; j < GRID_H; j++) {
     for (let i = 0; i < GRID_W; i++) {
@@ -837,7 +862,6 @@ function drawIsothermMap(gridA, gridB, tKyrA, tKyrB) {
 
   drawCoastOverlay(ctx, w, h);
 
-  // For each isotherm, find its latitude in both periods and draw shift arrows
   const isotherms = [
     { T: 0, color: '#66aaff', label: '0°C' },
     { T: 10, color: '#44cc88', label: '10°C' },
@@ -847,11 +871,8 @@ function drawIsothermMap(gridA, gridB, tKyrA, tKyrB) {
   const dtKyr = Math.abs(tKyrB - tKyrA);
 
   for (const iso of isotherms) {
-    // For each longitude column, find where this isotherm crosses
-    for (let i = 2; i < GRID_W; i += 6) { // every 12 degrees
+    for (let i = 2; i < GRID_W; i += 6) {
       const lon = -180 + i * 2 + 1;
-
-      // Find isotherm latitude in gridA (Northern Hemisphere)
       let latA_N = null, latA_S = null;
       let latB_N = null, latB_S = null;
 
@@ -876,14 +897,12 @@ function drawIsothermMap(gridA, gridB, tKyrA, tKyrB) {
         }
       }
 
-      // Draw arrows for Northern Hemisphere crossing
       if (latA_N !== null && latB_N !== null) {
         const x = ((lon + 180) / 360) * w;
         const yA = ((90 - latA_N) / 180) * h;
         const yB = ((90 - latB_N) / 180) * h;
         drawArrow(ctx, x, yA, x, yB, iso.color);
       }
-      // Southern Hemisphere
       if (latA_S !== null && latB_S !== null) {
         const x = ((lon + 180) / 360) * w;
         const yA = ((90 - latA_S) / 180) * h;
@@ -892,26 +911,20 @@ function drawIsothermMap(gridA, gridB, tKyrA, tKyrB) {
       }
     }
 
-    // Draw isotherm lines for period A (dashed) and B (solid)
     drawIsothermLine(ctx, gridA, iso.T, w, h, iso.color, true);
     drawIsothermLine(ctx, gridB, iso.T, w, h, iso.color, false);
   }
 
-  // Migration ability zones
   if (dtKyr > 0) {
-    // Tree migration limit band (~0.5 km/yr ≈ ~0.005°/yr)
-    // For the time span, max tracking = 0.5 * dtKyr * 1000 km ≈ 0.5*dtKyr*1000/111 degrees
     const treeMaxDeg = 0.5 * dtKyr * 1000 / 111;
-    // Show as faint bands? Just add legend text
-    ctx.fillStyle = '#ff444440';
+    ctx.fillStyle = '#ff444460';
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('수목 한계: ' + treeMaxDeg.toFixed(1) + '° ('+dtKyr.toFixed(1)+'kyr 간)', 10, h-30);
-    ctx.fillStyle = '#44ff4440';
-    ctx.fillText('인류: 쉽게 추적 가능', 10, h-16);
+    ctx.fillText('수목 평균 한계: ' + treeMaxDeg.toFixed(1) + '° (' + dtKyr.toFixed(1) + 'kyr)', 10, h-30);
+    ctx.fillStyle = '#44ff4460';
+    ctx.fillText('인류: 추적 가능 (기술 적응 포함 시 이동 불필요)', 10, h-16);
   }
 
-  // Labels
   ctx.fillStyle = '#ffffff80';
   ctx.font = '9px Courier New';
   ctx.textAlign = 'right';
@@ -920,7 +933,6 @@ function drawIsothermMap(gridA, gridB, tKyrA, tKyrB) {
     ctx.fillText(lat+'°', 28, y+3);
   }
 
-  // Legend for dashed vs solid
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
   ctx.fillStyle = '#8899bb';
@@ -936,20 +948,17 @@ function drawIsothermLine(ctx, grid, T, w, h, color, dashed) {
   let started = false;
 
   for (let i = 0; i < GRID_W; i++) {
-    // Find latitude where temperature = T in this column
-    let found = false;
     for (let j = 1; j < GRID_H; j++) {
       const t0 = grid[(j-1)*GRID_W+i];
       const t1 = grid[j*GRID_W+i];
       if ((t0 >= T && t1 < T) || (t0 < T && t1 >= T)) {
         const frac = (T - t0) / (t1 - t0);
         const lat = 90 - ((j-1+frac)*2);
-        if (lat >= 0) { // Northern hemisphere only for clarity
+        if (lat >= 0) {
           const x = (i/GRID_W)*w;
           const y = ((90-lat)/180)*h;
           if (!started) { ctx.moveTo(x, y); started = true; }
           else ctx.lineTo(x, y);
-          found = true;
           break;
         }
       }
@@ -975,7 +984,6 @@ function drawArrow(ctx, x1, y1, x2, y2, color) {
   ctx.lineTo(x2, y2);
   ctx.stroke();
 
-  // Arrowhead
   const angle = Math.atan2(dy, dx);
   const headLen = Math.min(6, len*0.3);
   ctx.beginPath();
@@ -1007,10 +1015,8 @@ function drawMigrationTimeline() {
   const cw = w - pad.l - pad.r;
   const ch = h - pad.t - pad.b;
 
-  // Time range: -100kyr to +1kyr
   const tMin = -100, tMax = 1;
 
-  // Calculate temperature anomaly time series
   const N = 1000;
   const temps = [];
   for (let i = 0; i <= N; i++) {
@@ -1020,7 +1026,6 @@ function drawMigrationTimeline() {
   const tMinV = Math.min(...temps) - 1;
   const tMaxV = Math.max(...temps) + 1;
 
-  // Grid
   ctx.strokeStyle = '#151e35';
   ctx.lineWidth = 0.5;
   for (let i = 0; i <= 4; i++) {
@@ -1031,7 +1036,6 @@ function drawMigrationTimeline() {
     ctx.fillText(val.toFixed(1)+'°C', pad.l-4, y+3);
   }
 
-  // X axis
   ctx.fillStyle = '#3a4a6a'; ctx.font = '9px Courier New'; ctx.textAlign = 'center';
   for (let t = -100; t <= 0; t += 10) {
     const x = pad.l + ((t-tMin)/(tMax-tMin))*cw;
@@ -1040,7 +1044,6 @@ function drawMigrationTimeline() {
     ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t+ch); ctx.stroke();
   }
 
-  // Temperature line
   ctx.beginPath();
   ctx.strokeStyle = '#ff9966';
   ctx.lineWidth = 1.5;
@@ -1051,7 +1054,6 @@ function drawMigrationTimeline() {
   }
   ctx.stroke();
 
-  // Fill
   const lastX = pad.l + cw;
   ctx.lineTo(lastX, pad.t+ch);
   ctx.lineTo(pad.l, pad.t+ch);
@@ -1074,11 +1076,9 @@ function drawMigrationTimeline() {
 
   for (const ev of events) {
     const x = pad.l + ((ev.t-tMin)/(tMax-tMin))*cw;
-    // Find actual temperature at this time and place marker on curve
     const evTemp = calcOrbitalTemp(ev.t);
     const markerY = pad.t + ch - ((evTemp - tMinV)/(tMaxV - tMinV))*ch;
 
-    // Vertical line
     ctx.strokeStyle = ev.color + '60';
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
@@ -1088,7 +1088,6 @@ function drawMigrationTimeline() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Marker dot
     ctx.beginPath();
     ctx.arc(x, markerY, 5, 0, Math.PI*2);
     ctx.fillStyle = ev.color;
@@ -1097,14 +1096,12 @@ function drawMigrationTimeline() {
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Label — offset above or below the curve to avoid overlap
     const ly = markerY + ev.labelOff;
     ctx.fillStyle = ev.color;
     ctx.font = 'bold 9px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(ev.label, x, ly);
 
-    // Connector line from label to marker
     ctx.strokeStyle = ev.color + '40';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
@@ -1112,7 +1109,6 @@ function drawMigrationTimeline() {
     ctx.lineTo(x, ly + (ev.labelOff > 0 ? -10 : 4));
     ctx.stroke();
 
-    // Time label
     ctx.fillStyle = '#5a7a9a';
     ctx.font = '8px Courier New';
     ctx.fillText(ev.t + 'kyr', x, ly + (ev.labelOff > 0 ? 12 : -10));
@@ -1168,7 +1164,6 @@ document.getElementById('selA').addEventListener('change', updateAll);
 document.getElementById('selB').addEventListener('change', updateAll);
 window.addEventListener('resize', updateAll);
 
-// Initial render
 updateAll();
 </script>
 </body>
